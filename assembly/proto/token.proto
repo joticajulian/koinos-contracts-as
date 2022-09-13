@@ -16,7 +16,7 @@ message uint64 {
    uint64 value = 1 [jstype = JS_STRING];
 }
 
-message boolean {
+message boole {
    bool value = 1;
 }
 

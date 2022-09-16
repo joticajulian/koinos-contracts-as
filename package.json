@@ -2,7 +2,9 @@
   "name": "token",
   "version": "0.1.0",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "koilib": "^5.1.0"
+  },
   "devDependencies": {
     "@as-covers/core": "^0.2.1",
     "@as-pect/cli": "^6.2.4",
@@ -13,12 +15,15 @@
     "@typescript-eslint/parser": "^5.10.0",
     "as-proto": "^0.4.0",
     "assemblyscript": "^0.19.22",
+    "dotenv": "^16.0.2",
     "eslint": "^8.7.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.5",
     "yaml": "^2.0.0-11"
   },
   "scripts": {
-    "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
+    "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
+    "build": "node ./node_modules/assemblyscript/bin/asc build/index.ts --target debug --use abort= --use BUILD_FOR_TESTING=1 --disable sign-extension --config asconfig.json",
+    "deploy": "ts-node scripts/deployment.ts"
   }
 }

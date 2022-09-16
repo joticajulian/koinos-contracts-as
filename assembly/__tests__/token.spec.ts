@@ -43,7 +43,11 @@ describe("token", () => {
     const tkn = new Token();
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
-    let auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
+    let auth = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      CONTRACT_ID,
+      true
+    );
     MockVM.setAuthorities([auth]);
 
     // check total supply
@@ -57,7 +61,11 @@ describe("token", () => {
 
     expect(mintRes.value).toBe(true);
 
-    auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
+    auth = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      MOCK_ACCT1,
+      true
+    );
     MockVM.setAuthorities([auth]);
 
     // burn tokens
@@ -69,14 +77,17 @@ describe("token", () => {
     // check events
     const events = MockVM.getEvents();
     expect(events.length).toBe(2);
-    expect(events[0].name).toBe('token.mint');
+    expect(events[0].name).toBe("token.mint");
     expect(events[0].impacted.length).toBe(1);
     expect(Arrays.equal(events[0].impacted[0], MOCK_ACCT1)).toBe(true);
-    expect(events[1].name).toBe('token.burn');
+    expect(events[1].name).toBe("token.burn");
     expect(events[1].impacted.length).toBe(1);
     expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT1)).toBe(true);
 
-    const burnEvent = Protobuf.decode<token.burn_event>(events[1].data!, token.burn_event.decode);
+    const burnEvent = Protobuf.decode<token.burn_event>(
+      events[1].data!,
+      token.burn_event.decode
+    );
     expect(Arrays.equal(burnEvent.from, MOCK_ACCT1)).toBe(true);
     expect(burnEvent.value).toBe(10);
 
@@ -126,7 +137,11 @@ describe("token", () => {
     const tkn = new Token();
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
-    const auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
+    const auth = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      CONTRACT_ID,
+      true
+    );
     MockVM.setAuthorities([auth]);
 
     // check total supply
@@ -143,11 +158,14 @@ describe("token", () => {
     // check events
     const events = MockVM.getEvents();
     expect(events.length).toBe(1);
-    expect(events[0].name).toBe('token.mint');
+    expect(events[0].name).toBe("token.mint");
     expect(events[0].impacted.length).toBe(1);
     expect(Arrays.equal(events[0].impacted[0], MOCK_ACCT1)).toBe(true);
 
-    const mintEvent = Protobuf.decode<token.mint_event>(events[0].data!, token.mint_event.decode);
+    const mintEvent = Protobuf.decode<token.mint_event>(
+      events[0].data!,
+      token.mint_event.decode
+    );
     expect(Arrays.equal(mintEvent.to, MOCK_ACCT1)).toBe(true);
     expect(mintEvent.value).toBe(123);
 
@@ -165,7 +183,11 @@ describe("token", () => {
     const tkn = new Token();
 
     // set contract_call authority for MOCK_ACCT1 to true so that we cannot mint tokens
-    const auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
+    const auth = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      MOCK_ACCT1,
+      true
+    );
     MockVM.setAuthorities([auth]);
 
     // check total supply
@@ -201,7 +223,11 @@ describe("token", () => {
     const tkn = new Token();
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
-    const auth = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
+    const auth = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      CONTRACT_ID,
+      true
+    );
     MockVM.setAuthorities([auth]);
 
     let mintArgs = new token.mint_arguments(MOCK_ACCT2, 123);
@@ -231,10 +257,18 @@ describe("token", () => {
     const tkn = new Token();
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
-    const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
+    const authContractId = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      CONTRACT_ID,
+      true
+    );
 
     // set contract_call authority for MOCK_ACCT1 to true so that we can transfer tokens
-    const authMockAcct1 = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
+    const authMockAcct1 = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      MOCK_ACCT1,
+      true
+    );
     MockVM.setAuthorities([authContractId, authMockAcct1]);
 
     // mint tokens
@@ -244,7 +278,11 @@ describe("token", () => {
     expect(mintRes.value).toBe(true);
 
     // transfer tokens
-    const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+    const transferArgs = new token.transfer_arguments(
+      MOCK_ACCT1,
+      MOCK_ACCT2,
+      10
+    );
     const transferRes = tkn.transfer(transferArgs);
 
     expect(transferRes.value).toBe(true);
@@ -262,12 +300,15 @@ describe("token", () => {
     const events = MockVM.getEvents();
     // 2 events, 1st one is the mint event, the second one is the transfer event
     expect(events.length).toBe(2);
-    expect(events[1].name).toBe('token.transfer');
+    expect(events[1].name).toBe("token.transfer");
     expect(events[1].impacted.length).toBe(2);
     expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT2)).toBe(true);
     expect(Arrays.equal(events[1].impacted[1], MOCK_ACCT1)).toBe(true);
 
-    const transferEvent = Protobuf.decode<token.transfer_event>(events[1].data!, token.transfer_event.decode);
+    const transferEvent = Protobuf.decode<token.transfer_event>(
+      events[1].data!,
+      token.transfer_event.decode
+    );
     expect(Arrays.equal(transferEvent.from, MOCK_ACCT1)).toBe(true);
     expect(Arrays.equal(transferEvent.to, MOCK_ACCT2)).toBe(true);
     expect(transferEvent.value).toBe(10);
@@ -277,7 +318,11 @@ describe("token", () => {
     const tkn = new Token();
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
-    const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
+    const authContractId = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      CONTRACT_ID,
+      true
+    );
     // do not set authority for MOCK_ACCT1
     MockVM.setAuthorities([authContractId]);
 
@@ -293,7 +338,11 @@ describe("token", () => {
     expect(() => {
       // try to transfer tokens without the proper authorizations for MOCK_ACCT1
       const tkn = new Token();
-      const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 10);
+      const transferArgs = new token.transfer_arguments(
+        MOCK_ACCT1,
+        MOCK_ACCT2,
+        10
+      );
       tkn.transfer(transferArgs);
     }).toThrow();
 
@@ -311,10 +360,18 @@ describe("token", () => {
     const tkn = new Token();
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
-    const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
+    const authContractId = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      CONTRACT_ID,
+      true
+    );
 
     // set contract_call authority for MOCK_ACCT1 to true so that we can transfer tokens
-    const authMockAcct1 = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
+    const authMockAcct1 = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      MOCK_ACCT1,
+      true
+    );
     MockVM.setAuthorities([authContractId, authMockAcct1]);
 
     // mint tokens
@@ -324,7 +381,11 @@ describe("token", () => {
     expect(mintRes.value).toBe(true);
 
     // try to transfer tokens
-    const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT1, 10);
+    const transferArgs = new token.transfer_arguments(
+      MOCK_ACCT1,
+      MOCK_ACCT1,
+      10
+    );
     const transferRes = tkn.transfer(transferArgs);
 
     expect(transferRes.value).toBe(false);
@@ -337,17 +398,25 @@ describe("token", () => {
     // check logs
     const logs = MockVM.getLogs();
     expect(logs.length).toBe(1);
-    expect(logs[0]).toBe('Cannot transfer to self');
+    expect(logs[0]).toBe("Cannot transfer to self");
   });
 
   it("should not transfer if unsufficient balance", () => {
     const tkn = new Token();
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
-    const authContractId = new MockVM.MockAuthority(authority.authorization_type.contract_call, CONTRACT_ID, true);
+    const authContractId = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      CONTRACT_ID,
+      true
+    );
 
     // set contract_call authority for MOCK_ACCT1 to true so that we can transfer tokens
-    const authMockAcct1 = new MockVM.MockAuthority(authority.authorization_type.contract_call, MOCK_ACCT1, true);
+    const authMockAcct1 = new MockVM.MockAuthority(
+      authority.authorization_type.contract_call,
+      MOCK_ACCT1,
+      true
+    );
     MockVM.setAuthorities([authContractId, authMockAcct1]);
 
     // mint tokens
@@ -357,7 +426,11 @@ describe("token", () => {
     expect(mintRes.value).toBe(true);
 
     // try to transfer tokens
-    const transferArgs = new token.transfer_arguments(MOCK_ACCT1, MOCK_ACCT2, 456);
+    const transferArgs = new token.transfer_arguments(
+      MOCK_ACCT1,
+      MOCK_ACCT2,
+      456
+    );
     const transferRes = tkn.transfer(transferArgs);
 
     expect(transferRes.value).toBe(false);

@@ -1,4 +1,11 @@
-import { Arrays, Protobuf, System, SafeMath, authority, Space } from "@koinos/sdk-as";
+import {
+  Arrays,
+  Protobuf,
+  System,
+  SafeMath,
+  authority,
+  Space,
+} from "@koinos/sdk-as";
 import { token } from "./proto/token";
 
 const SUPPLY_ID = 0;
@@ -7,14 +14,14 @@ const BALANCES_SPACE_ID = 1;
 const defaultKey = new Uint8Array(0);
 
 export class Token {
-  _name: string = "Token";
-  _symbol: string = "TKN";
-  _decimals: u32 = 8;
+  _name: string = "My Token";
+  _symbol: string = "MMM";
+  _decimals: u32 = 18;
 
   contractId: Uint8Array;
   supply: Space.Space<Uint8Array, token.uint64>;
   balances: Space.Space<Uint8Array, token.uint64>;
-  
+
   constructor() {
     this.contractId = System.getContractId();
     this.supply = new Space.Space(
@@ -34,7 +41,7 @@ export class Token {
   /**
    * Get name of the token
    * @external
-   * @readonly 
+   * @readonly
    */
   name(): token.str {
     return new token.str(this._name);
@@ -74,7 +81,7 @@ export class Token {
    */
   total_supply(): token.uint64 {
     let supply = this.supply.get(defaultKey);
-    if(!supply) return new token.uint64(0);
+    if (!supply) return new token.uint64(0);
     return supply;
   }
 
@@ -85,7 +92,7 @@ export class Token {
    */
   balance_of(args: token.balance_of_args): token.uint64 {
     let balanceOf = this.balances.get(args.owner);
-    if(!balanceOf) return new token.uint64(0);
+    if (!balanceOf) return new token.uint64(0);
     return balanceOf;
   }
 
@@ -105,13 +112,20 @@ export class Token {
 
     const caller = System.getCaller();
     const argsBuffer = Protobuf.encode(args, token.transfer_args.encode);
-    if (!Arrays.equal(from, caller.caller) && !System.checkAuthority(authority.authorization_type.contract_call, from, argsBuffer)) {
+    if (
+      !Arrays.equal(from, caller.caller) &&
+      !System.checkAuthority(
+        authority.authorization_type.contract_call,
+        from,
+        argsBuffer
+      )
+    ) {
       System.log("from has not authorized transfer");
       return new token.boole(false);
     }
-    
+
     let fromBalance = this.balances.get(from);
-    if(!fromBalance) fromBalance = new token.uint64(0);
+    if (!fromBalance) fromBalance = new token.uint64(0);
 
     if (fromBalance.value < value) {
       System.log("'from' has insufficient balance");
@@ -119,7 +133,7 @@ export class Token {
     }
 
     let toBalance = this.balances.get(to);
-    if(!toBalance) toBalance = new token.uint64(0);
+    if (!toBalance) toBalance = new token.uint64(0);
 
     fromBalance.value -= value;
     toBalance.value += value;
@@ -130,7 +144,11 @@ export class Token {
     const transferEvent = new token.transfer_args(from, to, value);
     const impacted = [to, from];
 
-    System.event('token.transfer', Protobuf.encode(transferEvent, token.transfer_args.encode), impacted);
+    System.event(
+      "token.transfer",
+      Protobuf.encode(transferEvent, token.transfer_args.encode),
+      impacted
+    );
 
     return new token.boole(true);
   }
@@ -145,7 +163,14 @@ export class Token {
 
     const caller = System.getCaller();
     const argsBuffer = Protobuf.encode(args, token.mint_args.encode);
-    if (!Arrays.equal(this.contractId, caller.caller) && !System.checkAuthority(authority.authorization_type.contract_call, this.contractId, argsBuffer)) {
+    if (
+      !Arrays.equal(this.contractId, caller.caller) &&
+      !System.checkAuthority(
+        authority.authorization_type.contract_call,
+        this.contractId,
+        argsBuffer
+      )
+    ) {
       System.log("contract has not authorized mint");
       return new token.boole(false);
     }
@@ -154,12 +179,12 @@ export class Token {
     const newSupply = SafeMath.tryAdd(supply.value, value);
 
     if (newSupply.error) {
-      System.log('Mint would overflow supply');
+      System.log("Mint would overflow supply");
       return new token.boole(false);
     }
-    
+
     let toBalance = this.balances.get(to);
-    if(!toBalance) toBalance = new token.uint64(0);
+    if (!toBalance) toBalance = new token.uint64(0);
     toBalance.value += value;
 
     supply.value = newSupply.value;
@@ -170,7 +195,11 @@ export class Token {
     const mintEvent = new token.mint_args(to, value);
     const impacted = [to];
 
-    System.event('token.mint', Protobuf.encode(mintEvent, token.mint_args.encode), impacted);
+    System.event(
+      "token.mint",
+      Protobuf.encode(mintEvent, token.mint_args.encode),
+      impacted
+    );
 
     return new token.boole(true);
   }
@@ -185,13 +214,20 @@ export class Token {
 
     const caller = System.getCaller();
     const argsBuffer = Protobuf.encode(args, token.burn_args.encode);
-    if (!Arrays.equal(from, caller.caller) && !System.checkAuthority(authority.authorization_type.contract_call, from, argsBuffer)) {
+    if (
+      !Arrays.equal(from, caller.caller) &&
+      !System.checkAuthority(
+        authority.authorization_type.contract_call,
+        from,
+        argsBuffer
+      )
+    ) {
       System.log("from has not authorized burn");
       return new token.boole(false);
     }
 
     let fromBalance = this.balances.get(from);
-    if(!fromBalance) fromBalance = new token.uint64(0);
+    if (!fromBalance) fromBalance = new token.uint64(0);
 
     if (fromBalance.value < value) {
       System.log("'from' has insufficient balance");
@@ -209,7 +245,11 @@ export class Token {
     const burnEvent = new token.burn_args(from, value);
     const impacted = [from];
 
-    System.event('token.burn', Protobuf.encode(burnEvent, token.burn_args.encode), impacted);
+    System.event(
+      "token.burn",
+      Protobuf.encode(burnEvent, token.burn_args.encode),
+      impacted
+    );
 
     return new token.boole(true);
   }

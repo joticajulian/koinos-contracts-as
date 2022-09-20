@@ -1,6 +1,5 @@
 import {
   Arrays,
-  Protobuf,
   System,
   SafeMath,
   authority,
@@ -14,6 +13,8 @@ const BALANCES_SPACE_ID = 1;
 const defaultKey = new Uint8Array(0);
 
 export class Token {
+  callArgs: System.getArgumentsReturn | null;
+
   _name: string = "My Token";
   _symbol: string = "MMM";
   _decimals: u32 = 18;
@@ -111,13 +112,12 @@ export class Token {
     }
 
     const caller = System.getCaller();
-    const argsBuffer = Protobuf.encode(args, token.transfer_args.encode);
     if (
       !Arrays.equal(from, caller.caller) &&
       !System.checkAuthority(
         authority.authorization_type.contract_call,
         from,
-        argsBuffer
+        this.callArgs!.args
       )
     ) {
       System.log("from has not authorized transfer");
@@ -141,14 +141,8 @@ export class Token {
     this.balances.put(from, fromBalance);
     this.balances.put(to, toBalance);
 
-    const transferEvent = new token.transfer_args(from, to, value);
     const impacted = [to, from];
-
-    System.event(
-      "token.transfer",
-      Protobuf.encode(transferEvent, token.transfer_args.encode),
-      impacted
-    );
+    System.event("token.transfer", this.callArgs!.args, impacted);
 
     return new token.boole(true);
   }
@@ -162,13 +156,12 @@ export class Token {
     const value = args.value;
 
     const caller = System.getCaller();
-    const argsBuffer = Protobuf.encode(args, token.mint_args.encode);
     if (
       !Arrays.equal(this.contractId, caller.caller) &&
       !System.checkAuthority(
         authority.authorization_type.contract_call,
         this.contractId,
-        argsBuffer
+        this.callArgs!.args
       )
     ) {
       System.log("contract has not authorized mint");
@@ -192,14 +185,8 @@ export class Token {
     this.balances.put(to, toBalance);
     this.supply.put(defaultKey, supply);
 
-    const mintEvent = new token.mint_args(to, value);
     const impacted = [to];
-
-    System.event(
-      "token.mint",
-      Protobuf.encode(mintEvent, token.mint_args.encode),
-      impacted
-    );
+    System.event("token.mint", this.callArgs!.args, impacted);
 
     return new token.boole(true);
   }
@@ -213,13 +200,12 @@ export class Token {
     const value = args.value;
 
     const caller = System.getCaller();
-    const argsBuffer = Protobuf.encode(args, token.burn_args.encode);
     if (
       !Arrays.equal(from, caller.caller) &&
       !System.checkAuthority(
         authority.authorization_type.contract_call,
         from,
-        argsBuffer
+        this.callArgs!.args
       )
     ) {
       System.log("from has not authorized burn");
@@ -242,14 +228,8 @@ export class Token {
     this.balances.put(from, fromBalance);
     this.supply.put(defaultKey, supply);
 
-    const burnEvent = new token.burn_args(from, value);
     const impacted = [from];
-
-    System.event(
-      "token.burn",
-      Protobuf.encode(burnEvent, token.burn_args.encode),
-      impacted
-    );
+    System.event("token.burn", this.callArgs!.args, impacted);
 
     return new token.boole(true);
   }

@@ -10,8 +10,6 @@ import { token } from "./proto/token";
 const SUPPLY_ID = 0;
 const BALANCES_SPACE_ID = 1;
 
-const defaultKey = new Uint8Array(0);
-
 export class Token {
   callArgs: System.getArgumentsReturn | null;
 
@@ -20,20 +18,22 @@ export class Token {
   _decimals: u32 = 18;
 
   contractId: Uint8Array;
-  supply: Space.Space<Uint8Array, token.uint64>;
+  supply: Space.Value<token.uint64>;
   balances: Space.Space<Uint8Array, token.uint64>;
 
   constructor() {
     this.contractId = System.getContractId();
-    this.supply = new Space.Space(
+    this.supply = new Space.Value(
       this.contractId,
       SUPPLY_ID,
+      new token.uint64(0),
       token.uint64.decode,
       token.uint64.encode
     );
     this.balances = new Space.Space(
       this.contractId,
       BALANCES_SPACE_ID,
+      new token.uint64(0),
       token.uint64.decode,
       token.uint64.encode
     );
@@ -81,9 +81,7 @@ export class Token {
    * @readonly
    */
   total_supply(): token.uint64 {
-    let supply = this.supply.get(defaultKey);
-    if (!supply) return new token.uint64(0);
-    return supply;
+    return this.supply.get()!;
   }
 
   /**
@@ -92,9 +90,7 @@ export class Token {
    * @readonly
    */
   balance_of(args: token.balance_of_args): token.uint64 {
-    let balanceOf = this.balances.get(args.owner);
-    if (!balanceOf) return new token.uint64(0);
-    return balanceOf;
+    return this.balances.get(args.owner)!;
   }
 
   /**
@@ -124,16 +120,13 @@ export class Token {
       return new token.boole(false);
     }
 
-    let fromBalance = this.balances.get(from);
-    if (!fromBalance) fromBalance = new token.uint64(0);
-
+    let fromBalance = this.balances.get(from)!;
     if (fromBalance.value < value) {
       System.log("'from' has insufficient balance");
       return new token.boole(false);
     }
 
-    let toBalance = this.balances.get(to);
-    if (!toBalance) toBalance = new token.uint64(0);
+    let toBalance = this.balances.get(to)!;
 
     fromBalance.value -= value;
     toBalance.value += value;
@@ -167,8 +160,7 @@ export class Token {
       System.log("contract has not authorized mint");
       return new token.boole(false);
     }
-    const supply = this.total_supply();
-
+    const supply = this.supply.get()!;
     const newSupply = SafeMath.tryAdd(supply.value, value);
 
     if (newSupply.error) {
@@ -176,14 +168,13 @@ export class Token {
       return new token.boole(false);
     }
 
-    let toBalance = this.balances.get(to);
-    if (!toBalance) toBalance = new token.uint64(0);
+    let toBalance = this.balances.get(to)!;
     toBalance.value += value;
 
     supply.value = newSupply.value;
 
     this.balances.put(to, toBalance);
-    this.supply.put(defaultKey, supply);
+    this.supply.put(supply);
 
     const impacted = [to];
     System.event("token.mint", this.callArgs!.args, impacted);
@@ -212,21 +203,19 @@ export class Token {
       return new token.boole(false);
     }
 
-    let fromBalance = this.balances.get(from);
-    if (!fromBalance) fromBalance = new token.uint64(0);
-
+    let fromBalance = this.balances.get(from)!;
     if (fromBalance.value < value) {
       System.log("'from' has insufficient balance");
       return new token.boole(false);
     }
 
-    const supply = this.total_supply();
+    const supply = this.supply.get()!;
     const newSupply = SafeMath.sub(supply.value, value);
     supply.value = newSupply;
     fromBalance.value -= value;
 
     this.balances.put(from, fromBalance);
-    this.supply.put(defaultKey, supply);
+    this.supply.put(supply);
 
     const impacted = [from];
     System.event("token.burn", this.callArgs!.args, impacted);

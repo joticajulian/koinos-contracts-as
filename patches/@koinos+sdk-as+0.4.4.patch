@@ -1,19 +1,25 @@
-diff --git a/node_modules/@koinos/sdk-as/assembly/util/space.ts b/node_modules/@koinos/sdk-as/assembly/util/space.ts
-index 5c44c4f..3fcc7ef 100644
+diff --git a/node_modules/@koinos/sdk-as/assembly/util/space.ts b/node_modules/@koinos/sdk-as/assembly/util/database.ts
+similarity index 83%
+rename from node_modules/@koinos/sdk-as/assembly/util/space.ts
+rename to node_modules/@koinos/sdk-as/assembly/util/database.ts
+index 5c44c4f..1ee8b4c 100644
 --- a/node_modules/@koinos/sdk-as/assembly/util/space.ts
-+++ b/node_modules/@koinos/sdk-as/assembly/util/space.ts
-@@ -3,6 +3,8 @@ import { chain } from '@koinos/proto-as';
++++ b/node_modules/@koinos/sdk-as/assembly/util/database.ts
+@@ -3,14 +3,17 @@ import { chain } from '@koinos/proto-as';
  import { Protobuf, Reader, Writer } from 'as-proto';
  import { StringBytes } from './stringBytes';
  
+-export namespace Space {
 +const defaultKey = new Uint8Array(0);
 +
- export namespace Space {
++export namespace Database {
    export enum Direction {
      Ascending,
-@@ -11,6 +13,7 @@ export namespace Space {
+     Descending
+   }
  
-   export class Space<TKey, TValue> {
+-  export class Space<TKey, TValue> {
++  export class Map<TKey, TValue> {
      private space: chain.object_space;
 +    private defaultValue: TValue | null;
      private valueDecoder: (reader: Reader, length: i32) => TValue;
@@ -51,12 +57,36 @@ index 5c44c4f..3fcc7ef 100644
      }
  
      /**
-@@ -483,4 +491,77 @@ export namespace Space {
+@@ -265,7 +273,7 @@ export namespace Space {
+     }
+   }
+ 
+-  export class SpaceProtoKey<TKey, TValue> extends Space<Uint8Array, TValue> {
++  export class ProtoMap<TKey, TValue> extends Map<Uint8Array, TValue> {
+     private keyDecoder: (reader: Reader, length: i32) => TKey;
+     private keyEncoder: (message: TKey, writer: Writer) => void;
+ 
+@@ -287,12 +295,13 @@ export namespace Space {
+     constructor(
+       contractId: Uint8Array,
+       spaceId: u32,
++      defaultValue: TValue | null,
+       keyDecoder: (reader: Reader, length: i32) => TKey,
+       keyEncoder: (message: TKey, writer: Writer) => void,
+       valueDecoder: (reader: Reader, length: i32) => TValue,
+       valueEncoder: (message: TValue, writer: Writer) => void,
+       system: bool = false) {
+-      super(contractId, spaceId, valueDecoder, valueEncoder, system);
++      super(contractId, spaceId, defaultValue, valueDecoder, valueEncoder, system);
+       this.keyDecoder = keyDecoder;
+       this.keyEncoder = keyEncoder;
+     }
+@@ -483,4 +492,77 @@ export namespace Space {
        super.remove(finalKey);
      }
    }
 +
-+  export class Value<TValue> {
++  export class Obj<TValue> {
 +    private space: chain.object_space;
 +    private defaultValue: TValue | null;
 +    private valueDecoder: (reader: Reader, length: i32) => TValue;
@@ -129,3 +159,13 @@ index 5c44c4f..3fcc7ef 100644
 +    }
 +  }
  }
+diff --git a/node_modules/@koinos/sdk-as/assembly/util/index.ts b/node_modules/@koinos/sdk-as/assembly/util/index.ts
+index 4b269ec..a55b490 100644
+--- a/node_modules/@koinos/sdk-as/assembly/util/index.ts
++++ b/node_modules/@koinos/sdk-as/assembly/util/index.ts
+@@ -6,4 +6,4 @@ export { Arrays } from "./arrays";
+ export { SafeMath } from "./safeMath";
+ export { MockVM } from "./mockVM";
+ export { Token } from "./token";
+-export { Space } from "./space";
++export { Database } from "./database";

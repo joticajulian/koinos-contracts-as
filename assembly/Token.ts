@@ -90,7 +90,7 @@ export class Token {
    * @readonly
    */
   balance_of(args: token.balance_of_args): token.uint64 {
-    return this.balances.get(args.owner)!;
+    return this.balances.get(args.owner!)!;
   }
 
   /**
@@ -98,14 +98,9 @@ export class Token {
    * @external
    */
   transfer(args: token.transfer_args): token.boole {
-    const from = args.from;
-    const to = args.to;
+    const from = args.from!;
+    const to = args.to!;
     const value = args.value;
-
-    if (Arrays.equal(from, to)) {
-      System.log("Cannot transfer to self");
-      return new token.boole(false);
-    }
 
     const caller = System.getCaller();
     if (
@@ -125,13 +120,11 @@ export class Token {
       System.log("'from' has insufficient balance");
       return new token.boole(false);
     }
+    fromBalance.value -= value;
+    this.balances.put(from, fromBalance);
 
     let toBalance = this.balances.get(to)!;
-
-    fromBalance.value -= value;
     toBalance.value += value;
-
-    this.balances.put(from, fromBalance);
     this.balances.put(to, toBalance);
 
     const impacted = [to, from];
@@ -145,7 +138,7 @@ export class Token {
    * @external
    */
   mint(args: token.mint_args): token.boole {
-    const to = args.to;
+    const to = args.to!;
     const value = args.value;
 
     const caller = System.getCaller();
@@ -187,7 +180,7 @@ export class Token {
    * @external
    */
   burn(args: token.burn_args): token.boole {
-    const from = args.from;
+    const from = args.from!;
     const value = args.value;
 
     const caller = System.getCaller();

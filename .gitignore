@@ -1,3 +1,4 @@
 node_modules
 build
+assembly/proto/*.ts
 .env

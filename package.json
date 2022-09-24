@@ -18,6 +18,7 @@
     "@typescript-eslint/parser": "^5.10.0",
     "as-proto": "^0.4.0",
     "assemblyscript": "^0.19.22",
+    "copyfiles": "^2.4.1",
     "dotenv": "^16.0.2",
     "eslint": "^8.7.0",
     "ts-node": "^10.4.0",
@@ -27,6 +28,7 @@
   "scripts": {
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
     "precompile": "koinos-precompiler-as .",
+    "proto": "copyfiles -u 2 build/proto/*.ts assembly/proto",
     "build": "node ./node_modules/assemblyscript/bin/asc build/index.ts --target debug --use abort= --use BUILD_FOR_TESTING=1 --disable sign-extension --config asconfig.json",
     "deploy": "ts-node scripts/deployment.ts",
     "postinstall": "patch-package"

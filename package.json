@@ -4,6 +4,7 @@
   "license": "MIT",
   "dependencies": {
     "koilib": "^5.1.0",
+    "koinos-precompiler-as": "^0.1.2",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0"
   },
@@ -25,6 +26,7 @@
   },
   "scripts": {
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
+    "precompile": "koinos-precompiler-as .",
     "build": "node ./node_modules/assemblyscript/bin/asc build/index.ts --target debug --use abort= --use BUILD_FOR_TESTING=1 --disable sign-extension --config asconfig.json",
     "deploy": "ts-node scripts/deployment.ts",
     "postinstall": "patch-package"

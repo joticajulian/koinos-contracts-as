@@ -14,8 +14,8 @@ export class Token {
   callArgs: System.getArgumentsReturn | null;
 
   _name: string = "My Token";
-  _symbol: string = "MMM";
-  _decimals: u32 = 18;
+  _symbol: string = "TKN";
+  _decimals: u32 = 8;
 
   contractId: Uint8Array;
   supply: Database.Obj<token.uint64>;

@@ -31,6 +31,7 @@
     "proto": "copyfiles -u 2 build/proto/*.ts assembly/proto",
     "build": "node ./node_modules/assemblyscript/bin/asc build/index.ts --target debug --use abort= --use BUILD_FOR_TESTING=1 --disable sign-extension --config asconfig.json",
     "deploy": "ts-node scripts/deployment.ts",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "test": "asp --verbose --config as-pect.config.js"
   }
 }

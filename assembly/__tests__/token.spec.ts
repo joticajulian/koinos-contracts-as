@@ -1,4 +1,4 @@
-import { Base58, MockVM, Arrays, Protobuf, authority } from "koinos-sdk-as";
+import { Base58, MockVM, Arrays, Protobuf, authority } from "@koinos/sdk-as";
 import { Token } from "../Token";
 import { token } from "../proto/token";
 
@@ -14,28 +14,19 @@ describe("token", () => {
 
   it("should get the name", () => {
     const tkn = new Token();
-
-    const args = new token.name_arguments();
-    const res = tkn.name(args);
-
-    expect(res.value).toBe("Token");
+    const res = tkn.name();
+    expect(res.value).toBe("My Token");
   });
 
   it("should get the symbol", () => {
     const tkn = new Token();
-
-    const args = new token.symbol_arguments();
-    const res = tkn.symbol(args);
-
+    const res = tkn.symbol();
     expect(res.value).toBe("TKN");
   });
 
   it("should get the decimals", () => {
     const tkn = new Token();
-
-    const args = new token.decimals_arguments();
-    const res = tkn.decimals(args);
-
+    const res = tkn.decimals();
     expect(res.value).toBe(8);
   });
 
@@ -51,12 +42,11 @@ describe("token", () => {
     MockVM.setAuthorities([auth]);
 
     // check total supply
-    const totalSupplyArgs = new token.total_supply_arguments();
-    let totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    let totalSupplyRes = tkn.total_supply();
     expect(totalSupplyRes.value).toBe(0);
 
     // mint tokens
-    const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
+    const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
@@ -69,7 +59,7 @@ describe("token", () => {
     MockVM.setAuthorities([auth]);
 
     // burn tokens
-    let burnArgs = new token.burn_arguments(MOCK_ACCT1, 10);
+    let burnArgs = new token.burn_args(MOCK_ACCT1, 10);
     let burnRes = tkn.burn(burnArgs);
 
     expect(burnRes.value).toBe(true);
@@ -84,24 +74,24 @@ describe("token", () => {
     expect(events[1].impacted.length).toBe(1);
     expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT1)).toBe(true);
 
-    const burnEvent = Protobuf.decode<token.burn_event>(
+    const burnEvent = Protobuf.decode<token.burn_args>(
       events[1].data!,
-      token.burn_event.decode
+      token.burn_args.decode
     );
     expect(Arrays.equal(burnEvent.from, MOCK_ACCT1)).toBe(true);
     expect(burnEvent.value).toBe(10);
 
     // check balance
-    let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    let balanceArgs = new token.balance_of_args(MOCK_ACCT1);
     let balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(113);
 
     // check total supply
-    totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    totalSupplyRes = tkn.total_supply();
     expect(totalSupplyRes.value).toBe(113);
 
     // does not burn tokens
-    burnArgs = new token.burn_arguments(MOCK_ACCT1, 200);
+    burnArgs = new token.burn_args(MOCK_ACCT1, 200);
     burnRes = tkn.burn(burnArgs);
 
     expect(burnRes.value).toBe(false);
@@ -119,17 +109,17 @@ describe("token", () => {
     expect(() => {
       // try to burn tokens
       const tkn = new Token();
-      const burnArgs = new token.burn_arguments(MOCK_ACCT1, 123);
+      const burnArgs = new token.burn_args(MOCK_ACCT1, 123);
       tkn.burn(burnArgs);
     }).toThrow();
 
     // check balance
-    balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    balanceArgs = new token.balance_of_args(MOCK_ACCT1);
     balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(113);
 
     // check total supply
-    totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    totalSupplyRes = tkn.total_supply();
     expect(totalSupplyRes.value).toBe(113);
   });
 
@@ -145,12 +135,11 @@ describe("token", () => {
     MockVM.setAuthorities([auth]);
 
     // check total supply
-    const totalSupplyArgs = new token.total_supply_arguments();
-    let totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    let totalSupplyRes = tkn.total_supply();
     expect(totalSupplyRes.value).toBe(0);
 
     // mint tokens
-    const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
+    const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
@@ -162,20 +151,20 @@ describe("token", () => {
     expect(events[0].impacted.length).toBe(1);
     expect(Arrays.equal(events[0].impacted[0], MOCK_ACCT1)).toBe(true);
 
-    const mintEvent = Protobuf.decode<token.mint_event>(
+    const mintEvent = Protobuf.decode<token.mint_args>(
       events[0].data!,
-      token.mint_event.decode
+      token.mint_args.decode
     );
     expect(Arrays.equal(mintEvent.to, MOCK_ACCT1)).toBe(true);
     expect(mintEvent.value).toBe(123);
 
     // check balance
-    const balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    const balanceArgs = new token.balance_of_args(MOCK_ACCT1);
     const balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 
     // check total supply
-    totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    totalSupplyRes = tkn.total_supply();
     expect(totalSupplyRes.value).toBe(123);
   });
 
@@ -191,12 +180,11 @@ describe("token", () => {
     MockVM.setAuthorities([auth]);
 
     // check total supply
-    const totalSupplyArgs = new token.total_supply_arguments();
-    let totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    let totalSupplyRes = tkn.total_supply();
     expect(totalSupplyRes.value).toBe(0);
 
     // check balance
-    const balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    const balanceArgs = new token.balance_of_args(MOCK_ACCT1);
     let balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(0);
 
@@ -206,7 +194,7 @@ describe("token", () => {
     expect(() => {
       // try to mint tokens
       const tkn = new Token();
-      const mintArgs = new token.mint_arguments(MOCK_ACCT2, 123);
+      const mintArgs = new token.mint_args(MOCK_ACCT2, 123);
       tkn.mint(mintArgs);
     }).toThrow();
 
@@ -215,7 +203,7 @@ describe("token", () => {
     expect(balanceRes.value).toBe(0);
 
     // check total supply
-    totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    totalSupplyRes = tkn.total_supply();
     expect(totalSupplyRes.value).toBe(0);
   });
 
@@ -230,21 +218,20 @@ describe("token", () => {
     );
     MockVM.setAuthorities([auth]);
 
-    let mintArgs = new token.mint_arguments(MOCK_ACCT2, 123);
+    let mintArgs = new token.mint_args(MOCK_ACCT2, 123);
     let mintRes = tkn.mint(mintArgs);
     expect(mintRes.value).toBe(true);
 
     // check total supply
-    const totalSupplyArgs = new token.total_supply_arguments();
-    let totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    let totalSupplyRes = tkn.total_supply();
     expect(totalSupplyRes.value).toBe(123);
 
-    mintArgs = new token.mint_arguments(MOCK_ACCT2, u64.MAX_VALUE);
+    mintArgs = new token.mint_args(MOCK_ACCT2, u64.MAX_VALUE);
     mintRes = tkn.mint(mintArgs);
     expect(mintRes.value).toBe(false);
 
     // check total supply
-    totalSupplyRes = tkn.total_supply(totalSupplyArgs);
+    totalSupplyRes = tkn.total_supply();
     expect(totalSupplyRes.value).toBe(123);
 
     // check logs
@@ -272,13 +259,13 @@ describe("token", () => {
     MockVM.setAuthorities([authContractId, authMockAcct1]);
 
     // mint tokens
-    const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
+    const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
 
     // transfer tokens
-    const transferArgs = new token.transfer_arguments(
+    const transferArgs = new token.transfer_args(
       MOCK_ACCT1,
       MOCK_ACCT2,
       10
@@ -288,11 +275,11 @@ describe("token", () => {
     expect(transferRes.value).toBe(true);
 
     // check balances
-    let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    let balanceArgs = new token.balance_of_args(MOCK_ACCT1);
     let balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(113);
 
-    balanceArgs = new token.balance_of_arguments(MOCK_ACCT2);
+    balanceArgs = new token.balance_of_args(MOCK_ACCT2);
     balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(10);
 
@@ -305,9 +292,9 @@ describe("token", () => {
     expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT2)).toBe(true);
     expect(Arrays.equal(events[1].impacted[1], MOCK_ACCT1)).toBe(true);
 
-    const transferEvent = Protobuf.decode<token.transfer_event>(
+    const transferEvent = Protobuf.decode<token.transfer_args>(
       events[1].data!,
-      token.transfer_event.decode
+      token.transfer_args.decode
     );
     expect(Arrays.equal(transferEvent.from, MOCK_ACCT1)).toBe(true);
     expect(Arrays.equal(transferEvent.to, MOCK_ACCT2)).toBe(true);
@@ -327,7 +314,7 @@ describe("token", () => {
     MockVM.setAuthorities([authContractId]);
 
     // mint tokens
-    const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
+    const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
@@ -338,7 +325,7 @@ describe("token", () => {
     expect(() => {
       // try to transfer tokens without the proper authorizations for MOCK_ACCT1
       const tkn = new Token();
-      const transferArgs = new token.transfer_arguments(
+      const transferArgs = new token.transfer_args(
         MOCK_ACCT1,
         MOCK_ACCT2,
         10
@@ -347,16 +334,16 @@ describe("token", () => {
     }).toThrow();
 
     // check balances
-    let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    let balanceArgs = new token.balance_of_args(MOCK_ACCT1);
     let balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 
-    balanceArgs = new token.balance_of_arguments(MOCK_ACCT2);
+    balanceArgs = new token.balance_of_args(MOCK_ACCT2);
     balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(0);
   });
 
-  it("should not transfer tokens to self", () => {
+  it("should be able to transfer tokens to self", () => {
     const tkn = new Token();
 
     // set contract_call authority for CONTRACT_ID to true so that we can mint tokens
@@ -375,30 +362,25 @@ describe("token", () => {
     MockVM.setAuthorities([authContractId, authMockAcct1]);
 
     // mint tokens
-    const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
+    const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
 
     // try to transfer tokens
-    const transferArgs = new token.transfer_arguments(
+    const transferArgs = new token.transfer_args(
       MOCK_ACCT1,
       MOCK_ACCT1,
       10
     );
     const transferRes = tkn.transfer(transferArgs);
 
-    expect(transferRes.value).toBe(false);
+    expect(transferRes.value).toBe(true);
 
     // check balances
-    let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    let balanceArgs = new token.balance_of_args(MOCK_ACCT1);
     let balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
-
-    // check logs
-    const logs = MockVM.getLogs();
-    expect(logs.length).toBe(1);
-    expect(logs[0]).toBe("Cannot transfer to self");
   });
 
   it("should not transfer if unsufficient balance", () => {
@@ -420,13 +402,13 @@ describe("token", () => {
     MockVM.setAuthorities([authContractId, authMockAcct1]);
 
     // mint tokens
-    const mintArgs = new token.mint_arguments(MOCK_ACCT1, 123);
+    const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
 
     // try to transfer tokens
-    const transferArgs = new token.transfer_arguments(
+    const transferArgs = new token.transfer_args(
       MOCK_ACCT1,
       MOCK_ACCT2,
       456
@@ -436,7 +418,7 @@ describe("token", () => {
     expect(transferRes.value).toBe(false);
 
     // check balances
-    let balanceArgs = new token.balance_of_arguments(MOCK_ACCT1);
+    let balanceArgs = new token.balance_of_args(MOCK_ACCT1);
     let balanceRes = tkn.balance_of(balanceArgs);
     expect(balanceRes.value).toBe(123);
 

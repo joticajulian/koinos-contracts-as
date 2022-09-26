@@ -3,7 +3,7 @@ import {
   System,
   SafeMath,
   authority,
-  Database,
+  Storage,
 } from "@koinos/sdk-as";
 import { token } from "./proto/token";
 
@@ -18,19 +18,19 @@ export class Token {
   _decimals: u32 = 8;
 
   contractId: Uint8Array;
-  supply: Database.Obj<token.uint64>;
-  balances: Database.Map<Uint8Array, token.uint64>;
+  supply: Storage.Obj<token.uint64>;
+  balances: Storage.Map<Uint8Array, token.uint64>;
 
   constructor() {
     this.contractId = System.getContractId();
-    this.supply = new Database.Obj(
+    this.supply = new Storage.Obj(
       this.contractId,
       SUPPLY_ID,
       new token.uint64(0),
       token.uint64.decode,
       token.uint64.encode
     );
-    this.balances = new Database.Map(
+    this.balances = new Storage.Map(
       this.contractId,
       BALANCES_SPACE_ID,
       new token.uint64(0),

@@ -26,14 +26,14 @@ export class Token {
     this.supply = new Storage.Obj(
       this.contractId,
       SUPPLY_ID,
-      new token.uint64(0),
+      () => new token.uint64(0),
       token.uint64.decode,
       token.uint64.encode
     );
     this.balances = new Storage.Map(
       this.contractId,
       BALANCES_SPACE_ID,
-      new token.uint64(0),
+      () => new token.uint64(0),
       token.uint64.decode,
       token.uint64.encode
     );

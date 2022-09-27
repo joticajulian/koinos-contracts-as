@@ -1,4 +1,4 @@
-import { Base58, MockVM, Arrays, Protobuf, authority } from "@koinos/sdk-as";
+import { Base58, MockVM, Arrays, Protobuf, authority, chain, System } from "@koinos/sdk-as";
 import { Token } from "../Token";
 import { token } from "../proto/token";
 
@@ -45,8 +45,12 @@ describe("token", () => {
     let totalSupplyRes = tkn.total_supply();
     expect(totalSupplyRes.value).toBe(0);
 
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
+
     // mint tokens
     const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
+    tkn.callArgs = new System.getArgumentsReturn();
+    tkn.callArgs!.args = Protobuf.encode(mintArgs, token.mint_args.encode);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
@@ -60,6 +64,8 @@ describe("token", () => {
 
     // burn tokens
     let burnArgs = new token.burn_args(MOCK_ACCT1, 10);
+    tkn.callArgs = new System.getArgumentsReturn();
+    tkn.callArgs!.args = Protobuf.encode(burnArgs, token.burn_args.encode);
     let burnRes = tkn.burn(burnArgs);
 
     expect(burnRes.value).toBe(true);
@@ -92,6 +98,8 @@ describe("token", () => {
 
     // does not burn tokens
     burnArgs = new token.burn_args(MOCK_ACCT1, 200);
+    tkn.callArgs = new System.getArgumentsReturn();
+    tkn.callArgs!.args = Protobuf.encode(burnArgs, token.burn_args.encode);
     burnRes = tkn.burn(burnArgs);
 
     expect(burnRes.value).toBe(false);
@@ -133,6 +141,7 @@ describe("token", () => {
       true
     );
     MockVM.setAuthorities([auth]);
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
 
     // check total supply
     let totalSupplyRes = tkn.total_supply();
@@ -140,6 +149,8 @@ describe("token", () => {
 
     // mint tokens
     const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
+    tkn.callArgs = new System.getArgumentsReturn();
+    tkn.callArgs!.args = Protobuf.encode(mintArgs, token.mint_args.encode);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
@@ -178,6 +189,7 @@ describe("token", () => {
       true
     );
     MockVM.setAuthorities([auth]);
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
 
     // check total supply
     let totalSupplyRes = tkn.total_supply();
@@ -217,8 +229,11 @@ describe("token", () => {
       true
     );
     MockVM.setAuthorities([auth]);
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
 
     let mintArgs = new token.mint_args(MOCK_ACCT2, 123);
+    tkn.callArgs = new System.getArgumentsReturn();
+    tkn.callArgs!.args = Protobuf.encode(mintArgs, token.mint_args.encode);
     let mintRes = tkn.mint(mintArgs);
     expect(mintRes.value).toBe(true);
 
@@ -257,9 +272,12 @@ describe("token", () => {
       true
     );
     MockVM.setAuthorities([authContractId, authMockAcct1]);
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
 
     // mint tokens
     const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
+    tkn.callArgs = new System.getArgumentsReturn();
+    tkn.callArgs!.args = Protobuf.encode(mintArgs, token.mint_args.encode);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
@@ -270,6 +288,8 @@ describe("token", () => {
       MOCK_ACCT2,
       10
     );
+    tkn.callArgs = new System.getArgumentsReturn();
+    tkn.callArgs!.args = Protobuf.encode(transferArgs, token.transfer_args.encode);
     const transferRes = tkn.transfer(transferArgs);
 
     expect(transferRes.value).toBe(true);
@@ -312,9 +332,12 @@ describe("token", () => {
     );
     // do not set authority for MOCK_ACCT1
     MockVM.setAuthorities([authContractId]);
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
 
     // mint tokens
     const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
+    tkn.callArgs = new System.getArgumentsReturn();
+    tkn.callArgs!.args = Protobuf.encode(mintArgs, token.mint_args.encode);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
@@ -360,9 +383,12 @@ describe("token", () => {
       true
     );
     MockVM.setAuthorities([authContractId, authMockAcct1]);
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
 
     // mint tokens
     const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
+    tkn.callArgs = new System.getArgumentsReturn();
+    tkn.callArgs!.args = Protobuf.encode(mintArgs, token.mint_args.encode);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);
@@ -400,9 +426,12 @@ describe("token", () => {
       true
     );
     MockVM.setAuthorities([authContractId, authMockAcct1]);
+    MockVM.setCaller(new chain.caller_data(new Uint8Array(0), chain.privilege.user_mode));
 
     // mint tokens
     const mintArgs = new token.mint_args(MOCK_ACCT1, 123);
+    tkn.callArgs = new System.getArgumentsReturn();
+    tkn.callArgs!.args = Protobuf.encode(mintArgs, token.mint_args.encode);
     const mintRes = tkn.mint(mintArgs);
 
     expect(mintRes.value).toBe(true);

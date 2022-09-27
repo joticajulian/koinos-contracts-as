@@ -9,10 +9,10 @@ index 4b269ec..720e2d1 100644
 -export { Space } from "./space";
 +export { Storage } from "./storage";
 diff --git a/node_modules/@koinos/sdk-as/assembly/util/space.ts b/node_modules/@koinos/sdk-as/assembly/util/storage.ts
-similarity index 83%
+similarity index 82%
 rename from node_modules/@koinos/sdk-as/assembly/util/space.ts
 rename to node_modules/@koinos/sdk-as/assembly/util/storage.ts
-index 5c44c4f..89a648a 100644
+index 5c44c4f..8f3b636 100644
 --- a/node_modules/@koinos/sdk-as/assembly/util/space.ts
 +++ b/node_modules/@koinos/sdk-as/assembly/util/storage.ts
 @@ -3,14 +3,17 @@ import { chain } from '@koinos/proto-as';
@@ -31,23 +31,37 @@ index 5c44c4f..89a648a 100644
 -  export class Space<TKey, TValue> {
 +  export class Map<TKey, TValue> {
      private space: chain.object_space;
-+    private defaultValue: TValue | null;
++    private defaultValue: () => TValue | null;
      private valueDecoder: (reader: Reader, length: i32) => TValue;
      private valueEncoder: (message: TValue, writer: Writer) => void;
  
-@@ -18,6 +21,7 @@ export namespace Space {
+@@ -18,23 +21,32 @@ export namespace Space {
      * Initialize a Space object with TKey the type of the keys and TValue the type of the values
      * @param contractId the id of the contract
      * @param spaceId the id of the space
-+    * @param defaultValue default value
++    * @param defaultValue arrow function that returns the default value
      * @param valueDecoder the protobuf decoder for the values
      * @param valueEncoder the protobuf encoder for the values
      * @param system is system space
-@@ -31,10 +35,12 @@ export namespace Space {
+     * @example
+     * ```ts
+     * const contractId = Base58.decode('1DQzuCcTKacbs9GGScFTU1Hc8BsyARTPqe');
+-    * const spaceId = 1;
+-    * const Objects = new Space.Space<String, test_object>(contractId, spaceId, test_object.decode, test_object.encode);
++    * const BALANCES_SPACE_ID = 1;
++    * const balances = new Storage.Map(
++    *   this.contractId,
++    *   BALANCES_SPACE_ID,
++    *   () => new token.uint64(0),
++    *   token.uint64.decode,
++    *   token.uint64.encode
++    * );
+     * ```
+     */
      constructor(
        contractId: Uint8Array,
        spaceId: u32,
-+      defaultValue: TValue | null,
++      defaultValue: () => TValue | null,
        valueDecoder: (reader: Reader, length: i32) => TValue,
        valueEncoder: (message: TValue, writer: Writer) => void,
        system: bool = false) {
@@ -56,18 +70,18 @@ index 5c44c4f..89a648a 100644
        this.valueDecoder = valueDecoder;
        this.valueEncoder = valueEncoder;
      }
-@@ -71,7 +77,9 @@ export namespace Space {
+@@ -71,7 +83,9 @@ export namespace Space {
      * ```
      */
      get(key: TKey): TValue | null {
 -      return System.getObject<TKey, TValue>(this.space, key, this.valueDecoder);
 +      const value = System.getObject<TKey, TValue>(this.space, key, this.valueDecoder);
-+      if (!value && this.defaultValue) return this.defaultValue;
++      if (!value && this.defaultValue) return this.defaultValue();
 +      return value;
      }
  
      /**
-@@ -265,7 +273,7 @@ export namespace Space {
+@@ -265,7 +279,7 @@ export namespace Space {
      }
    }
  
@@ -76,11 +90,11 @@ index 5c44c4f..89a648a 100644
      private keyDecoder: (reader: Reader, length: i32) => TKey;
      private keyEncoder: (message: TKey, writer: Writer) => void;
  
-@@ -287,12 +295,13 @@ export namespace Space {
+@@ -287,12 +301,13 @@ export namespace Space {
      constructor(
        contractId: Uint8Array,
        spaceId: u32,
-+      defaultValue: TValue | null,
++      defaultValue: () => TValue | null,
        keyDecoder: (reader: Reader, length: i32) => TKey,
        keyEncoder: (message: TKey, writer: Writer) => void,
        valueDecoder: (reader: Reader, length: i32) => TValue,
@@ -91,14 +105,14 @@ index 5c44c4f..89a648a 100644
        this.keyDecoder = keyDecoder;
        this.keyEncoder = keyEncoder;
      }
-@@ -483,4 +492,77 @@ export namespace Space {
+@@ -483,4 +498,83 @@ export namespace Space {
        super.remove(finalKey);
      }
    }
 +
 +  export class Obj<TValue> {
 +    private space: chain.object_space;
-+    private defaultValue: TValue | null;
++    private defaultValue: () => TValue | null;
 +    private valueDecoder: (reader: Reader, length: i32) => TValue;
 +    private valueEncoder: (message: TValue, writer: Writer) => void;
 +
@@ -106,21 +120,27 @@ index 5c44c4f..89a648a 100644
 +    * Initialize a Space object with TKey the type of the keys and TValue the type of the values
 +    * @param contractId the id of the contract
 +    * @param spaceId the id of the space
-+    * @param defaultValue default value
++    * @param defaultValue arrow function that returns the default value
 +    * @param valueDecoder the protobuf decoder for the values
 +    * @param valueEncoder the protobuf encoder for the values
 +    * @param system is system space
 +    * @example
 +    * ```ts
 +    * const contractId = Base58.decode('1DQzuCcTKacbs9GGScFTU1Hc8BsyARTPqe');
-+    * const spaceId = 1;
-+    * const obj = new Space.Value<test_object>(contractId, spaceId, test_object.decode, test_object.encode);
++    * const SUPPLY_ID = 1;
++    * const supply = new Storage.Obj(
++    *   contractId,
++    *   SUPPLY_ID,
++    *   () => new token.uint64(0),
++    *   token.uint64.decode,
++    *   token.uint64.encode
++    * );
 +    * ```
 +    */
 +    constructor(
 +      contractId: Uint8Array,
 +      spaceId: u32,
-+      defaultValue: TValue | null,
++      defaultValue: () => TValue | null,
 +      valueDecoder: (reader: Reader, length: i32) => TValue,
 +      valueEncoder: (message: TValue, writer: Writer) => void,
 +      system: bool = false) {
@@ -141,7 +161,7 @@ index 5c44c4f..89a648a 100644
 +    */
 +    get(): TValue | null {
 +      const value = System.getObject<Uint8Array, TValue>(this.space, defaultKey, this.valueDecoder);
-+      if (!value && this.defaultValue) return this.defaultValue;
++      if (!value && this.defaultValue) return this.defaultValue();
 +      return value;
 +    }
 +

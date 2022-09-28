@@ -11,8 +11,8 @@ const privateKeyManaSupporter = process.env.PRIVATE_KEY_MANA_SUPPORTER ?? "";
 const privateKeyContract = process.env.PRIVATE_KEY_CONTRACT ?? "";
 
 async function main() {
-  const provider = new Provider(["http://api.koinos.io:8080"]);
-  // const provider = new Provider(["https://api.koinosblocks.com"]);
+  // const provider = new Provider(["http://api.koinos.io:8080"]);
+  const provider = new Provider(["https://api.koinosblocks.com"]);
   const accountWithFunds = Signer.fromWif(privateKeyManaSupporter);
   const contractAccount = Signer.fromWif(privateKeyContract);
   accountWithFunds.provider = provider;
@@ -22,7 +22,7 @@ async function main() {
     signer: contractAccount,
     provider,
     bytecode: fs.readFileSync(
-      path.join(__dirname, "../build/debug/contract.wasm")
+      path.join(__dirname, "../build/release/contract.wasm")
     ),
     options: {
       payer: accountWithFunds.address,

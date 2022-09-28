@@ -26,8 +26,8 @@
     "yaml": "^2.0.0-11"
   },
   "scripts": {
-    "asbuild:debug": "asc build/index.ts --target debug",
-    "asbuild:release": "asc build/index.ts --target release",
+    "asbuild:debug": "asc build/index.ts --target debug --use abort=",
+    "asbuild:release": "asc build/index.ts --target release --use abort=",
     "build": "yarn precompile && yarn proto && yarn asbuild:release",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
     "precompile": "koinos-precompiler-as .",

@@ -4,7 +4,7 @@
   "license": "MIT",
   "dependencies": {
     "koilib": "^5.1.0",
-    "koinos-precompiler-as": "^0.1.2",
+    "koinos-precompiler-as": "^0.1.5",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0"
   },
@@ -31,7 +31,6 @@
     "build": "yarn precompile && yarn proto && yarn asbuild:release",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
     "precompile": "koinos-precompiler-as .",
-    "proto": "copyfiles -u 2 build/proto/*.ts assembly/proto",
     "deploy": "ts-node scripts/deployment.ts",
     "postinstall": "patch-package",
     "test": "asp --verbose --config as-pect.config.js"

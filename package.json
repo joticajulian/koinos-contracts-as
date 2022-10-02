@@ -26,6 +26,12 @@
     "yaml": "^2.0.0-11"
   },
   "scripts": {
+    "asbuild:debug:hello": "asc contracts/hello/build/index.ts --config contracts/hello/asconfig.json --use abort= --target debug",
+    "asbuild:release:hello": "asc contracts/hello/build/index.ts --config contracts/hello/asconfig.json --use abort= --target release",
+    "build:hello": "yarn precompile:hello && yarn asbuild:release:hello",
+    "precompile:hello": "koinos-precompiler-as contracts/hello",
+    "test:hello": "asp --verbose --config contracts/hello/as-pect.config.js",
+    "deploy:hello": "ts-node contracts/hello/scripts/deployment.ts",
     "asbuild:debug:token": "asc contracts/token/build/index.ts --config contracts/token/asconfig.json --use abort= --target debug",
     "asbuild:release:token": "asc contracts/token/build/index.ts --config contracts/token/asconfig.json --use abort= --target release",
     "build:token": "yarn precompile:token && yarn asbuild:release:token",

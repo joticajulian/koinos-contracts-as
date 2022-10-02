@@ -38,7 +38,9 @@ async function main() {
   console.log("Transaction submitted. Receipt: ");
   console.log(receipt);
   const { blockNumber } = await transaction.wait("byBlock", 60000);
-  console.log(`Contract uploaded in block number ${blockNumber}`);
+  console.log(
+    `Contract ${contractAccount.address} uploaded in block number ${blockNumber}`
+  );
 }
 
 main()

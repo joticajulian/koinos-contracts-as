@@ -1,11 +1,59 @@
-# token contract
+# Koinos contracts AS
 
-## Instruction
+In this repo there are several contracts for koinos blockchain written in assemblyscript.
 
-Update the following contract properties with your token details:
+## Installation
 
-- \_name: string = "Token";
-- \_symbol: string = "TKN";
-- \_decimals: u32 = 8;
+Run `yarn install` to install the required dependencies.
 
-WIP
+Create a copy of `env.example`, rename it to `.env`, and update its values as explained in the file. This will be needed for the deployment and interaction with the contracts.
+
+## Token Contract
+
+This is a contract to deploy any type of token. Go to `contracts/token/assembly/Token.ts` to update `_name`, `_symbol`, and `_decimals` with your preferred values.
+
+Run:
+
+```
+yarn build:token
+```
+
+This will make a precompilation in the `contracts/token/build` folder, and it will build the final compilation in `contracts/token/build/release/contract.wasm`.
+
+Finally deploy the contract:
+
+```
+yarn deploy:token
+```
+
+Now you can consult a blockexplorer, like koinosblocks.com to check your deployment
+
+## Acknowledgments
+
+Many thanks to the sponsors of this work: @levineam, @Amikob, @motoeng, @isaacdozier, @imjwalker, and the private sponsors.
+
+If you would like to contribute to the maintenance and development of these and more contracts consider becoming a sponsor in https://github.com/sponsors/joticajulian.
+
+## License
+
+MIT License
+
+Copyright (c) 2022 Julián González
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

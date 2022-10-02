@@ -1,10 +1,4 @@
-import {
-  Arrays,
-  System,
-  SafeMath,
-  authority,
-  Storage,
-} from "@koinos/sdk-as";
+import { Arrays, System, SafeMath, authority, Storage } from "@koinos/sdk-as";
 import { token } from "./proto/token";
 
 const SUPPLY_ID = 0;

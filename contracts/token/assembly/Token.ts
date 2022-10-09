@@ -1,4 +1,4 @@
-import { Arrays, System, SafeMath, authority, Storage } from "@koinos/sdk-as";
+import { Arrays, System, authority, Storage } from "@koinos/sdk-as";
 import { token } from "./proto/token";
 
 const SUPPLY_ID = 0;
@@ -147,20 +147,17 @@ export class Token {
       System.log("contract has not authorized mint");
       return new token.boole(false);
     }
-    const supply = this.supply.get()!;
-    const newSupply = SafeMath.tryAdd(supply.value, value);
 
-    if (newSupply.error) {
+    const supply = this.supply.get()!;
+    if (supply.value > u64.MAX_VALUE - value) {
       System.log("Mint would overflow supply");
       return new token.boole(false);
     }
 
     let toBalance = this.balances.get(to)!;
     toBalance.value += value;
-
-    supply.value = newSupply.value;
-
     this.balances.put(to, toBalance);
+    supply.value += value;
     this.supply.put(supply);
 
     const impacted = [to];
@@ -197,11 +194,9 @@ export class Token {
     }
 
     const supply = this.supply.get()!;
-    const newSupply = SafeMath.sub(supply.value, value);
-    supply.value = newSupply;
     fromBalance.value -= value;
-
     this.balances.put(from, fromBalance);
+    supply.value -= value;
     this.supply.put(supply);
 
     const impacted = [from];

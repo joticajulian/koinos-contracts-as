@@ -28,6 +28,24 @@ yarn deploy:token
 
 Now you can consult a blockexplorer, like koinosblocks.com to check your deployment
 
+## Verify code
+
+In order to verify the authenticity of the deployed code, this repo contains a Dockerfile to compile the code and get the wasm file with its corresponding sha256 identifier. Then these values can be compared with the code deployed in the blockchain to prove its authenticity.
+
+Run
+```
+docker build --no-cache --progress=plain .
+```
+
+You should see at the end some info from the contract selected:
+
+```
+contract: token
+file:     /contracts/contracts/token/build/release/contract.wasm
+size:     25524 bytes (24.93 kB)
+sha256:   c208b6b346dfb5152ffa0676b7e240cbe519390440fc02cd667404568492cbe9
+```
+
 ## Acknowledgments
 
 Many thanks to the sponsors of this work: @levineam, @Amikob, @motoeng, @isaacdozier, @imjwalker, and the private sponsors.

@@ -32,12 +32,14 @@
     "precompile:hello": "koinos-precompiler-as contracts/hello",
     "test:hello": "asp --verbose --config contracts/hello/as-pect.config.js",
     "deploy:hello": "ts-node contracts/hello/scripts/deployment.ts",
+    "info:hello": "node getSha256.js hello",
     "asbuild:debug:token": "asc contracts/token/build/index.ts --config contracts/token/asconfig.json --use abort= --target debug",
     "asbuild:release:token": "asc contracts/token/build/index.ts --config contracts/token/asconfig.json --use abort= --target release",
     "build:token": "yarn precompile:token && yarn asbuild:release:token",
     "precompile:token": "koinos-precompiler-as contracts/token",
     "test:token": "asp --verbose --config contracts/token/as-pect.config.js",
     "deploy:token": "ts-node contracts/token/scripts/deployment.ts",
+    "info:token": "node getSha256.js token",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
     "postinstall": "patch-package"
   }

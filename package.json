@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "license": "MIT",
   "dependencies": {
-    "koilib": "^5.1.0",
+    "koilib": "^5.1.1",
     "koinos-precompiler-as": "^0.1.6",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0"
@@ -11,19 +11,19 @@
   "devDependencies": {
     "@as-covers/core": "^0.2.1",
     "@as-pect/cli": "^6.2.4",
-    "@koinos/mock-vm": "^0.4.2",
-    "@koinos/sdk-as": "^0.4.3",
+    "@koinos/mock-vm": "^0.4.3",
+    "@koinos/sdk-as": "^0.4.5",
     "@roaminroe/protoc": "^2.4.0",
-    "@typescript-eslint/eslint-plugin": "^5.10.0",
-    "@typescript-eslint/parser": "^5.10.0",
+    "@typescript-eslint/eslint-plugin": "^5.39.0",
+    "@typescript-eslint/parser": "^5.39.0",
     "as-proto": "^0.4.0",
     "assemblyscript": "^0.19.22",
     "copyfiles": "^2.4.1",
-    "dotenv": "^16.0.2",
-    "eslint": "^8.7.0",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.25.0",
     "ts-node": "^10.4.0",
-    "typescript": "^4.5.5",
-    "yaml": "^2.0.0-11"
+    "typescript": "^4.8.4",
+    "yaml": "^2.1.3"
   },
   "scripts": {
     "asbuild:debug:hello": "asc contracts/hello/build/index.ts --config contracts/hello/asconfig.json --use abort= --target debug",

@@ -34,7 +34,7 @@ In order to verify the authenticity of the deployed code, this repo contains a D
 
 Run
 ```
-docker build --no-cache --progress=plain .
+docker build --no-cache --progress=plain -t temp-image . && docker rmi temp-image
 ```
 
 You should see at the end some info from the contract selected:
@@ -43,7 +43,7 @@ You should see at the end some info from the contract selected:
 contract: token
 file:     /contracts/contracts/token/build/release/contract.wasm
 size:     25524 bytes (24.93 kB)
-sha256:   c208b6b346dfb5152ffa0676b7e240cbe519390440fc02cd667404568492cbe9
+sha256:   c5c06834d91c20cf99ad63a6f1fc656407fb00620f917788dbe8b203adfc4696
 ```
 
 ## Acknowledgments

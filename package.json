@@ -42,5 +42,8 @@
     "info:token": "node getSha256.js token",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
     "postinstall": "patch-package"
+  },
+  "config": {
+    "protocVersion": "21.8"
   }
 }

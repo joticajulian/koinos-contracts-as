@@ -32,9 +32,10 @@ Now you can consult a blockexplorer, like koinosblocks.com to check your deploym
 
 In order to verify the authenticity of the deployed code, this repo contains a Dockerfile to compile the code and get the wasm file with its corresponding sha256 identifier. Then these values can be compared with the code deployed in the blockchain to prove its authenticity.
 
-Run
+Run docker and set in `CONTRACT` arg the contract you want to build:
+
 ```
-docker build --no-cache --progress=plain -t temp-image . && docker rmi temp-image
+docker build --no-cache --progress=plain --build-arg CONTRACT=token -t temp-image . && docker rmi temp-image
 ```
 
 You should see at the end some info from the contract selected:

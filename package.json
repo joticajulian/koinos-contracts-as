@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "license": "MIT",
   "dependencies": {
-    "koilib": "^5.1.1",
-    "koinos-precompiler-as": "^0.1.6",
+    "koilib": "^5.2.2",
+    "koinos-precompiler-as": "^0.3.0",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0"
   },
@@ -40,6 +40,10 @@
     "test:token": "asp --verbose --config contracts/token/as-pect.config.js",
     "deploy:token": "ts-node contracts/token/scripts/deployment.ts",
     "info:token": "node getSha256.js token",
+    "manasharer:asbuild": "asc contracts/manasharer/build/index.ts --config contracts/manasharer/asconfig.json --use abort= --target release",
+    "manasharer:precompile": "koinos-precompiler-as contracts/manasharer",
+    "manasharer:build": "yarn manasharer:precompile && yarn manasharer:asbuild",
+    "manasharer:initialdeploy": "ts-node contracts/manasharer/scripts/initialDeploy.ts",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\"",
     "postinstall": "patch-package"
   },

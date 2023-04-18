@@ -233,10 +233,7 @@ export class Token {
    *     3. The transaction is signed by the user, but with the condition that
    *        the user doesn't have a contract.
    *
-   * Note 1: The approvals are granted by the user by using "approve" and
-   * "set_approva_for_all" functions.
-   *
-   * Note 2: Currently there is no a system call to check if an account has
+   * Note: Currently there is no a system call to check if an account has
    * a smart contract wallet or not. Then as a temporal solution, the user has
    * to call "set_authority_contract" to define that he uses a smart contract
    * wallet.

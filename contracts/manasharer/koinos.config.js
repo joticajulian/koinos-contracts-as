@@ -3,8 +3,8 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "ManaSharer",
-  proto: [ "./proto/common.proto" ],
-  files: [ "./ManaSharer.ts" ],
+  proto: ["./proto/common.proto"],
+  files: ["./ManaSharer.ts"],
   sourceDir: "./assembly",
   buildDir: "./build",
   koinosProtoDir: "../../node_modules/koinos-precompiler-as/koinos-proto",

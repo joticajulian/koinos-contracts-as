@@ -15,11 +15,9 @@ async function main() {
   const network = koinosConfig.networks[networkName];
   if (!network) throw new Error(`network ${networkName} not found`);
   const provider = new Provider(network.rpcNodes);
-  const manaSharer = Signer.fromWif(
-    network.accounts.manaSharer.privateKey
-  );
+  const manaSharer = Signer.fromWif(network.accounts.manaSharer.privateKey);
   manaSharer.provider = provider;
-  
+
   const filename = "manasharer.wasm";
   const wasmFile = path.join(__dirname, "../build/release", filename);
 

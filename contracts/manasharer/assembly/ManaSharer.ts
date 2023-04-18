@@ -1,12 +1,12 @@
 import {
-    System,
-    Storage,
-    Arrays,
-    Crypto,
-    Protobuf,
-    authority,
-    value,
-  } from "@koinos/sdk-as";
+  System,
+  Storage,
+  Arrays,
+  Crypto,
+  Protobuf,
+  authority,
+  value,
+} from "@koinos/sdk-as";
 
 import { common } from "./proto/common";
 
@@ -58,17 +58,18 @@ export class ManaSharer {
     // check if the transaction is signed with the
     // private key of the contract
     const signers = this.getSigners();
-    for (let i = 0; i < signers.length; i+=1) {
-      if (Arrays.equal(signers[i], this.contractId)) return new common.boole(true);
+    for (let i = 0; i < signers.length; i += 1) {
+      if (Arrays.equal(signers[i], this.contractId))
+        return new common.boole(true);
     }
 
     if (args.type != authority.authorization_type.transaction_application) {
       System.log("authorization must be for transaction_application");
-      return new common.boole(false);  
+      return new common.boole(false);
     }
 
     // check if one of the signers is a manager
-    for (let i = 0; i < signers.length; i+=1) {
+    for (let i = 0; i < signers.length; i += 1) {
       const manager = this.managers.get(signers[i])!;
       if (manager.value == true) return new common.boole(true);
     }
@@ -82,7 +83,7 @@ export class ManaSharer {
    */
   isSignedByOwner(): boolean {
     const signers = this.getSigners();
-    for (let i = 0; i < signers.length; i+=1) {
+    for (let i = 0; i < signers.length; i += 1) {
       if (Arrays.equal(signers[i], this.contractId)) return true;
     }
     return false;
@@ -98,7 +99,7 @@ export class ManaSharer {
     this.managers.put(args.account!, new common.boole(true));
     System.event("manager_added", this.callArgs!.args, [args.account!]);
   }
-  
+
   /**
    * Remove a manager of the mana
    * @external

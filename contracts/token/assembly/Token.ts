@@ -117,6 +117,20 @@ export class Token {
     return this.balances.get(args.owner!)!;
   }
 
+  /**
+   * Get allowance
+   * @external
+   * @readonly
+   */
+  allowance(args: token.allowance_args): token.uint64 {
+    const key = new Uint8Array(50);
+    key.set(args.owner!, 0);
+    key.set(args.spender!, 25);
+    const allowance = this.allowances.get(key);
+    if (!allowance) return new token.uint64(0);
+    return allowance;
+  }
+
   // TODO: add this function to the SDK
   getSigners(): Array<Uint8Array> {
     const sigBytes =
@@ -206,8 +220,7 @@ export class Token {
    * - If there is a caller (that is, if this operation was not triggered
    *   by the user itself but by some contract in the middle), it is approved
    *   if one of the following conditions are met:
-   *     1. The caller is approved by the user (for all tokens or single
-   *        token).
+   *     1. The caller is approved by the user (for the specific amount).
    *     2. The caller is the user.
    *     3. The user has a contract and this contract authorizes the operation.
    * - If there is NO caller (that is, if this operation appears in the list
@@ -215,7 +228,7 @@ export class Token {
    *   middle) then the contract will check if one of the following conditions
    *   are met:
    *     1. The transaction is signed by an account approved by the user (for
-   *        all tokens or single token).
+   *        the specific amount).
    *     2. The user has a contract and this contract authorizes the operation.
    *     3. The transaction is signed by the user, but with the condition that
    *        the user doesn't have a contract.
@@ -246,7 +259,12 @@ export class Token {
         // check if the caller is approved for all tokens
         key.set(caller.caller!, 25);
         const allowance = this.allowances.get(key);
-        if (allowance && allowance.value >= amount) return true;
+        if (allowance && allowance.value >= amount) {
+          // spend allowance
+          allowance.value -= amount;
+          this.allowances.put(key, allowance);
+          return true;
+        }
       }
 
       // check if the account is the caller
@@ -271,7 +289,12 @@ export class Token {
         // check if the signer is approved for all tokens
         key.set(signers[i], 25);
         const allowance = this.allowances.get(key);
-        if (allowance && allowance.value >= amount) return true;
+        if (allowance && allowance.value >= amount) {
+          // spend allowance
+          allowance.value -= amount;
+          this.allowances.put(key, allowance);
+          return true;
+        }
       }
     }
 
@@ -291,6 +314,25 @@ export class Token {
     // none of the different options authorized the operation,
     // then it is rejected.
     return false;
+  }
+
+  /**
+   * Grant permissions to other account to manage the tokens owned
+   * by the user. The user must approve only the accounts he trust.
+   * @external
+   */
+  _approve(args: token.approve_args): void {
+    const key = new Uint8Array(50);
+    key.set(args.owner!, 0);
+    key.set(args.spender!, 25);
+    this.allowances.put(key, new token.uint64(args.value));
+
+    const impacted = [args.spender!, args.owner!];
+    System.event(
+      "koinos.contracts.token.approve_event",
+      this.callArgs!.args,
+      impacted
+    );
   }
 
   _transfer(args: token.transfer_args): void {
@@ -354,6 +396,46 @@ export class Token {
       Protobuf.encode<token.burn_args>(args, token.burn_args.encode),
       impacted
     );
+  }
+
+  /**
+   * Function to define if the user has a smart contract wallet or not
+   * to resolve the authority when making transfers or burns.
+   *
+   * Note: This is a temporary function while a new System call is
+   * developed in koinos to get the contract metadata
+   */
+  set_authority_contract(args: token.set_authority_contract_args): void {
+    const isAuthorized = this.check_authority(args.account!, false, 0);
+    System.require(
+      isAuthorized,
+      "set_authority_contract operation not authorized"
+    );
+
+    // test a call
+    System.require(
+      this.is_authorized_by_contract_account(args.account!),
+      "not authorized by contract account"
+    );
+
+    this.userContracts.put(args.account!, new token.boole(args.enabled));
+
+    System.event(
+      "koinos.contracts.token.set_authority_contract_event",
+      this.callArgs!.args,
+      [args.account!]
+    );
+  }
+
+  /**
+   * Grant permissions to other account to manage the tokens owned
+   * by the user. The user must approve only the accounts he trust.
+   * @external
+   */
+  approve(args: token.approve_args): void {
+    const isAuthorized = this.check_authority(args.owner!, false, 0);
+    System.require(isAuthorized, "approve operation not authorized");
+    this._approve(args);
   }
 
   /**

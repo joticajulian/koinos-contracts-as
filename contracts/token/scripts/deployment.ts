@@ -24,7 +24,7 @@ async function main() {
     provider,
     abi,
     bytecode: fs.readFileSync(
-      path.join(__dirname, "../build/release/nft.wasm")
+      path.join(__dirname, "../build/release/token.wasm")
     ),
     options: {
       payer: accountWithFunds.address,

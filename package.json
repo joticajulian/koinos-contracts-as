@@ -38,6 +38,7 @@
     "token:test": "asp --verbose --config contracts/token/as-pect.config.js",
     "token:deploy": "ts-node contracts/token/scripts/deployment.ts",
     "token:info": "node getSha256.js token",
+    "token:docker": "docker build --no-cache --progress=plain --build-arg CONTRACT=token -t temp-image . && docker rmi temp-image",
     "manasharer:asbuild": "asc contracts/manasharer/build/index.ts --config contracts/manasharer/asconfig.json --use abort= --target release",
     "manasharer:precompile": "koinos-precompiler-as contracts/manasharer",
     "manasharer:build": "yarn manasharer:precompile && yarn manasharer:asbuild",

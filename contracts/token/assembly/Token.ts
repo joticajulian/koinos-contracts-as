@@ -313,11 +313,6 @@ export class Token {
     return false;
   }
 
-  /**
-   * Grant permissions to other account to manage the tokens owned
-   * by the user. The user must approve only the accounts he trust.
-   * @external
-   */
   _approve(args: token.approve_args): void {
     const key = new Uint8Array(50);
     key.set(args.owner!, 0);

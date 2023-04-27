@@ -96,7 +96,7 @@ yarn install
 
   
 
-The `koinos-contract-as` repo contains a deployment script so you do not need manually deploy via the `koinos-cli` wallet. To use the automatic deployer, you must set it up. To do this clone the `env.example` file and modify it. To begin, clone and rename the file as `.env` using the following command:
+The `koinos-contract-as` repo contains a deployment script so you do not need manually deploy via the `koinos-cli` wallet. To use the automatic deployer, you must set it up first. To do this clone the `env.example` file and modify it. To begin, clone and rename the file as `.env` using the following command:
 
 
 ```
@@ -132,7 +132,7 @@ If you are developing on test net, fill in the information for `HARBINGER`, if y
 
   
 
-- The `_TOKEN_CONTRACT_PRIVATE_KEY` is the wallet address associated with the `_TOKEN_CONTRACT_PRIVATE_KEY`.
+- The `_TOKEN_CONTRACT_ID` is the wallet address associated with the `_TOKEN_CONTRACT_PRIVATE_KEY`.
 
   
 
@@ -144,18 +144,24 @@ In total, you will need two wallets and their private keys. One wallet contains 
 
   
 
-Enter the `contracts` folder and you will find two folders.
+Enter the `contracts` folder and you will find three folders.
 
-  
+-  `hello` is a basic hello world contract. It is not used in this tutorial, but you can use it as a reference. Open package.json for scripts on its compilation and deployment.
 
--  `manasharer` is a Mana Sharing contract that is used to deploy the token contract.
+-  `manasharer` is a script that allows the mana cost to deploy the contract to be covered by the wallet address of the`_MANA_SHARER_PRIVATE_KEY`.
 
 -  `token` is a typical token contract that can create new tokens.
 
 
-Open the file located at `/token/assembly/proto/token.ts` and scroll to line 24-27. Adjust the variables to suite your project.  
+Open the file located at `/token/assembly/proto/token.ts` and scroll to line 24-27. Adjust the variables to suite your project.  It should appear something similar to this:
 
-If you want to make any more adjustments to the token standard, feel free to make them now.
+```
+ _name: string = "My Token";
+  _symbol: string = "TKN";
+  _decimals: u32 = 8;
+```
+
+If you want to make any more adjustments, feel free to make them now. 
 
   
 Once you are done, save the file.
@@ -261,7 +267,7 @@ at Object.<anonymous> (/Users/learnkoinos/koinos-contracts-as/contracts/token/sc
 
   
 
-If all is well, then you've just deployed your token contract to the address you've entered previously in the `_TOKEN_CONTRACT_ID` field. You can register the token in your `koinos-cli` wallet and begin to interact with it. You may also use [Koinos Blocks](http://koinosblocks.com) to interact with your token. Just search the `_TOKEN_CONTRACT_ID` in the search field of Koinos Blocks.
+If all is well, then you've just deployed your token contract to the address you've entered previously in the `_TOKEN_CONTRACT_ID` field. You can register the token with `koinos-cli` and begin to interact with it. You may also use [Koinos Blocks](http://koinosblocks.com) to interact with your token. Just search by entering the `_TOKEN_CONTRACT_ID` in the search field of Koinos Blocks.
 
 ### Step 5: Minting new Tokens
 

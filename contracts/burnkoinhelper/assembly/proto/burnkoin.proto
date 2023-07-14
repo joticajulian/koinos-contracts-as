@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package burnkoin;
+
+import "koinos/options.proto"; 
+
+message burnkoin_args {
+    bytes account = 1 [(koinos.btype) = ADDRESS];
+    uint64 value = 2 [jstype = JS_STRING];
+}
+
+message swap_args {
+    bytes account = 1 [(koinos.btype) = ADDRESS];
+    uint64 value = 2 [jstype = JS_STRING];
+    uint64 tolerance = 3 [jstype = JS_STRING];
+}

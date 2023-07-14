@@ -43,6 +43,11 @@
     "manasharer:precompile": "koinos-precompiler-as contracts/manasharer",
     "manasharer:build": "yarn manasharer:precompile && yarn manasharer:asbuild",
     "manasharer:initialdeploy": "ts-node contracts/manasharer/scripts/initialDeploy.ts",
+    "wordeth:asbuild": "asc contracts/wordeth/build/index.ts --config contracts/wordeth/asconfig.json --use abort= --target release",
+    "wordeth:precompile": "koinos-precompiler-as contracts/wordeth",
+    "wordeth:test": "asp --verbose --config contracts/wordeth/as-pect.config.js",
+    "wordeth:build": "yarn wordeth:precompile && yarn wordeth:asbuild",
+    "wordeth:initialdeploy": "ts-node contracts/wordeth/scripts/initialDeploy.ts",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
   },
   "config": {

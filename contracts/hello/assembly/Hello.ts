@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Julian Gonzalez (joticajulian@gmail.com)
+
 import { System } from "@koinos/sdk-as";
 import { hello } from "./proto/hello";
 

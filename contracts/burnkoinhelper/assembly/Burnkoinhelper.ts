@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Julian Gonzalez (joticajulian@gmail.com)
+
 import { System } from "@koinos/sdk-as";
 import { BURNKOIN_CONTRACT_ID, PVHP_CONTRACT_ID } from "./constants";
 import { Burnkoin } from "./IBurnkoin";

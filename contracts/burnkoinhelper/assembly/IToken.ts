@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Julian Gonzalez (joticajulian@gmail.com)
+
 import { System, Protobuf, StringBytes } from "@koinos/sdk-as";
 import { token } from "./proto/token";
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { System, Protobuf, StringBytes } from "@koinos/sdk-as";
 import { burnkoin } from "./proto/burnkoin";
 

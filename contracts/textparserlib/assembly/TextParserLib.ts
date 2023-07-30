@@ -9,7 +9,7 @@ export const enum typeNumber {
   u32 = 1,
   i64 = 2,
   i32 = 3,
-};
+}
 
 export class TextParserLib {
   callArgs: System.getArgumentsReturn | null;
@@ -23,7 +23,11 @@ export class TextParserLib {
     return true;
   }
 
-  parseNumberWithDecimals(value: string, decimals: i32, type: typeNumber): textparserlib.result {
+  parseNumberWithDecimals(
+    value: string,
+    decimals: i32,
+    type: typeNumber
+  ): textparserlib.result {
     let sign = "";
     let val = value;
     if (val.startsWith("-")) {
@@ -49,14 +53,15 @@ export class TextParserLib {
       return new textparserlib.result(`${value} is not a number`);
     }
     decimalPart = decimalPart.padEnd(decimals, "0");
-    if (decimalPart.length !== decimals || 
-        integerPart.length == 0 || 
-        (integerPart.length > 1 && integerPart.startsWith("0"))
+    if (
+      decimalPart.length !== decimals ||
+      integerPart.length == 0 ||
+      (integerPart.length > 1 && integerPart.startsWith("0"))
     ) {
       return new textparserlib.result(`invalid number ${value}`);
     }
     const numberString = `${sign}${integerPart}${decimalPart}`;
-    switch(type) {
+    switch (type) {
       case typeNumber.u64: {
         const num = U64.parseInt(numberString);
         return new textparserlib.result(null, null, num);

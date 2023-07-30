@@ -51,6 +51,14 @@
     "burnkoinhelper:deploy": "ts-node contracts/burnkoinhelper/scripts/deployment.ts",
     "burnkoinhelper:info": "node getSha256.js burnkoinhelper",
     "burnkoinhelper:docker": "docker build --no-cache --progress=plain --build-arg CONTRACT=burnkoinhelper -t temp-image . && docker rmi temp-image",
+    "textparserlib:asbuild:debug": "asc contracts/textparserlib/build/index.ts --config contracts/textparserlib/asconfig.json --use abort= --target debug",
+    "textparserlib:asbuild:release": "asc contracts/textparserlib/build/index.ts --config contracts/textparserlib/asconfig.json --use abort= --target release",
+    "textparserlib:build": "yarn textparserlib:precompile && yarn textparserlib:asbuild:release",
+    "textparserlib:precompile": "koinos-precompiler-as contracts/textparserlib",
+    "textparserlib:test": "asp --verbose --config contracts/textparserlib/as-pect.config.js",
+    "textparserlib:deploy": "ts-node contracts/textparserlib/scripts/deployment.ts",
+    "textparserlib:info": "node getSha256.js textparserlib",
+    "textparserlib:docker": "docker build --no-cache --progress=plain --build-arg CONTRACT=textparserlib -t temp-image . && docker rmi temp-image",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
   },
   "config": {

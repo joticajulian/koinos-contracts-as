@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package textparserlib;
+
+import "koinos/options.proto"; 
+
+message result {
+    string error = 1;
+    bytes data = 2;
+    uint64 uint64 = 3 [jstype = JS_STRING];
+    uint32 uint32 = 4;
+    int64 int64 = 5 [jstype = JS_STRING];
+    int32 int32 = 6;
+}

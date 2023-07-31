@@ -16,7 +16,7 @@ export const enum typeData {
   repeated = 10,
 }
 
-class resultWords {
+export class resultWords {
   error: string | null;
 
   words: string[] | null;
@@ -27,7 +27,7 @@ class resultWords {
   }
 }
 
-class resultNumber {
+export class resultNumber {
   error: string | null;
 
   uint64: u64 | null;
@@ -125,7 +125,7 @@ export class TextParserLib {
     }
   }
 
-  splitPhrase(textInput: string, groupArrays = true): resultWords {
+  splitPhrase(textInput: string, groupArrays: boolean = true): resultWords {
     const words = textInput.split(" ");
     let i = 0;
     let bracketsInConstruction = 0;

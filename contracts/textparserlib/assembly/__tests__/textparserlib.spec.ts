@@ -78,4 +78,40 @@ describe("TextParserlib", () => {
       lib.parseNumberWithDecimals("--12.744", 2, typeData.int64).error
     ).toBe("--12.744 is not a number");
   });
+
+  it("should split a phrase", () => {
+    const lib = new TextParserLib();
+    expect(lib.splitPhrase(`sketch right sense`).words).toStrictEqual([
+      "sketch",
+      "right",
+      "sense",
+    ]);
+    expect(lib.splitPhrase(`immune "magnet toss"`).words).toStrictEqual([
+      "immune",
+      "magnet toss",
+    ]);
+    expect(
+      lib.splitPhrase(`burger "mail sample" "blouse choise" ethics`).words
+    ).toStrictEqual(["burger", "mail sample", "blouse choise", "ethics"]);
+    expect(
+      lib.splitPhrase(`crater { "until cream" "regular flock" husband}`).words
+    ).toStrictEqual(["crater", `{ "until cream" "regular flock" husband}`]);
+    expect(
+      lib.splitPhrase(`story { "height deal" "usage margin" learn} whale`).words
+    ).toStrictEqual([
+      "story",
+      `{ "height deal" "usage margin" learn}`,
+      "whale",
+    ]);
+    expect(
+      lib.splitPhrase(`foam { "pudding girl" { "black top" } come} enlist`)
+        .words
+    ).toStrictEqual([
+      "foam",
+      `{ "pudding girl" { "black top" } come}`,
+      "enlist",
+    ]);
+
+    // special characters
+  });
 });

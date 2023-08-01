@@ -1,20 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { System } from "@koinos/sdk-as";
-import { textparserlib } from "./proto/textparserlib";
-
-export const enum typeData {
-  bool = 2,
-  string = 3,
-  bytes = 4,
-  uint64 = 5,
-  uint32 = 6,
-  int64 = 7,
-  int32 = 8,
-  nested = 9,
-  repeated = 10,
-}
+import { Base58, Base64, System } from "@koinos/sdk-as";
 
 export class resultWords {
   error: string | null;
@@ -53,6 +40,50 @@ export class resultNumber {
   }
 }
 
+export class messageField {
+  protoId: i32;
+
+  type: string;
+
+  bool: boolean | null;
+
+  string: string | null;
+
+  bytes: Uint8Array | null;
+
+  uint64: u64;
+
+  uint32: u32;
+
+  int64: i64;
+
+  int32: i32;
+
+  nested: Array<messageField> = [];
+
+  repeated: Array<messageField> = [];
+}
+
+export class resultField {
+  error: string | null;
+
+  field: messageField;
+
+  constructor(error: string | null = null) {
+    this.error = error;
+  }
+}
+
+export class resultData {
+  error: string | null;
+
+  fields: Array<messageField> = [];
+
+  constructor(error: string | null = null) {
+    this.error = error;
+  }
+}
+
 export class TextParserLib {
   callArgs: System.getArgumentsReturn | null;
 
@@ -68,12 +99,12 @@ export class TextParserLib {
   parseNumberWithDecimals(
     value: string,
     decimals: i32,
-    type: typeData
+    type: string
   ): resultNumber {
     let sign = "";
     let val = value;
     if (val.startsWith("-")) {
-      if (type == typeData.uint64 || type == typeData.uint32) {
+      if (type == "u64" || type == "u32") {
         return new resultNumber(`${value} must be positive`);
       }
       sign = "-";
@@ -96,33 +127,30 @@ export class TextParserLib {
     }
     decimalPart = decimalPart.padEnd(decimals, "0");
     if (
-      decimalPart.length !== decimals ||
+      decimalPart.length != decimals ||
       integerPart.length == 0 ||
       (integerPart.length > 1 && integerPart.startsWith("0"))
     ) {
       return new resultNumber(`invalid number ${value}`);
     }
     const numberString = `${sign}${integerPart}${decimalPart}`;
-    switch (type) {
-      case typeData.uint64: {
-        const num = U64.parseInt(numberString);
-        return new resultNumber(null, num);
-      }
-      case typeData.uint32: {
-        const num = U32.parseInt(numberString);
-        return new resultNumber(null, 0, num);
-      }
-      case typeData.int64: {
-        const num = I64.parseInt(numberString);
-        return new resultNumber(null, 0, 0, num);
-      }
-      case typeData.int32: {
-        const num = I32.parseInt(numberString);
-        return new resultNumber(null, 0, 0, 0, num);
-      }
-      default:
-        return new resultNumber("internal error");
+    if (type == "u64") {
+      const num = U64.parseInt(numberString);
+      return new resultNumber(null, num);
     }
+    if (type == "u32") {
+      const num = U32.parseInt(numberString);
+      return new resultNumber(null, 0, num);
+    }
+    if (type == "i64") {
+      const num = I64.parseInt(numberString);
+      return new resultNumber(null, 0, 0, num);
+    }
+    if (type == "i32") {
+      const num = I32.parseInt(numberString);
+      return new resultNumber(null, 0, 0, 0, num);
+    }
+    return new resultNumber("internal error");
   }
 
   splitPhrase(textInput: string, groupArrays: boolean = true): resultWords {
@@ -134,13 +162,13 @@ export class TextParserLib {
     while (i < words.length) {
       const word = words[i];
 
-      if (!groupArrays && bracketsInConstruction === 0) {
+      if (!groupArrays && bracketsInConstruction == 0) {
         arrayInConstruction = false;
       }
 
       if (
         arrayInConstruction &&
-        bracketsInConstruction === 0 &&
+        bracketsInConstruction == 0 &&
         !word.startsWith("{")
       ) {
         arrayInConstruction = false;
@@ -207,9 +235,9 @@ export class TextParserLib {
         }
       }
     }
-    if (stringInConstruction) return new resultWords(`end quote missing`);
+    if (stringInConstruction) return new resultWords(`missing end quote`);
     if (bracketsInConstruction > 0)
-      return new resultWords(`invalid bracket delimitation in phrase`);
+      return new resultWords(`missing closing bracket`);
     return new resultWords(null, words);
   }
 
@@ -233,20 +261,21 @@ export class TextParserLib {
       const isEndingBrackets = !word.endsWith("\\}") && word.endsWith("}");
 
       if (isStartingBrackets) {
-        if (bracketsInConstruction % 2 === 0)
+        if (bracketsInConstruction % 2 == 0)
           return new resultWords(`invalid bracket delimitation 1`);
         bracketsInConstruction += 1;
       }
 
       if (word.startsWith("%") || word.startsWith("{%")) {
         const parts = word.split("_");
+        if (parts.length < 2) return new resultWords(`invalid pattern ${word}`);
         if (["repeated", "nested"].includes(parts[1])) {
           bracketsInConstruction += 1;
         }
       }
 
       if (isEndingBrackets) {
-        if (bracketsInConstruction < 2 || bracketsInConstruction % 2 === 1)
+        if (bracketsInConstruction < 2 || bracketsInConstruction % 2 == 1)
           return new resultWords(`invalid bracket delimitation 2`);
         bracketsInConstruction -= 2;
       }
@@ -261,5 +290,188 @@ export class TextParserLib {
     if (bracketsInConstruction > 0)
       return new resultWords(`invalid bracket delimitation 3`);
     return new resultWords(null, words);
+  }
+
+  removeBrackets(text: string): string {
+    return text
+      .trim()
+      .slice(1, text.length - 1)
+      .trim();
+  }
+
+  resolveKapAddress(name: string): resultField {
+    return new resultField("KAP resolver not implemented");
+  }
+
+  resolveNicknameAddress(name: string): resultField {
+    return new resultField("Nickname resolver not implemented");
+  }
+
+  parseField(textInput: string, patternWord: string): resultField {
+    const parts = patternWord.split(" ")[0].slice(1).split("_");
+    if (parts.length < 2)
+      return new resultField(`invalid pattern ${patternWord}`);
+    const result = new resultField();
+    result.field.protoId = U32.parseInt(parts[0]);
+    result.field.type = parts[1];
+    const format = parts.length > 2 ? parts[2] : "";
+    // if (Number.isNaN(protoId)) return { error: `invalid pattern ${patternWord}`};
+    switch (result.field.type) {
+      case "u64":
+      case "u32":
+      case "i64":
+      case "i32": {
+        let decimals = 0;
+        if (format) decimals = parseInt(format);
+        const res = this.parseNumberWithDecimals(
+          textInput,
+          decimals,
+          result.field.type
+        );
+        if (res.error) return new resultField(res.error);
+
+        switch (result.field.type) {
+          case "u64": {
+            result.field.uint64 = res.uint64;
+            break;
+          }
+          case "u32": {
+            result.field.uint32 = res.uint32;
+            break;
+          }
+          case "i64": {
+            result.field.int64 = res.int64;
+            break;
+          }
+          case "i32": {
+            result.field.int32 = res.int32;
+            break;
+          }
+          default: {
+          }
+        }
+        return result;
+      }
+      case "bytes": {
+        switch (format) {
+          case "base64": {
+            result.field.bytes = Base64.decode(textInput);
+            return result;
+          }
+          case "base58": {
+            result.field.bytes = Base58.decode(textInput);
+            return result;
+          }
+          case "hex": {
+            return new resultField("HEX format not implemented for bytes");
+          }
+          default: {
+            return new resultField(`invalid bytes format ${format}`);
+          }
+        }
+      }
+      case "string": {
+        result.field.string = textInput;
+        return result;
+      }
+      case "selfaddress": {
+        if (format != textInput) {
+          return new resultField(
+            `expected word ${format}, received ${textInput}`
+          );
+        }
+        const caller = System.getCaller().caller;
+        result.field.bytes = caller ? caller : new Uint8Array(0);
+        return result;
+      }
+      case "address": {
+        if (textInput.startsWith("@")) {
+          const res = this.resolveNicknameAddress(textInput.slice(1));
+          if (res.error) return res;
+          result.field.bytes = res.field.bytes;
+        } else if (textInput.startsWith("kap://")) {
+          const res = this.resolveKapAddress(textInput.slice(6));
+          if (res.error) return res;
+          result.field.bytes = res.field.bytes;
+        } else {
+          result.field.bytes = Base58.decode(textInput);
+        }
+        return result;
+      }
+      case "bool": {
+        if (textInput == "true") result.field.bool = true;
+        else if (textInput == "false") result.field.bool = false;
+        else return new resultField(`invalid bool value '${textInput}'`);
+        return result;
+      }
+      case "nested": {
+        const i = patternWord.indexOf(" ") + 1;
+        const phrasePattern = this.removeBrackets(patternWord.slice(i));
+        const resSplit = this.splitPhrase(textInput, false);
+        if (resSplit.error) return new resultField(resSplit.error);
+        const phrases = resSplit.words;
+
+        if (phrases.length != 1) {
+          return new resultField(`'${textInput}' must have a single element`);
+        }
+        const resMessage = this.parseMessage(
+          this.removeBrackets(phrases[0]),
+          phrasePattern
+        );
+        if (resMessage.error) return new resultField(resMessage.error);
+        result.field.nested = resMessage.fields;
+        return result;
+      }
+      case "repeated": {
+        const i = patternWord.indexOf(" ") + 1;
+        const phrasePattern = this.removeBrackets(patternWord.slice(i));
+        const resSplit = this.splitPhrase(textInput, false);
+        if (resSplit.error) return new resultField(resSplit.error);
+        const phrases = resSplit.words;
+
+        result.field.repeated = [];
+        for (let i = 0; i < phrases.length; i += 1) {
+          const resMessage = this.parseMessage(
+            this.removeBrackets(phrases[i]),
+            phrasePattern
+          );
+          if (resMessage.error) return new resultField(resMessage.error);
+          for (let j = 0; j < resMessage.fields.length; j += 1) {
+            result.field.repeated.push(resMessage.fields[j]);
+          }
+        }
+        return result;
+      }
+      default: {
+        return new resultField(`${result.field.type} type not implemented`);
+      }
+    }
+  }
+
+  parseMessage(phraseMessage: string, phrasePattern: string): resultData {
+    const resSplitMessage = this.splitPhrase(phraseMessage);
+    if (resSplitMessage.error) return new resultData(resSplitMessage.error);
+    const messageWords = resSplitMessage.words;
+
+    const resSplitPattern = this.splitPhrasePattern(phrasePattern);
+    if (resSplitPattern.error) return new resultData(resSplitPattern.error);
+    const patternWords = resSplitPattern.words;
+
+    if (messageWords.length != patternWords.length)
+      return new resultData("different size");
+
+    const message = new resultData();
+    for (let i = 0; i < messageWords.length; i += 1) {
+      if (patternWords[i].startsWith("%")) {
+        const res = this.parseField(messageWords[i], patternWords[i]);
+        if (res.error) return new resultData(res.error);
+        message.fields.push(res.field);
+      } else if (messageWords[i] != patternWords[i].replaceAll("\\%", "%")) {
+        return new resultData(
+          `message part '${messageWords[i]}' and pattern part '${patternWords[i]}' are different`
+        );
+      }
+    }
+    return message;
   }
 }

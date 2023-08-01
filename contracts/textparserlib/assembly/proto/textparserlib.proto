@@ -5,19 +5,20 @@ package textparserlib;
 import "koinos/options.proto"; 
 
 message data {
-   int32 type = 1;
-   bool bool = 2;
-   string string = 3;
-   bytes bytes = 4;
-   uint64 uint64 = 5;
-   uint32 uint32 = 6;
-   int64 int64 = 7;
-   int32 int32 = 8;
-   data nested = 9;
-   repeated data repeated = 10;
+   bool bool = 1;
+   string string = 2;
+   bytes bytes = 3;
+   uint64 uint64 = 4;
+   uint32 uint32 = 5;
+   int64 int64 = 6;
+   int32 int32 = 7;
+   data nested = 8;
+   repeated data repeated = 9;
 };
 
 message result {
    string error = 1;
-   bytes data = 2;
+   uint32 protoId = 2;
+   string type = 3;
+   data data = 4;
 }

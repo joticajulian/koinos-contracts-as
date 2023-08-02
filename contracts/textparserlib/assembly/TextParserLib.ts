@@ -43,9 +43,9 @@ export class resultNumber {
 export class messageField {
   protoId: i32;
 
-  type: string;
+  type: string | null;
 
-  bool: boolean | null;
+  bool: boolean;
 
   string: string | null;
 
@@ -71,6 +71,7 @@ export class resultField {
 
   constructor(error: string | null = null) {
     this.error = error;
+    this.field = new messageField();
   }
 }
 
@@ -316,146 +317,136 @@ export class TextParserLib {
     result.field.type = parts[1];
     const format = parts.length > 2 ? parts[2] : "";
     // if (Number.isNaN(protoId)) return { error: `invalid pattern ${patternWord}`};
-    switch (result.field.type) {
-      case "u64":
-      case "u32":
-      case "i64":
-      case "i32": {
-        let decimals = 0;
-        if (format) decimals = parseInt(format);
-        const res = this.parseNumberWithDecimals(
-          textInput,
-          decimals,
-          result.field.type
+
+    if (result.field.type == "bool") {
+      if (textInput == "true") result.field.bool = true;
+      else if (textInput == "false") result.field.bool = false;
+      else return new resultField(`invalid bool value '${textInput}'`);
+      return result;
+    }
+
+    if (result.field.type == "bytes") {
+      if (format == "base64") {
+        result.field.bytes = Base64.decode(textInput);
+        return result;
+      }
+      if (format == "base58") {
+        result.field.bytes = Base58.decode(textInput);
+        return result;
+      }
+      if (format == "hex") {
+        return new resultField("HEX format not implemented for bytes");
+      }
+      return new resultField(`invalid bytes format ${format}`);
+    }
+
+    if (result.field.type == "address") {
+      result.field.type = "bytes";
+      if (textInput.startsWith("@")) {
+        const res = this.resolveNicknameAddress(textInput.slice(1));
+        if (res.error) return res;
+        result.field.bytes = res.field.bytes;
+      } else if (textInput.startsWith("kap://")) {
+        const res = this.resolveKapAddress(textInput.slice(6));
+        if (res.error) return res;
+        result.field.bytes = res.field.bytes;
+      } else {
+        result.field.bytes = Base58.decode(textInput);
+      }
+      return result;
+    }
+
+    if (result.field.type == "selfaddress") {
+      result.field.type = "bytes";
+      if (format != textInput) {
+        return new resultField(
+          `expected word ${format}, received ${textInput}`
         );
-        if (res.error) return new resultField(res.error);
+      }
+      const caller = System.getCaller().caller;
+      result.field.bytes = caller ? caller : new Uint8Array(0);
+      return result;
+    }
 
-        switch (result.field.type) {
-          case "u64": {
-            result.field.uint64 = res.uint64;
-            break;
-          }
-          case "u32": {
-            result.field.uint32 = res.uint32;
-            break;
-          }
-          case "i64": {
-            result.field.int64 = res.int64;
-            break;
-          }
-          case "i32": {
-            result.field.int32 = res.int32;
-            break;
-          }
-          default: {
-          }
-        }
-        return result;
-      }
-      case "bytes": {
-        switch (format) {
-          case "base64": {
-            result.field.bytes = Base64.decode(textInput);
-            return result;
-          }
-          case "base58": {
-            result.field.bytes = Base58.decode(textInput);
-            return result;
-          }
-          case "hex": {
-            return new resultField("HEX format not implemented for bytes");
-          }
-          default: {
-            return new resultField(`invalid bytes format ${format}`);
-          }
-        }
-      }
-      case "string": {
-        result.field.string = textInput;
-        return result;
-      }
-      case "selfaddress": {
-        if (format != textInput) {
-          return new resultField(
-            `expected word ${format}, received ${textInput}`
-          );
-        }
-        const caller = System.getCaller().caller;
-        result.field.bytes = caller ? caller : new Uint8Array(0);
-        return result;
-      }
-      case "address": {
-        if (textInput.startsWith("@")) {
-          const res = this.resolveNicknameAddress(textInput.slice(1));
-          if (res.error) return res;
-          result.field.bytes = res.field.bytes;
-        } else if (textInput.startsWith("kap://")) {
-          const res = this.resolveKapAddress(textInput.slice(6));
-          if (res.error) return res;
-          result.field.bytes = res.field.bytes;
-        } else {
-          result.field.bytes = Base58.decode(textInput);
-        }
-        return result;
-      }
-      case "bool": {
-        if (textInput == "true") result.field.bool = true;
-        else if (textInput == "false") result.field.bool = false;
-        else return new resultField(`invalid bool value '${textInput}'`);
-        return result;
-      }
-      case "nested": {
-        const i = patternWord.indexOf(" ") + 1;
-        const phrasePattern = this.removeBrackets(patternWord.slice(i));
-        const resSplit = this.splitPhrase(textInput, false);
-        if (resSplit.error) return new resultField(resSplit.error);
-        const phrases = resSplit.words;
+    if (result.field.type == "string") {
+      result.field.string = textInput;
+      return result;
+    }
 
-        if (phrases.length != 1) {
-          return new resultField(`'${textInput}' must have a single element`);
-        }
+    if (["u64", "u32", "i64", "i32"].includes(result.field.type!)) {
+      let decimals: i32 = 0;
+      if (format) decimals = I32.parseInt(format);
+      const res = this.parseNumberWithDecimals(
+        textInput,
+        decimals,
+        result.field.type!
+      );
+      if (res.error) return new resultField(res.error);
+
+      if (result.field.type == "u64") {
+        result.field.uint64 = res.uint64;
+      } else if (result.field.type == "u32") {
+        result.field.uint32 = res.uint32;
+      } else if (result.field.type == "i64") {
+        result.field.int64 = res.int64;
+      } else {
+        // "i32"
+        result.field.int32 = res.int32;
+      }
+      return result;
+    }
+
+    if (result.field.type == "nested") {
+      const i = patternWord.indexOf(" ") + 1;
+      const phrasePattern = this.removeBrackets(patternWord.slice(i));
+      const resSplit = this.splitPhrase(textInput, false);
+      if (resSplit.error) return new resultField(resSplit.error);
+      const phrases = resSplit.words!;
+
+      if (phrases.length != 1) {
+        return new resultField(`'${textInput}' must have a single element`);
+      }
+      const resMessage = this.parseMessage(
+        this.removeBrackets(phrases[0]),
+        phrasePattern
+      );
+      if (resMessage.error) return new resultField(resMessage.error);
+      result.field.nested = resMessage.fields;
+      return result;
+    }
+
+    if (result.field.type == "repeated") {
+      const i = patternWord.indexOf(" ") + 1;
+      const phrasePattern = this.removeBrackets(patternWord.slice(i));
+      const resSplit = this.splitPhrase(textInput, false);
+      if (resSplit.error) return new resultField(resSplit.error);
+      const phrases = resSplit.words!;
+
+      result.field.repeated = [];
+      for (let i = 0; i < phrases.length; i += 1) {
         const resMessage = this.parseMessage(
-          this.removeBrackets(phrases[0]),
+          this.removeBrackets(phrases[i]),
           phrasePattern
         );
         if (resMessage.error) return new resultField(resMessage.error);
-        result.field.nested = resMessage.fields;
-        return result;
-      }
-      case "repeated": {
-        const i = patternWord.indexOf(" ") + 1;
-        const phrasePattern = this.removeBrackets(patternWord.slice(i));
-        const resSplit = this.splitPhrase(textInput, false);
-        if (resSplit.error) return new resultField(resSplit.error);
-        const phrases = resSplit.words;
-
-        result.field.repeated = [];
-        for (let i = 0; i < phrases.length; i += 1) {
-          const resMessage = this.parseMessage(
-            this.removeBrackets(phrases[i]),
-            phrasePattern
-          );
-          if (resMessage.error) return new resultField(resMessage.error);
-          for (let j = 0; j < resMessage.fields.length; j += 1) {
-            result.field.repeated.push(resMessage.fields[j]);
-          }
+        for (let j = 0; j < resMessage.fields.length; j += 1) {
+          result.field.repeated.push(resMessage.fields[j]);
         }
-        return result;
       }
-      default: {
-        return new resultField(`${result.field.type} type not implemented`);
-      }
+      return result;
     }
+
+    return new resultField(`${result.field.type!} type not implemented`);
   }
 
   parseMessage(phraseMessage: string, phrasePattern: string): resultData {
     const resSplitMessage = this.splitPhrase(phraseMessage);
     if (resSplitMessage.error) return new resultData(resSplitMessage.error);
-    const messageWords = resSplitMessage.words;
+    const messageWords = resSplitMessage.words!;
 
     const resSplitPattern = this.splitPhrasePattern(phrasePattern);
     if (resSplitPattern.error) return new resultData(resSplitPattern.error);
-    const patternWords = resSplitPattern.words;
+    const patternWords = resSplitPattern.words!;
 
     if (messageWords.length != patternWords.length)
       return new resultData("different size");

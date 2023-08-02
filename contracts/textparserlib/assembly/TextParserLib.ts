@@ -360,7 +360,7 @@ export class TextParserLib {
       result.field.type = "bytes";
       if (format != textInput) {
         return new resultField(
-          `expected word ${format}, received ${textInput}`
+          `expected word '${format}', received '${textInput}'`
         );
       }
       const caller = System.getCaller().caller;

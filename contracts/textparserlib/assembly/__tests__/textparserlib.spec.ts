@@ -341,6 +341,24 @@ describe("TextParserlib", () => {
         "%6_repeated { name: %1_string }"
       )
     ).toStrictEqual(expectedResult);
+
+    // errors
+    expect(lib.parseField("alice", "%1_bool").error).toBe(
+      "invalid bool value 'alice'"
+    );
+    // expect(lib.parseField("alice", "%1_bytes_base64").error).toBe("todo error bytes");
+    // expect(lib.parseField("alice", "%1_bytes_base58").error).toBe("todo error bytes");
+    // expect(lib.parseField("alice", "%1_bytes_hex").error).toBe("todo error bytes");
+    // expect(lib.parseField("alice", "%1_address").error).toBe("todo error bytes");
+    expect(lib.parseField("not_me", "%1_selfaddress_me").error).toBe(
+      "expected word 'me', received 'not_me'"
+    );
+    expect(lib.parseField("alice", "%1_u64_8").error).toBe(
+      "alice is not a number"
+    );
+    expect(
+      lib.parseField("{ alice } { bob }", "%1_nested { %1_string }").error
+    ).toBe("'{ alice } { bob }' must have a single element");
   });
 
   it("should parse a message", () => {
@@ -377,5 +395,14 @@ describe("TextParserlib", () => {
         "%1_selfaddress_transfer %3_u64_8 KOIN to %2_address"
       )
     ).toStrictEqual(expectedResult);
+
+    // errors
+    expect(
+      lib.parseMessage("transfer tokens", "burn %1_u64_8 tokens").error
+    ).toBe("different size");
+
+    expect(lib.parseMessage("transfer tokens", "transfer token").error).toBe(
+      "message part 'tokens' and pattern part 'token' are different"
+    );
   });
 });

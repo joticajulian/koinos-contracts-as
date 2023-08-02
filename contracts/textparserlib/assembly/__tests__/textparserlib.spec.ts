@@ -1,5 +1,10 @@
 import { Base58, Base64, MockVM, chain } from "@koinos/sdk-as";
-import { TextParserLib, messageField, resultField } from "../TextParserLib";
+import {
+  TextParserLib,
+  messageField,
+  resultData,
+  resultField,
+} from "../TextParserLib";
 
 const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
 const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
@@ -11,7 +16,7 @@ describe("TextParserlib", () => {
     MockVM.setContractId(CONTRACT_ID);
   });
 
-  xit("should parse a number", () => {
+  it("should parse a number", () => {
     const lib = new TextParserLib();
     expect(lib.parseNumberWithDecimals("0", 0, "u64").uint64).toBe(0);
     expect(lib.parseNumberWithDecimals("-0", 0, "i64").uint64).toBe(0);
@@ -56,7 +61,7 @@ describe("TextParserlib", () => {
     );
   });
 
-  xit("should split a phrase", () => {
+  it("should split a phrase", () => {
     const lib = new TextParserLib();
     expect(lib.splitPhrase(`sketch right sense`).words).toStrictEqual([
       "sketch",
@@ -136,7 +141,7 @@ describe("TextParserlib", () => {
     );
   });
 
-  xit("should split a phrase pattern", () => {
+  it("should split a phrase pattern", () => {
     const lib = new TextParserLib();
     expect(lib.splitPhrasePattern(`sell useful vibrant`).words).toStrictEqual([
       "sell",
@@ -334,6 +339,42 @@ describe("TextParserlib", () => {
       lib.parseField(
         "{ name: alice } { name: bob } { name: carl }",
         "%6_repeated { name: %1_string }"
+      )
+    ).toStrictEqual(expectedResult);
+  });
+
+  it("should parse a message", () => {
+    const lib = new TextParserLib();
+    const expectedResult = new resultData();
+    const from = "16KaoBbgr969Y4ujubo1qcCBFpjcMpBEM2";
+    const to = "1EuZs7XEDzsHYnYF23F684PGQwa9FeDQie";
+
+    MockVM.setCaller(
+      new chain.caller_data(Base58.decode(from), chain.privilege.user_mode)
+    );
+
+    const subField1 = new messageField();
+    subField1.protoId = 1;
+    subField1.type = "bytes";
+    subField1.bytes = Base58.decode(from);
+    expectedResult.fields.push(subField1);
+
+    const subField3 = new messageField();
+    subField3.protoId = 3;
+    subField3.type = "u64";
+    subField3.uint64 = 1000000000;
+    expectedResult.fields.push(subField3);
+
+    const subField2 = new messageField();
+    subField2.protoId = 2;
+    subField2.type = "bytes";
+    subField2.bytes = Base58.decode(to);
+    expectedResult.fields.push(subField2);
+
+    expect(
+      lib.parseMessage(
+        `transfer 10 KOIN to ${to}`,
+        "%1_selfaddress_transfer %3_u64_8 KOIN to %2_address"
       )
     ).toStrictEqual(expectedResult);
   });

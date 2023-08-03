@@ -43,22 +43,24 @@ export class resultNumber {
 
 export class messageField {
   static encode(message: messageField, writer: Writer): void {
-    let next: i32 = 1;
+    let expectedProtoId: i32 = 1;
     for (let i = 0; i < message.nested.length; i += 1) {
-      let minor = I32.MAX_VALUE;
+      let nextItemId = -1;
       for (let j = 0; j < message.nested.length; j += 1) {
-        if (message.nested[j].protoId == next) {
-          minor = j;
+        if (message.nested[j].protoId == expectedProtoId) {
+          nextItemId = j;
           break;
-        } else if (
-          message.nested[j].protoId > next &&
-          message.nested[j].protoId < minor
-        ) {
-          minor = j;
+        } else if (message.nested[j].protoId > expectedProtoId) {
+          if (nextItemId == -1) nextItemId = j;
+          else if (
+            message.nested[j].protoId < message.nested[nextItemId].protoId
+          ) {
+            nextItemId = j;
+          }
         }
       }
-      messageField.encodeField(message.nested[minor], writer);
-      next = message.nested[minor].protoId + 1;
+      messageField.encodeField(message.nested[nextItemId], writer);
+      expectedProtoId = message.nested[nextItemId].protoId + 1;
     }
   }
 
@@ -119,7 +121,7 @@ export class messageField {
       for (let i = 0; i < message.repeated.length; i += 1) {
         writer.uint32((message.protoId << 3) | WireType.LENGTH_DELIMITED);
         writer.fork();
-        messageField.encodeField(message.repeated[i], writer);
+        messageField.encode(message.repeated[i], writer);
         writer.ldelim();
       }
       return;

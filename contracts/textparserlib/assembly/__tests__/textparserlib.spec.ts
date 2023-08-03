@@ -461,7 +461,7 @@ describe("TextParserlib", () => {
     );
   });
 
-  it("should encode proto messages", () => {
+  it("should encode proto message for transfer tokens", () => {
     const lib = new TextParserLib();
     const from = "16KaoBbgr969Y4ujubo1qcCBFpjcMpBEM2";
     const to = "1EuZs7XEDzsHYnYF23F684PGQwa9FeDQie";
@@ -486,6 +486,38 @@ describe("TextParserlib", () => {
       testmessage.transfer_args.encode
     );
     const actualBytes = Protobuf.encode(data.field, messageField.encode);
+    expect(actualBytes).toStrictEqual(expectedBytes);
+  });
+
+  it("should encode a complex proto message", () => {
+    const lib = new TextParserLib();
+
+    const expectedBytes = Protobuf.encode(
+      new testmessage.data(
+        false,
+        "my string",
+        null,
+        32,
+        12,
+        13,
+        -40,
+        new testmessage.data(true),
+        [
+          new testmessage.data(false, "my item1"),
+          new testmessage.data(true, "my item2"),
+          new testmessage.data(true, "my item3"),
+        ]
+      ),
+      testmessage.data.encode
+    );
+
+    const result = lib.parseMessage(
+      `i32: -40 , u32: 12 , bool: false , string: "my string" , u64: 32 , nested: { true } , i64: 13 , repeated: { false "my item1" } { true "my item2" } { true "my item3" }`,
+      "i32: %7_i32 , u32: %5_u32 , bool: %1_bool , string: %2_string , u64: %4_u64 , nested: %8_nested { %1_bool } , i64: %6_i64 , repeated: %9_repeated { %1_bool %2_string }"
+    );
+    expect(result.error).toBe(null);
+    const actualBytes = Protobuf.encode(result.field, messageField.encode);
+
     expect(actualBytes).toStrictEqual(expectedBytes);
   });
 });

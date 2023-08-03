@@ -43,30 +43,41 @@ export class resultNumber {
 
 export class messageField {
   static encode(message: messageField, writer: Writer): void {
-    let wireType: WireType;
-    if (["bool", "uint64", "uint32", "int64", "int32"].includes(message.type)) {
-      wireType = WireType.VARINT;
-    } else {
-      // "string", "bytes", "nested", "repeated"
-      wireType = WireType.LENGTH_DELIMITED;
+    let next: i32 = 1;
+    for (let i = 0; i < message.nested.length; i += 1) {
+      let minor = I32.MAX_VALUE;
+      for (let j = 0; j < message.nested.length; j += 1) {
+        if (message.nested[j].protoId == next) {
+          minor = j;
+          break;
+        } else if (
+          message.nested[j].protoId > next &&
+          message.nested[j].protoId < minor
+        ) {
+          minor = j;
+        }
+      }
+      messageField.encodeField(message.nested[minor], writer);
+      next = message.nested[minor].protoId + 1;
     }
-    writer.uint32((message.protoId << 3) | wireType);
+  }
 
+  static encodeField(message: messageField, writer: Writer): void {
     if (message.type == "bool" && message.bool) {
       writer.uint32((message.protoId << 3) | WireType.VARINT);
       writer.bool(message.bool);
       return;
     }
 
-    if (message.type == "string") {
-      const unique_name_string = message.string;
+    if (message.type == "string" && message.string) {
+      const unique_name_string = message.string!;
       writer.uint32((message.protoId << 3) | WireType.LENGTH_DELIMITED);
       writer.string(unique_name_string);
       return;
     }
 
-    if (message.type == "bytes") {
-      const unique_name_bytes = message.bytes;
+    if (message.type == "bytes" && message.bytes) {
+      const unique_name_bytes = message.bytes!;
       writer.uint32((message.protoId << 3) | WireType.LENGTH_DELIMITED);
       writer.bytes(unique_name_bytes);
       return;
@@ -99,23 +110,7 @@ export class messageField {
     if (message.type == "nested") {
       writer.uint32((message.protoId << 3) | WireType.LENGTH_DELIMITED);
       writer.fork();
-      let next: i32 = 1;
-      for (let i = 0; i < message.nested.length; i += 1) {
-        let minor = I32.MAX_VALUE;
-        for (let j = 0; j < message.nested.length; j += 1) {
-          if (message.nested[j].protoId == next) {
-            minor = message.nested[j].protoId;
-            break;
-          } else if (
-            message.nested[j].protoId > next &&
-            message.nested[j].protoId < minor
-          ) {
-            minor = message.nested[j].protoId;
-          }
-        }
-        messageField.encode(message.nested[minor], writer);
-        next = minor + 1;
-      }
+      messageField.encode(message, writer);
       writer.ldelim();
       return;
     }
@@ -124,7 +119,7 @@ export class messageField {
       for (let i = 0; i < message.repeated.length; i += 1) {
         writer.uint32((message.protoId << 3) | WireType.LENGTH_DELIMITED);
         writer.fork();
-        messageField.encode(message.repeated[i], writer);
+        messageField.encodeField(message.repeated[i], writer);
         writer.ldelim();
       }
       return;
@@ -133,7 +128,7 @@ export class messageField {
 
   protoId: i32;
 
-  type: string | null;
+  type: string = "";
 
   bool: boolean;
 
@@ -163,18 +158,6 @@ export class resultField {
     this.error = error;
     this.field = new messageField();
   }
-}
-
-export class resultData {
-  error: string | null;
-
-  fields: Array<messageField> = [];
-
-  constructor(error: string | null = null) {
-    this.error = error;
-  }
-
-  serialize(): Uint8Array {}
 }
 
 export class TextParserLib {
@@ -465,13 +448,13 @@ export class TextParserLib {
       return result;
     }
 
-    if (["u64", "u32", "i64", "i32"].includes(result.field.type!)) {
+    if (["u64", "u32", "i64", "i32"].includes(result.field.type)) {
       let decimals: i32 = 0;
       if (format) decimals = I32.parseInt(format);
       const res = this.parseNumberWithDecimals(
         textInput,
         decimals,
-        result.field.type!
+        result.field.type
       );
       if (res.error) return new resultField(res.error);
 
@@ -503,7 +486,7 @@ export class TextParserLib {
         phrasePattern
       );
       if (resMessage.error) return new resultField(resMessage.error);
-      result.field.nested = resMessage.fields;
+      result.field.nested = resMessage.field.nested;
       return result;
     }
 
@@ -528,7 +511,7 @@ export class TextParserLib {
           //     %6_repeated_string { name: %0_string }
           //   equivalent in proto files:
           //     repeated string myStrings = 6;
-          result.field.repeated.push(resMessage.fields[0]);
+          result.field.repeated.push(resMessage.field.nested[0]);
         } else {
           // the items are nested messages. Example:
           //   phrase pattern:
@@ -538,38 +521,36 @@ export class TextParserLib {
           //     repeated person users = 6;
           const item = new messageField();
           item.type = "nested";
-          for (let j = 0; j < resMessage.fields.length; j += 1) {
-            item.nested.push(resMessage.fields[j]);
-          }
+          item.nested = resMessage.field.nested;
           result.field.repeated.push(item);
         }
       }
       return result;
     }
 
-    return new resultField(`${result.field.type!} type not implemented`);
+    return new resultField(`${result.field.type} type not implemented`);
   }
 
-  parseMessage(phraseMessage: string, phrasePattern: string): resultData {
+  parseMessage(phraseMessage: string, phrasePattern: string): resultField {
     const resSplitMessage = this.splitPhrase(phraseMessage);
-    if (resSplitMessage.error) return new resultData(resSplitMessage.error);
+    if (resSplitMessage.error) return new resultField(resSplitMessage.error);
     const messageWords = resSplitMessage.words!;
 
     const resSplitPattern = this.splitPhrasePattern(phrasePattern);
-    if (resSplitPattern.error) return new resultData(resSplitPattern.error);
+    if (resSplitPattern.error) return new resultField(resSplitPattern.error);
     const patternWords = resSplitPattern.words!;
 
     if (messageWords.length != patternWords.length)
-      return new resultData("different size");
+      return new resultField("different size");
 
-    const message = new resultData();
+    const message = new resultField();
     for (let i = 0; i < messageWords.length; i += 1) {
       if (patternWords[i].startsWith("%")) {
         const res = this.parseField(messageWords[i], patternWords[i]);
-        if (res.error) return new resultData(res.error);
-        message.fields.push(res.field);
+        if (res.error) return new resultField(res.error);
+        message.field.nested.push(res.field);
       } else if (messageWords[i] != patternWords[i].replaceAll("\\%", "%")) {
-        return new resultData(
+        return new resultField(
           `message part '${messageWords[i]}' and pattern part '${patternWords[i]}' are different`
         );
       }

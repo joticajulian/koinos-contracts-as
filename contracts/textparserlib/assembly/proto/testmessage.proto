@@ -16,9 +16,8 @@ message data {
    repeated data repeated = 9;
 };
 
-message result {
-   string error = 1;
-   uint32 protoId = 2;
-   string type = 3;
-   data data = 4;
+message transfer_args {
+   bytes from = 1;
+   bytes to = 2;
+   uint64 value = 3;
 }

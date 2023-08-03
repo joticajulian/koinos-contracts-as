@@ -1,14 +1,25 @@
-import { Base58, Base64, MockVM, chain } from "@koinos/sdk-as";
 import {
-  TextParserLib,
-  messageField,
-  resultData,
-  resultField,
-} from "../TextParserLib";
+  Base58,
+  Base64,
+  MockVM,
+  Protobuf,
+  System,
+  chain,
+} from "@koinos/sdk-as";
+import { TextParserLib, messageField, resultField } from "../TextParserLib";
+import { testmessage } from "../proto/testmessage";
 
 const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
 const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
 const MOCK_ACCT2 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqK");
+
+function toHexString(buffer: Uint8Array): string {
+  let result = "";
+  for (let i = 0; i < buffer.length; i += 1) {
+    result += buffer[i].toString(16).padStart(2, "0");
+  }
+  return result;
+}
 
 describe("TextParserlib", () => {
   beforeEach(() => {
@@ -407,7 +418,7 @@ describe("TextParserlib", () => {
 
   it("should parse a message", () => {
     const lib = new TextParserLib();
-    const expectedResult = new resultData();
+    const expectedResult = new resultField();
     const from = "16KaoBbgr969Y4ujubo1qcCBFpjcMpBEM2";
     const to = "1EuZs7XEDzsHYnYF23F684PGQwa9FeDQie";
 
@@ -419,19 +430,19 @@ describe("TextParserlib", () => {
     subField1.protoId = 1;
     subField1.type = "bytes";
     subField1.bytes = Base58.decode(from);
-    expectedResult.fields.push(subField1);
+    expectedResult.field.nested.push(subField1);
 
     const subField3 = new messageField();
     subField3.protoId = 3;
     subField3.type = "u64";
     subField3.uint64 = 1000000000;
-    expectedResult.fields.push(subField3);
+    expectedResult.field.nested.push(subField3);
 
     const subField2 = new messageField();
     subField2.protoId = 2;
     subField2.type = "bytes";
     subField2.bytes = Base58.decode(to);
-    expectedResult.fields.push(subField2);
+    expectedResult.field.nested.push(subField2);
 
     expect(
       lib.parseMessage(
@@ -448,5 +459,33 @@ describe("TextParserlib", () => {
     expect(lib.parseMessage("transfer tokens", "transfer token").error).toBe(
       "message part 'tokens' and pattern part 'token' are different"
     );
+  });
+
+  it("should encode proto messages", () => {
+    const lib = new TextParserLib();
+    const from = "16KaoBbgr969Y4ujubo1qcCBFpjcMpBEM2";
+    const to = "1EuZs7XEDzsHYnYF23F684PGQwa9FeDQie";
+
+    MockVM.setCaller(
+      new chain.caller_data(Base58.decode(from), chain.privilege.user_mode)
+    );
+    System.log(from);
+    System.log(to);
+
+    const data = lib.parseMessage(
+      `transfer 10 KOIN to ${to}`,
+      "%1_selfaddress_transfer %3_u64_8 KOIN to %2_address"
+    );
+
+    const expectedBytes = Protobuf.encode(
+      new testmessage.transfer_args(
+        Base58.decode(from),
+        Base58.decode(to),
+        1000000000
+      ),
+      testmessage.transfer_args.encode
+    );
+    const actualBytes = Protobuf.encode(data.field, messageField.encode);
+    expect(actualBytes).toStrictEqual(expectedBytes);
   });
 });

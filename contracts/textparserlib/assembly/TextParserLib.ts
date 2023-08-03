@@ -2,6 +2,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { Base58, Base64, System } from "@koinos/sdk-as";
+import { WireType, Writer } from "as-proto";
 
 export class resultWords {
   error: string | null;
@@ -41,6 +42,95 @@ export class resultNumber {
 }
 
 export class messageField {
+  static encode(message: messageField, writer: Writer): void {
+    let wireType: WireType;
+    if (["bool", "uint64", "uint32", "int64", "int32"].includes(message.type)) {
+      wireType = WireType.VARINT;
+    } else {
+      // "string", "bytes", "nested", "repeated"
+      wireType = WireType.LENGTH_DELIMITED;
+    }
+    writer.uint32((message.protoId << 3) | wireType);
+
+    if (message.type == "bool" && message.bool) {
+      writer.uint32((message.protoId << 3) | WireType.VARINT);
+      writer.bool(message.bool);
+      return;
+    }
+
+    if (message.type == "string") {
+      const unique_name_string = message.string;
+      writer.uint32((message.protoId << 3) | WireType.LENGTH_DELIMITED);
+      writer.string(unique_name_string);
+      return;
+    }
+
+    if (message.type == "bytes") {
+      const unique_name_bytes = message.bytes;
+      writer.uint32((message.protoId << 3) | WireType.LENGTH_DELIMITED);
+      writer.bytes(unique_name_bytes);
+      return;
+    }
+
+    if (message.type == "u64" && message.uint64 != 0) {
+      writer.uint32((message.protoId << 3) | WireType.VARINT);
+      writer.uint64(message.uint64);
+      return;
+    }
+
+    if (message.type == "u32" && message.uint32 != 0) {
+      writer.uint32((message.protoId << 3) | WireType.VARINT);
+      writer.uint32(message.uint32);
+      return;
+    }
+
+    if (message.type == "i64" && message.int64 != 0) {
+      writer.uint32((message.protoId << 3) | WireType.VARINT);
+      writer.int64(message.int64);
+      return;
+    }
+
+    if (message.type == "i32" && message.int32 != 0) {
+      writer.uint32((message.protoId << 3) | WireType.VARINT);
+      writer.int32(message.int32);
+      return;
+    }
+
+    if (message.type == "nested") {
+      writer.uint32((message.protoId << 3) | WireType.LENGTH_DELIMITED);
+      writer.fork();
+      let next: i32 = 1;
+      for (let i = 0; i < message.nested.length; i += 1) {
+        let minor = I32.MAX_VALUE;
+        for (let j = 0; j < message.nested.length; j += 1) {
+          if (message.nested[j].protoId == next) {
+            minor = message.nested[j].protoId;
+            break;
+          } else if (
+            message.nested[j].protoId > next &&
+            message.nested[j].protoId < minor
+          ) {
+            minor = message.nested[j].protoId;
+          }
+        }
+        messageField.encode(message.nested[minor], writer);
+        next = minor + 1;
+      }
+      writer.ldelim();
+      return;
+    }
+
+    if (message.type == "repeated") {
+      for (let i = 0; i < message.repeated.length; i += 1) {
+        writer.uint32((message.protoId << 3) | WireType.LENGTH_DELIMITED);
+        writer.fork();
+        messageField.encode(message.repeated[i], writer);
+        writer.ldelim();
+      }
+      return;
+    }
+  }
+
   protoId: i32;
 
   type: string | null;
@@ -83,6 +173,8 @@ export class resultData {
   constructor(error: string | null = null) {
     this.error = error;
   }
+
+  serialize(): Uint8Array {}
 }
 
 export class TextParserLib {
@@ -429,8 +521,27 @@ export class TextParserLib {
           phrasePattern
         );
         if (resMessage.error) return new resultField(resMessage.error);
-        for (let j = 0; j < resMessage.fields.length; j += 1) {
-          result.field.repeated.push(resMessage.fields[j]);
+
+        if (format != "") {
+          // the items are NOT nested messages. Example:
+          //   phrase pattern:
+          //     %6_repeated_string { name: %0_string }
+          //   equivalent in proto files:
+          //     repeated string myStrings = 6;
+          result.field.repeated.push(resMessage.fields[0]);
+        } else {
+          // the items are nested messages. Example:
+          //   phrase pattern:
+          //     %6_repeated_string { name: %1_string lastname: %2_string }
+          //   equivalent in proto files:
+          //     message person { string name = 1; string lastname = 2; }
+          //     repeated person users = 6;
+          const item = new messageField();
+          item.type = "nested";
+          for (let j = 0; j < resMessage.fields.length; j += 1) {
+            item.nested.push(resMessage.fields[j]);
+          }
+          result.field.repeated.push(item);
         }
       }
       return result;

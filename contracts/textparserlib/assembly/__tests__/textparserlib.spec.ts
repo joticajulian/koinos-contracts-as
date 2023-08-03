@@ -297,6 +297,7 @@ describe("TextParserlib", () => {
     expectedResult.field.int32 = -1000;
     expect(lib.parseField("-1", "%4_i32_3")).toStrictEqual(expectedResult);
 
+    // nested
     expectedResult.field = new messageField();
     expectedResult.field.protoId = 5;
     expectedResult.field.type = "nested";
@@ -317,27 +318,70 @@ describe("TextParserlib", () => {
       )
     ).toStrictEqual(expectedResult);
 
+    // repeated strings
     expectedResult.field = new messageField();
     expectedResult.field.protoId = 6;
     expectedResult.field.type = "repeated";
-    subField1 = new messageField();
-    subField1.protoId = 1;
-    subField1.type = "string";
-    subField1.string = "alice";
-    expectedResult.field.repeated.push(subField1);
-    subField2 = new messageField();
-    subField2.protoId = 1;
-    subField2.type = "string";
-    subField2.string = "bob";
-    expectedResult.field.repeated.push(subField2);
-    const subField3 = new messageField();
-    subField3.protoId = 1;
-    subField3.type = "string";
-    subField3.string = "carl";
-    expectedResult.field.repeated.push(subField3);
+    let item1 = new messageField();
+    item1.protoId = 0;
+    item1.type = "string";
+    item1.string = "alice";
+    expectedResult.field.repeated.push(item1);
+    let item2 = new messageField();
+    item2.protoId = 0;
+    item2.type = "string";
+    item2.string = "bob";
+    expectedResult.field.repeated.push(item2);
+    let item3 = new messageField();
+    item3.protoId = 0;
+    item3.type = "string";
+    item3.string = "carl";
+    expectedResult.field.repeated.push(item3);
     expect(
       lib.parseField(
         "{ name: alice } { name: bob } { name: carl }",
+        "%6_repeated_string { name: %0_string }"
+      )
+    ).toStrictEqual(expectedResult);
+
+    // repeated messages
+    expectedResult.field = new messageField();
+    expectedResult.field.protoId = 6;
+    expectedResult.field.type = "repeated";
+
+    item1 = new messageField();
+    item1.protoId = 0;
+    item1.type = "nested";
+    subField1 = new messageField();
+    subField1.protoId = 1;
+    subField1.type = "string";
+    subField1.string = "dany";
+    item1.nested.push(subField1);
+    expectedResult.field.repeated.push(item1);
+
+    item2 = new messageField();
+    item2.protoId = 0;
+    item2.type = "nested";
+    subField2 = new messageField();
+    subField2.protoId = 1;
+    subField2.type = "string";
+    subField2.string = "frank";
+    item2.nested.push(subField2);
+    expectedResult.field.repeated.push(item2);
+
+    item3 = new messageField();
+    item3.protoId = 0;
+    item3.type = "nested";
+    const subField3 = new messageField();
+    subField3.protoId = 1;
+    subField3.type = "string";
+    subField3.string = "michael";
+    item3.nested.push(subField3);
+    expectedResult.field.repeated.push(item3);
+
+    expect(
+      lib.parseField(
+        "{ name: dany } { name: frank } { name: michael }",
         "%6_repeated { name: %1_string }"
       )
     ).toStrictEqual(expectedResult);

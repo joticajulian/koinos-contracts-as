@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package textparserlib;
+
+import "koinos/options.proto"; 
+
+message data {
+   bool bool = 1;
+   string string = 2;
+   bytes bytes = 3;
+   uint64 uint64 = 4;
+   uint32 uint32 = 5;
+   int64 int64 = 6;
+   int32 int32 = 7;
+   data nested = 8;
+   repeated data repeated = 9;
+   repeated string repstring = 10;
+   repeated uint64 repu64 = 11;
+};
+
+message transfer_args {
+   bytes from = 1;
+   bytes to = 2;
+   uint64 value = 3;
+}

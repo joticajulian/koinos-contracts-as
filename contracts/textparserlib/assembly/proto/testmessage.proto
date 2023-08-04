@@ -14,6 +14,8 @@ message data {
    int32 int32 = 7;
    data nested = 8;
    repeated data repeated = 9;
+   repeated string repstring = 10;
+   repeated uint64 repu64 = 11;
 };
 
 message transfer_args {

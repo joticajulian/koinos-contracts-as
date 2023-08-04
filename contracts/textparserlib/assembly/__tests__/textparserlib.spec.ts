@@ -334,24 +334,24 @@ describe("TextParserlib", () => {
     expectedResult.field.protoId = 6;
     expectedResult.field.type = "repeated";
     let item1 = new messageField();
-    item1.protoId = 0;
+    item1.protoId = 6;
     item1.type = "string";
     item1.string = "alice";
     expectedResult.field.repeated.push(item1);
     let item2 = new messageField();
-    item2.protoId = 0;
+    item2.protoId = 6;
     item2.type = "string";
     item2.string = "bob";
     expectedResult.field.repeated.push(item2);
     let item3 = new messageField();
-    item3.protoId = 0;
+    item3.protoId = 6;
     item3.type = "string";
     item3.string = "carl";
     expectedResult.field.repeated.push(item3);
     expect(
       lib.parseField(
         "{ name: alice } { name: bob } { name: carl }",
-        "%6_repeated_string { name: %0_string }"
+        "%6_repeated_string { name: %6_string }"
       )
     ).toStrictEqual(expectedResult);
 
@@ -361,7 +361,7 @@ describe("TextParserlib", () => {
     expectedResult.field.type = "repeated";
 
     item1 = new messageField();
-    item1.protoId = 0;
+    item1.protoId = 6;
     item1.type = "nested";
     subField1 = new messageField();
     subField1.protoId = 1;
@@ -371,7 +371,7 @@ describe("TextParserlib", () => {
     expectedResult.field.repeated.push(item1);
 
     item2 = new messageField();
-    item2.protoId = 0;
+    item2.protoId = 6;
     item2.type = "nested";
     subField2 = new messageField();
     subField2.protoId = 1;
@@ -381,7 +381,7 @@ describe("TextParserlib", () => {
     expectedResult.field.repeated.push(item2);
 
     item3 = new messageField();
-    item3.protoId = 0;
+    item3.protoId = 6;
     item3.type = "nested";
     const subField3 = new messageField();
     subField3.protoId = 1;
@@ -469,8 +469,6 @@ describe("TextParserlib", () => {
     MockVM.setCaller(
       new chain.caller_data(Base58.decode(from), chain.privilege.user_mode)
     );
-    System.log(from);
-    System.log(to);
 
     const data = lib.parseMessage(
       `transfer 10 KOIN to ${to}`,
@@ -506,18 +504,19 @@ describe("TextParserlib", () => {
           new testmessage.data(false, "my item1"),
           new testmessage.data(true, "my item2"),
           new testmessage.data(true, "my item3"),
-        ]
+        ],
+        ["alice", "bob"],
+        [234, 98]
       ),
       testmessage.data.encode
     );
 
     const result = lib.parseMessage(
-      `i32: -40 , u32: 12 , bool: false , string: "my string" , u64: 32 , nested: { true } , i64: 13 , repeated: { false "my item1" } { true "my item2" } { true "my item3" }`,
-      "i32: %7_i32 , u32: %5_u32 , bool: %1_bool , string: %2_string , u64: %4_u64 , nested: %8_nested { %1_bool } , i64: %6_i64 , repeated: %9_repeated { %1_bool %2_string }"
+      `i32: -40 , u32: 12 , bool: false , string: "my string" , u64: 32 , nested: { true } , i64: 13 , array string: { alice } { bob } , repeated: { false "my item1" } { true "my item2" } { true "my item3" } , array u64: { 2.34 } { 0.98 }`,
+      "i32: %7_i32 , u32: %5_u32 , bool: %1_bool , string: %2_string , u64: %4_u64 , nested: %8_nested { %1_bool } , i64: %6_i64 , array string: %10_repeated_string { %10_string } , repeated: %9_repeated { %1_bool %2_string } , array u64: %11_repeated_u64 { %11_u64_2 }"
     );
     expect(result.error).toBe(null);
     const actualBytes = Protobuf.encode(result.field, messageField.encode);
-
     expect(actualBytes).toStrictEqual(expectedBytes);
   });
 });

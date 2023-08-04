@@ -43,24 +43,29 @@ export class resultNumber {
 
 export class messageField {
   static encode(message: messageField, writer: Writer): void {
-    let expectedProtoId: i32 = 1;
-    for (let i = 0; i < message.nested.length; i += 1) {
-      let nextItemId = -1;
-      for (let j = 0; j < message.nested.length; j += 1) {
-        if (message.nested[j].protoId == expectedProtoId) {
-          nextItemId = j;
-          break;
-        } else if (message.nested[j].protoId > expectedProtoId) {
-          if (nextItemId == -1) nextItemId = j;
-          else if (
-            message.nested[j].protoId < message.nested[nextItemId].protoId
-          ) {
+    if (message.type == "nested" || message.type == "") {
+      let expectedProtoId: i32 = 1;
+      for (let i = 0; i < message.nested.length; i += 1) {
+        let nextItemId = -1;
+        for (let j = 0; j < message.nested.length; j += 1) {
+          if (message.nested[j].protoId == expectedProtoId) {
             nextItemId = j;
+            break;
+          } else if (message.nested[j].protoId > expectedProtoId) {
+            if (nextItemId == -1) nextItemId = j;
+            else if (
+              message.nested[j].protoId < message.nested[nextItemId].protoId
+            ) {
+              nextItemId = j;
+            }
           }
         }
+        messageField.encodeField(message.nested[nextItemId], writer);
+        expectedProtoId = message.nested[nextItemId].protoId + 1;
       }
-      messageField.encodeField(message.nested[nextItemId], writer);
-      expectedProtoId = message.nested[nextItemId].protoId + 1;
+    } else {
+      // bool, string, etc (not nested)
+      messageField.encodeField(message, writer);
     }
   }
 
@@ -119,10 +124,7 @@ export class messageField {
 
     if (message.type == "repeated") {
       for (let i = 0; i < message.repeated.length; i += 1) {
-        writer.uint32((message.protoId << 3) | WireType.LENGTH_DELIMITED);
-        writer.fork();
-        messageField.encode(message.repeated[i], writer);
-        writer.ldelim();
+        messageField.encodeField(message.repeated[i], writer);
       }
       return;
     }
@@ -522,6 +524,7 @@ export class TextParserLib {
           //     message person { string name = 1; string lastname = 2; }
           //     repeated person users = 6;
           const item = new messageField();
+          item.protoId = result.field.protoId;
           item.type = "nested";
           item.nested = resMessage.field.nested;
           result.field.repeated.push(item);

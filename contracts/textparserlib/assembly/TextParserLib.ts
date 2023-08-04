@@ -44,24 +44,21 @@ export class resultNumber {
 export class messageField {
   static encode(message: messageField, writer: Writer): void {
     if (message.type == "nested" || message.type == "") {
-      let expectedProtoId: i32 = 1;
-      for (let i = 0; i < message.nested.length; i += 1) {
-        let nextItemId = -1;
-        for (let j = 0; j < message.nested.length; j += 1) {
-          if (message.nested[j].protoId == expectedProtoId) {
-            nextItemId = j;
-            break;
-          } else if (message.nested[j].protoId > expectedProtoId) {
-            if (nextItemId == -1) nextItemId = j;
-            else if (
-              message.nested[j].protoId < message.nested[nextItemId].protoId
-            ) {
-              nextItemId = j;
+      // sort fields by protoId
+      let expectedProto: i32 = 1;
+      const fields = message.nested;
+      for (let x = 0; x < fields.length; x += 1) {
+        let fieldId = -1;
+        for (let i = 0; i < fields.length; i += 1) {
+          if (fields[i].protoId >= expectedProto) {
+            if (fieldId == -1 || fields[i].protoId < fields[fieldId].protoId) {
+              fieldId = i;
+              if (fields[i].protoId == expectedProto) break;
             }
           }
         }
-        messageField.encodeField(message.nested[nextItemId], writer);
-        expectedProtoId = message.nested[nextItemId].protoId + 1;
+        messageField.encodeField(fields[fieldId], writer);
+        expectedProto = fields[fieldId].protoId + 1;
       }
     } else {
       // bool, string, etc (not nested)

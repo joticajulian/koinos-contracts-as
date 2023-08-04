@@ -442,6 +442,7 @@ describe("TextParserlib", () => {
     subField2.protoId = 2;
     subField2.type = "bytes";
     subField2.bytes = Base58.decode(to);
+
     expectedResult.field.nested.push(subField2);
 
     expect(

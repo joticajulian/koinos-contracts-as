@@ -9,9 +9,8 @@ import {
   Protobuf,
   Base58,
   StringBytes,
-  value,
-  Crypto,
 } from "@koinos/sdk-as";
+import { System2 } from "@koinosbox/contracts";
 import { token } from "./proto/token";
 
 const SUPPLY_SPACE_ID = 0;
@@ -132,28 +131,6 @@ export class Token {
     const allowance = this.allowances.get(key);
     if (!allowance) return new token.uint64(0);
     return allowance;
-  }
-
-  // TODO: add this function to the SDK
-  getSigners(): Array<Uint8Array> {
-    const sigBytes =
-      System.getTransactionField("signatures")!.message_value!.value!;
-    const signatures = Protobuf.decode<value.list_type>(
-      sigBytes,
-      value.list_type.decode
-    );
-    const txId = System.getTransactionField("id")!.bytes_value!;
-
-    const signers: Array<Uint8Array> = [];
-    for (let i = 0; i < signatures.values.length; i++) {
-      const publicKey = System.recoverPublicKey(
-        signatures.values[i].bytes_value!,
-        txId
-      );
-      const address = Crypto.addressFromPublicKey(publicKey!);
-      signers.push(address);
-    }
-    return signers;
   }
 
   /**
@@ -283,7 +260,7 @@ export class Token {
     }
 
     // check the signatures related to allowances
-    const signers = this.getSigners();
+    const signers = System2.getSigners();
     for (let i = 0; i < signers.length; i += 1) {
       if (acceptAllowances) {
         // check if the signer is approved for all tokens

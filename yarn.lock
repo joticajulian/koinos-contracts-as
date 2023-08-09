@@ -240,10 +240,10 @@
     as-proto "npm:@koinos/as-proto@1.0.0"
     assemblyscript "^0.19.22"
 
-"@koinosbox/contracts@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-1.0.8.tgz#5272b1f264afdbbcbd24fd2935b9be10805c8eaf"
-  integrity sha512-FoOznf1De0Ptf6xN6RndZKFiSCfM2xJ6sbzZm4AyC4JE5jYFlmz4DTEBxCcR8sZo5nQPZr2F7c9GKkbZwMCXYQ==
+"@koinosbox/contracts@^1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-1.0.9.tgz#5bf6a6306f8150ade206d841c4b3259ec6fb8683"
+  integrity sha512-o9fA1Vp50xk9x96s2L0UKjWm6AU0btZveh2VEeW+KceMXO999vPbizE0QeXYNxVtPdY59aHyl0O+1/y7p0ulaQ==
   dependencies:
     koilib "^5.5.4"
     koinos-precompiler-as "^0.4.1"

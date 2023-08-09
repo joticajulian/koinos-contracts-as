@@ -1,15 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import {
-  System,
-  Storage,
-  Arrays,
-  Crypto,
-  Protobuf,
-  authority,
-  value,
-} from "@koinos/sdk-as";
+import { System, Storage, Arrays, authority } from "@koinos/sdk-as";
+import { System2 } from "@koinosbox/contracts";
 
 import { common } from "./proto/common";
 
@@ -31,28 +24,6 @@ export class ManaSharer {
     );
   }
 
-  // TODO: add this function to the SDK
-  getSigners(): Array<Uint8Array> {
-    const sigBytes =
-      System.getTransactionField("signatures")!.message_value!.value!;
-    const signatures = Protobuf.decode<value.list_type>(
-      sigBytes,
-      value.list_type.decode
-    );
-    const txId = System.getTransactionField("id")!.bytes_value!;
-
-    const signers: Array<Uint8Array> = [];
-    for (let i = 0; i < signatures.values.length; i++) {
-      const publicKey = System.recoverPublicKey(
-        signatures.values[i].bytes_value!,
-        txId
-      );
-      const address = Crypto.addressFromPublicKey(publicKey!);
-      signers.push(address);
-    }
-    return signers;
-  }
-
   /**
    * Authorize function
    * @external
@@ -60,7 +31,7 @@ export class ManaSharer {
   authorize(args: authority.authorize_arguments): common.boole {
     // check if the transaction is signed with the
     // private key of the contract
-    const signers = this.getSigners();
+    const signers = System2.getSigners();
     for (let i = 0; i < signers.length; i += 1) {
       if (Arrays.equal(signers[i], this.contractId))
         return new common.boole(true);
@@ -85,7 +56,7 @@ export class ManaSharer {
    * the private key of the contract
    */
   isSignedByOwner(): boolean {
-    const signers = this.getSigners();
+    const signers = System2.getSigners();
     for (let i = 0; i < signers.length; i += 1) {
       if (Arrays.equal(signers[i], this.contractId)) return true;
     }

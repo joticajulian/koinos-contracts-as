@@ -6,7 +6,9 @@ if (!fs.existsSync("./assembly")) {
   fs.mkdirSync("assembly");
 }
 
-let index = "";
+fs.copyFileSync("./contracts/System2.ts", "./assembly/System2.ts");
+
+let index = `export { System2 } from "./System2"`;
 const contracts = fs.readdirSync("./contracts", { withFileTypes: true });
 contracts.forEach((contract) => {
   if (!contract.isDirectory()) return;

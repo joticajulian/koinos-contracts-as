@@ -1,6 +1,6 @@
 {
   "name": "@koinosbox/contracts",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "license": "MIT",
   "dependencies": {
     "koilib": "^5.5.4",
@@ -15,7 +15,7 @@
     "@as-pect/cli": "^6.2.4",
     "@koinos/mock-vm": "1.0.0",
     "@koinos/sdk-as": "1.0.0",
-    "@koinosbox/contracts": "^1.0.6",
+    "@koinosbox/contracts": "^1.0.8",
     "@roaminroe/protoc": "^2.4.0",
     "@tsconfig/node16": "^1.0.4",
     "@types/node": "^16.18.3",
@@ -75,7 +75,7 @@
     "textparserlib:deploy": "ts-node contracts/textparserlib/scripts/deployment.ts",
     "textparserlib:info": "node getSha256.js textparserlib",
     "textparserlib:docker": "docker build --no-cache --progress=plain --build-arg CONTRACT=textparserlib -t temp-image . && docker rmi temp-image",
-    "dist": "node updateDist.js",
+    "release": "node updateRelease.js",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
   },
   "config": {

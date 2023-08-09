@@ -2,11 +2,10 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { System } from "@koinos/sdk-as";
+import { IToken, token } from "@koinosbox/contracts";
 import { BURNKOIN_CONTRACT_ID, PVHP_CONTRACT_ID } from "./constants";
-import { Burnkoin } from "./IBurnkoin";
-import { Token } from "./IToken";
+import { Burnkoin } from "./interfaces/IBurnkoin";
 import { burnkoin } from "./proto/burnkoin";
-import { token } from "./proto/token";
 
 export class Burnkoinhelper {
   callArgs: System.getArgumentsReturn | null;
@@ -20,9 +19,9 @@ export class Burnkoinhelper {
     const vhpAmount = args.value;
     const tolerance = args.tolerance;
 
-    const pvhpContract = new Token(PVHP_CONTRACT_ID);
+    const pvhpContract = new IToken(PVHP_CONTRACT_ID);
     const burnkoinContract = new Burnkoin(BURNKOIN_CONTRACT_ID);
-    const koinContract = new Token(System.getContractAddress("koin"));
+    const koinContract = new IToken(System.getContractAddress("koin"));
 
     // balance args
     const myAccount = new token.balance_of_args(account);

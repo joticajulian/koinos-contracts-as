@@ -14,6 +14,26 @@ contracts.forEach((contract) => {
   const dest = path.join("./assembly", contract.name);
   fs.rmdirSync(dest, { recursive: true, force: true });
   fse.copySync(src, dest);
+
+  if (fs.existsSync(path.join(dest, "__tests__"))) {
+    fs.rmdirSync(path.join(dest, "__tests__"), {
+      recursive: true,
+      force: true,
+    });
+  }
+
+  if (fs.existsSync(path.join(dest, "release"))) {
+    const releases = fs.readdirSync(path.join(dest, "release"));
+    releases.forEach((release) => {
+      if (!release.endsWith(".wasm"))
+        fs.unlinkSync(path.join(dest, "release", release));
+    });
+    fs.rmdirSync(path.join(dest, "__tests__"), {
+      recursive: true,
+      force: true,
+    });
+  }
+
   if (fs.existsSync(path.join(dest, "proto"))) {
     fs.rmdirSync(path.join(dest, "proto/google"), {
       recursive: true,
@@ -24,17 +44,22 @@ contracts.forEach((contract) => {
       force: true,
     });
   }
+
   // update index
   const contractFiles = fs.readdirSync(src);
-  contractFiles.forEach(contractFile => {
-    if (contractFile.endsWith(".ts") && contractFile !== "index.ts" && contractFile !== "constants.ts") {
+  contractFiles.forEach((contractFile) => {
+    if (
+      contractFile.endsWith(".ts") &&
+      contractFile !== "index.ts" &&
+      contractFile !== "constants.ts"
+    ) {
       const className = contractFile.replace(".ts", "");
       index += `\nexport { ${className} } from "./${contract.name}/${className}";`;
     }
 
     if (contractFile === "proto") {
       const protoFiles = fs.readdirSync(path.join(src, "proto"));
-      protoFiles.forEach(protoFile => {
+      protoFiles.forEach((protoFile) => {
         if (protoFile.endsWith(".ts")) {
           const className = protoFile.replace(".ts", "");
           index += `\nexport { ${className} } from "./${contract.name}/proto/${className}";`;
@@ -44,10 +69,14 @@ contracts.forEach((contract) => {
 
     if (contractFile === "interfaces") {
       const interfaces = fs.readdirSync(path.join(src, "interfaces"));
-      interfaces.forEach(interface => {
+      interfaces.forEach((interface) => {
         if (interface.endsWith(".ts")) {
           const className = interface.replace(".ts", "");
-          index += `\nexport { ${className.slice(1)} as ${className} } from "./${contract.name}/interfaces/${className}";`;
+          index += `\nexport { ${className.slice(
+            1
+          )} as ${className} } from "./${
+            contract.name
+          }/interfaces/${className}";`;
         }
       });
     }

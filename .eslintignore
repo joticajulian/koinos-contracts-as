@@ -2,3 +2,4 @@
 **/assembly/*.boilerplate.ts
 **/assembly/index.ts
 build
+dist

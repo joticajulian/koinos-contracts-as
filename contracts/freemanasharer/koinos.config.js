@@ -19,7 +19,8 @@ module.exports = {
           privateKey: process.env.HARBINGER_MANA_SHARER_PRIVATE_KEY,
         },
         contract: {
-          privateKey: process.env.HARBINGER_FREE_MANA_SHARER_CONTRACT_PRIVATE_KEY,
+          privateKey:
+            process.env.HARBINGER_FREE_MANA_SHARER_CONTRACT_PRIVATE_KEY,
           id: process.env.HARBINGER_FREE_MANA_SHARER_CONTRACT_ID,
         },
       },

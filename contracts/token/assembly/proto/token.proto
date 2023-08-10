@@ -57,7 +57,24 @@ message allowance_args {
    bytes spender = 2 [(koinos.btype) = ADDRESS];
 }
 
-message set_authority_contract_args {
-   bytes account = 1 [(koinos.btype) = ADDRESS];
-   bool enabled = 2;
+enum direction {
+   ascending = 0;
+   descending = 1;
+}
+
+message get_allowances_args {
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+   bytes start = 2 [(koinos.btype) = ADDRESS];
+   int32 limit = 3;
+   direction direction = 4;
+}
+
+message spender_value {
+   bytes spender = 1 [(koinos.btype) = ADDRESS];
+   uint64 value = 2 [jstype = JS_STRING];
+}
+
+message get_allowances_return {
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+   repeated spender_value allowances = 2;   
 }

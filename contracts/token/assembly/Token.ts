@@ -168,7 +168,7 @@ export class Token {
     const impacted = [args.spender!, args.owner!];
     System.event(
       "koinos.contracts.token.approve_event",
-      this.callArgs!.args,
+      Protobuf.encode<token.approve_args>(args, token.approve_args.encode),
       impacted
     );
   }

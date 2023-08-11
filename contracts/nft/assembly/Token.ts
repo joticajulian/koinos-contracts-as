@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
-// Token.ts v0.1.0
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { System, Storage, Protobuf, Arrays } from "@koinos/sdk-as";
+import { System, Storage, Protobuf } from "@koinos/sdk-as";
 import { System2 } from "@koinosbox/contracts";
 import { token } from "./proto/token";
 
@@ -17,9 +16,9 @@ export class Token {
   _symbol: string = "TKN";
   _decimals: u32 = 8;
 
-  contractId: Uint8Array = System.getContractId();
+  contractId = System.getContractId();
 
-  supply: Storage.Obj<token.uint64> = new Storage.Obj(
+  supply = new Storage.Obj(
     this.contractId,
     SUPPLY_SPACE_ID,
     token.uint64.decode,
@@ -27,7 +26,7 @@ export class Token {
     () => new token.uint64(0)
   );
 
-  balances: Storage.Map<Uint8Array, token.uint64> = new Storage.Map(
+  balances = new Storage.Map(
     this.contractId,
     BALANCES_SPACE_ID,
     token.uint64.decode,
@@ -35,7 +34,7 @@ export class Token {
     () => new token.uint64(0)
   );
 
-  allowances: Storage.Map<Uint8Array, token.uint64> = new Storage.Map(
+  allowances = new Storage.Map(
     this.contractId,
     ALLOWANCES_SPACE_ID,
     token.uint64.decode,
@@ -114,28 +113,11 @@ export class Token {
    * @external
    * @readonly
    */
-  get_allowances(args: token.get_allowances_args): token.get_allowances_return {
-    let key = new Uint8Array(50);
+  allowances(args: token.allowance_args): token.uint64 {
+    const key = new Uint8Array(50);
     key.set(args.owner!, 0);
-    key.set(args.start ? args.start! : new Uint8Array(0), 25);
-    const result = new token.get_allowances_return(args.owner!, []);
-    for (let i = 0; i < args.limit; i += 1) {
-      const nextAllowance =
-        args.direction == token.direction.ascending
-          ? this.allowances.getNext(key)
-          : this.allowances.getPrev(key);
-      if (
-        !nextAllowance ||
-        !Arrays.equal(args.owner!, nextAllowance.key!.slice(0, 25))
-      )
-        break;
-      const spender = nextAllowance.key!.slice(25);
-      result.allowances.push(
-        new token.spender_value(spender, nextAllowance.value.value)
-      );
-      key = nextAllowance.key!;
-    }
-    return result;
+    key.set(args.spender!, 25);
+    return this.allowances.get(key)!;
   }
 
   /**
@@ -148,7 +130,7 @@ export class Token {
     if (caller.caller && caller.caller!.length > 0) {
       const key = new Uint8Array(50);
       key.set(account, 0);
-      key.set(caller.caller!, 25);
+      key.set(caller.caller, 25);
       const allowance = this.allowances.get(key)!;
       if (allowance.value >= amount) {
         // spend allowance
@@ -167,11 +149,7 @@ export class Token {
     this.allowances.put(key, new token.uint64(args.value));
 
     const impacted = [args.spender!, args.owner!];
-    System.event(
-      "token.approve_event",
-      Protobuf.encode<token.approve_args>(args, token.approve_args.encode),
-      impacted
-    );
+    System.event("token.approve_event", this.callArgs!.args, impacted);
   }
 
   _transfer(args: token.transfer_args): void {

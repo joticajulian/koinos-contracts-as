@@ -10,11 +10,7 @@ async function main() {
   const network = koinosConfig.networks[networkName];
   if (!network) throw new Error(`network ${networkName} not found`);
   const provider = new Provider(network.rpcNodes);
-  const accountWithFunds = Signer.fromWif(
-    network.accounts.manaSharer.privateKey
-  );
   const contractAccount = Signer.fromWif(network.accounts.contract.privateKey);
-  accountWithFunds.provider = provider;
   contractAccount.provider = provider;
 
   const contract = new Contract({
@@ -22,16 +18,13 @@ async function main() {
     provider,
     abi,
     options: {
-      payer: accountWithFunds.address,
+      payer: network.accounts.manaSharer.id,
       rcLimit: "10000000000",
-      beforeSend: async (tx: TransactionJson) => {
-        await accountWithFunds.signTransaction(tx);
-      },
     },
   });
 
   const { receipt, transaction } = await contract.functions.mint({
-    to: accountWithFunds.address,
+    to: network.accounts.manaSharer.id,
     value: "100",
   });
   console.log("Transaction submitted. Receipt: ");

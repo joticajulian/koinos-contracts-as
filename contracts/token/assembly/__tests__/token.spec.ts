@@ -10,9 +10,9 @@ import {
 import { Token } from "../Token";
 import { token } from "../proto/token";
 
-const CONTRACT_ID = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqe");
-const MOCK_ACCT1 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqG");
-const MOCK_ACCT2 = Base58.decode("1DQzuCcTKacbs9GGScRTU1Hc8BsyARTPqK");
+const CONTRACT_ID = Base58.decode("17NJMRU52u1bn9CHo5oWyUVkAoLhg1fsf9");
+const MOCK_ACCT1 = Base58.decode("19dG7aZ6oTVCmTPrLWAd3tbKeyG4jk1bAC");
+const MOCK_ACCT2 = Base58.decode("1Q6uyNtjgxv3Z3TfJ4aLNBbr2roPz2q3Rt");
 
 describe("token", () => {
   beforeEach(() => {
@@ -58,7 +58,7 @@ describe("token", () => {
     // check events
     const events = MockVM.getEvents();
     expect(events.length).toBe(1);
-    expect(events[0].name).toBe("koinos.contracts.token.mint_event");
+    expect(events[0].name).toBe("token.mint_event");
     expect(events[0].impacted.length).toBe(1);
     expect(Arrays.equal(events[0].impacted[0], MOCK_ACCT1)).toBe(true);
 
@@ -180,7 +180,7 @@ describe("token", () => {
     const events = MockVM.getEvents();
     // 2 events, 1st one is the mint event, the second one is the transfer event
     expect(events.length).toBe(2);
-    expect(events[1].name).toBe("koinos.contracts.token.transfer_event");
+    expect(events[1].name).toBe("token.transfer_event");
     expect(events[1].impacted.length).toBe(2);
     expect(Arrays.equal(events[1].impacted[0], MOCK_ACCT2)).toBe(true);
     expect(Arrays.equal(events[1].impacted[1], CONTRACT_ID)).toBe(true);

@@ -167,7 +167,7 @@ export class Token {
 
     const impacted = [args.spender!, args.owner!];
     System.event(
-      "koinos.contracts.token.approve_event",
+      "token.approve_event",
       Protobuf.encode<token.approve_args>(args, token.approve_args.encode),
       impacted
     );
@@ -188,7 +188,7 @@ export class Token {
 
     const impacted = [args.to!, args.from!];
     System.event(
-      "koinos.contracts.token.transfer_event",
+      "token.transfer_event",
       Protobuf.encode<token.transfer_args>(args, token.transfer_args.encode),
       impacted
     );
@@ -209,7 +209,7 @@ export class Token {
 
     const impacted = [args.to!];
     System.event(
-      "koinos.contracts.token.mint_event",
+      "token.mint_event",
       Protobuf.encode<token.mint_args>(args, token.mint_args.encode),
       impacted
     );
@@ -230,7 +230,7 @@ export class Token {
 
     const impacted = [args.from!];
     System.event(
-      "koinos.contracts.token.burn_event",
+      "token.burn_event",
       Protobuf.encode<token.burn_args>(args, token.burn_args.encode),
       impacted
     );

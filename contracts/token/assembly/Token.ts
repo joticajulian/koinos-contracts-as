@@ -147,7 +147,7 @@ export class Token {
     if (caller.caller && caller.caller!.length > 0) {
       const key = new Uint8Array(50);
       key.set(account, 0);
-      key.set(caller.caller, 25);
+      key.set(caller.caller!, 25);
       const allowance = this.allowances.get(key)!;
       if (allowance.value >= amount) {
         // spend allowance

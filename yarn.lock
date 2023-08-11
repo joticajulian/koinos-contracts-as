@@ -240,10 +240,10 @@
     as-proto "npm:@koinos/as-proto@1.0.0"
     assemblyscript "^0.19.22"
 
-"@koinosbox/contracts@^1.0.9":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-1.0.9.tgz#5bf6a6306f8150ade206d841c4b3259ec6fb8683"
-  integrity sha512-o9fA1Vp50xk9x96s2L0UKjWm6AU0btZveh2VEeW+KceMXO999vPbizE0QeXYNxVtPdY59aHyl0O+1/y7p0ulaQ==
+"@koinosbox/contracts@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-1.0.10.tgz#1903cd97ee08aa3164fbaa6c18df328c3a741148"
+  integrity sha512-OBorRaOqqdz+mV/1v+D3K8Tk4/rodHw6E9/wNQq/YgjrzvTKpNeZnMTaaz0C145+iP45bfnX3h7yeagu5hdALA==
   dependencies:
     koilib "^5.5.4"
     koinos-precompiler-as "^0.4.1"
@@ -1869,10 +1869,33 @@ koinos-precompiler-as@^0.4.1:
     protobufjs "^7.0.0"
     protobufjs-cli "^1.0.0"
 
+koinos-precompiler-as@^0.4.3:
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/koinos-precompiler-as/-/koinos-precompiler-as-0.4.3.tgz#28e95232169091b3585e2bb5c10d0ad186957043"
+  integrity sha512-YrPgmtn2/pcVzof9VZxzMk9Z8NwDHKp3CDzkI1ZHbpOXEowxgWJ/2Kj5LYBoniexVaQJp04vYKLJDcTuU8WwaQ==
+  dependencies:
+    "@protobuf-ts/protoc" "^2.7.0"
+    as-proto "npm:@koinos/as-proto@1.0.0"
+    commander "^9.4.0"
+    comment-parser "^1.3.1"
+    fs-extra "^10.1.0"
+    koinos-ts-structure-parser "^0.0.21"
+    protobufjs "^7.0.0"
+    protobufjs-cli "^1.0.0"
+
 koinos-ts-structure-parser@^0.0.20:
   version "0.0.20"
   resolved "https://registry.yarnpkg.com/koinos-ts-structure-parser/-/koinos-ts-structure-parser-0.0.20.tgz#036afa6dcf7a74c73539de3e7f4812c7ad0b7744"
   integrity sha512-0+hL5UC2oYlcuFx0bPTz7XBIqFBVNL7tIp29Q04K716rxn8RPtMTHl0QA/fUquVB2JE9vBy3VPnGGU/puwbYjw==
+  dependencies:
+    ts-structure-model "0.0.1"
+    typescript "3.1.6"
+    underscore "^1.13.6"
+
+koinos-ts-structure-parser@^0.0.21:
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/koinos-ts-structure-parser/-/koinos-ts-structure-parser-0.0.21.tgz#62cfaf6875707b87b9d826bb3ec78f70f415badb"
+  integrity sha512-3n5owGwiGJpkd8VTxlOIX3JX3gYVGR4DIANe+y+YaSmwYJoUcDYWT0VMGipMpVcXqkBLlOljRoVrpDuTQ2zs7w==
   dependencies:
     ts-structure-model "0.0.1"
     typescript "3.1.6"

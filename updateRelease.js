@@ -12,9 +12,10 @@ let index = `export { System2 } from "./System2"`;
 const contracts = fs.readdirSync("./contracts", { withFileTypes: true });
 contracts.forEach((contract) => {
   if (!contract.isDirectory()) return;
+  if (contract.name === "nft") return;
   const src = path.join("./contracts", contract.name, "./build");
   const dest = path.join("./assembly", contract.name);
-  fs.rmdirSync(dest, { recursive: true, force: true });
+  if (fs.existsSync(dest)) fs.rmdirSync(dest, { recursive: true, force: true });
   fse.copySync(src, dest);
 
   if (fs.existsSync(path.join(dest, "__tests__"))) {
@@ -29,10 +30,6 @@ contracts.forEach((contract) => {
     releases.forEach((release) => {
       if (!release.endsWith(".wasm"))
         fs.unlinkSync(path.join(dest, "release", release));
-    });
-    fs.rmdirSync(path.join(dest, "__tests__"), {
-      recursive: true,
-      force: true,
     });
   }
 

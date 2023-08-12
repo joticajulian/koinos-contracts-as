@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// Free Mana Sharer Contract v1.0.0
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { System, authority } from "@koinos/sdk-as";

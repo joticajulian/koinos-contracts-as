@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// Text Parser Library v0.1.0
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { Base58, Base64, System } from "@koinos/sdk-as";

@@ -1,17 +1,19 @@
-import {
-  Arrays,
-  System,
-  authority,
-  Storage,
-  Protobuf,
-  StringBytes,
-  Base58,
-} from "@koinos/sdk-as";
-import { nft } from "./proto/nft";
-import { common } from "./proto/common";
-import { Ownable } from "./Ownable";
+// SPDX-License-Identifier: MIT
+// NFT Contract v0.1.0
+// Julian Gonzalez (joticajulian@gmail.com)
 
-export const AUTHORIZE_CONTRACT_CALL_ENTRY_POINT = 0x10e5820f; // authorize_contract_call
+import { Arrays, System, Storage, Protobuf } from "@koinos/sdk-as";
+import { System2, common, token } from "@koinosbox/contracts";
+import { nft } from "./proto/nft";
+
+const SUPPLY_SPACE_ID = 0;
+const BALANCES_SPACE_ID = 1;
+const ROYALTIES_SPACE_ID = 2;
+const TOKEN_OWNERS_SPACE_ID = 3;
+const TOKEN_METADATA_SPACE_ID = 4;
+const TOKEN_APPROVALS_SPACE_ID = 5;
+const TOKEN_OPERATOR_APPROVALS_SPACE_ID = 6;
+
 export const ONE_HUNDRED_PERCENT: u64 = 10000;
 
 export class Nft {
@@ -25,7 +27,15 @@ export class Nft {
 
   supply = new Storage.Obj(
     this.contractId,
-    1,
+    SUPPLY_SPACE_ID,
+    common.uint64.decode,
+    common.uint64.encode,
+    () => new common.uint64(0)
+  );
+
+  balances = new Storage.Map(
+    this.contractId,
+    BALANCES_SPACE_ID,
     common.uint64.decode,
     common.uint64.encode,
     () => new common.uint64(0)
@@ -33,31 +43,31 @@ export class Nft {
 
   _royalties = new Storage.Obj(
     this.contractId,
-    2,
+    ROYALTIES_SPACE_ID,
     nft.royalties.decode,
     nft.royalties.encode,
     () => new nft.royalties()
   );
 
-  balances = new Storage.Map(
-    this.contractId,
-    3,
-    common.uint64.decode,
-    common.uint64.encode,
-    () => new common.uint64(0)
-  );
-
   tokenOwners = new Storage.Map(
     this.contractId,
-    4,
+    TOKEN_OWNERS_SPACE_ID,
     common.address.decode,
     common.address.encode,
     () => new common.address()
   );
 
+  tokenMetadata = new Storage.Map(
+    this.contractId,
+    TOKEN_METADATA_SPACE_ID,
+    common.str.decode,
+    common.str.encode,
+    () => new common.str("")
+  );
+
   tokenApprovals = new Storage.Map(
     this.contractId,
-    5,
+    TOKEN_APPROVALS_SPACE_ID,
     common.address.decode,
     common.address.encode,
     () => new common.address()
@@ -65,15 +75,7 @@ export class Nft {
 
   operatorApprovals = new Storage.Map(
     this.contractId,
-    6,
-    common.boole.decode,
-    common.boole.encode,
-    () => new common.boole(false)
-  );
-
-  ownerContracts = new Storage.Map(
-    this.contractId,
-    7,
+    TOKEN_OPERATOR_APPROVALS_SPACE_ID,
     common.boole.decode,
     common.boole.encode,
     () => new common.boole(false)
@@ -152,6 +154,15 @@ export class Nft {
   }
 
   /**
+   * Get the metadata of a token
+   * @external
+   * @readonly
+   */
+  metadata_of(args: nft.token): common.str {
+    return this.tokenMetadata.get(args.token_id!)!;
+  }
+
+  /**
    * Check if an account is approved to operate a token ID
    * @external
    * @readonly
@@ -174,179 +185,128 @@ export class Nft {
   }
 
   /**
-   * Internal function to call the contract of an account to request its
-   * authority to perform an operation.
+   * Get allowances of an account
+   * @external
+   * @readonly
    */
-  is_authorized_by_contract_account(account: Uint8Array): boolean {
-    const caller = System.getCaller();
-    const callRes = System.call(
-      account,
-      AUTHORIZE_CONTRACT_CALL_ENTRY_POINT,
-      Protobuf.encode(
-        new authority.authorize_arguments(
-          authority.authorization_type.contract_call,
-          new authority.call_data(
-            this.contractId,
-            this.callArgs!.entry_point,
-            caller.caller,
-            this.callArgs!.args
-          )
-        ),
-        authority.authorize_arguments.encode
+  get_operator_approvals(
+    args: token.get_allowances_args
+  ): token.get_allowances_return {
+    let key = new Uint8Array(50);
+    key.set(args.owner!, 0);
+    key.set(args.start ? args.start! : new Uint8Array(0), 25);
+    const result = new token.get_allowances_return(args.owner!, []);
+    for (let i = 0; i < args.limit; i += 1) {
+      const nextAllowance =
+        args.direction == token.direction.ascending
+          ? this.operatorApprovals.getNext(key)
+          : this.operatorApprovals.getPrev(key);
+      if (
+        !nextAllowance ||
+        !Arrays.equal(args.owner!, nextAllowance.key!.slice(0, 25))
       )
-    );
-    if (callRes.code != 0) {
-      const errorMessage = `failed to call contract of ${Base58.encode(
-        account
-      )}: ${
-        callRes.res.error && callRes.res.error!.message
-          ? callRes.res.error!.message!
-          : "unknown error"
-      }`;
-      System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
+        break;
+      const operator = nextAllowance.key!.slice(25);
+      result.operators.push(operator);
+      key = nextAllowance.key!;
     }
-    System.require(
-      callRes.res.object,
-      `empty response from ${Base58.encode(account)}`
-    );
-
-    return Protobuf.decode<common.boole>(
-      callRes.res.object!,
-      common.boole.decode
-    ).value;
+    return result;
   }
 
   /**
-   * Internal function to validate the authority of an operation.
-   * This function replaces the koinos native function called
-   * "System.requireAuthority()". And it introduces new features to
-   * increase the security of the contract.
-   *
-   * Why is this needed? let's take a look to the logic of
-   * System.requireAuthority():
-   *
-   * - If the user has a smart contract wallet (and if it was
-   *   tagged to resolve contract calls) then that contract is called.
-   * - Otherwise the system will check if the transaction was signed
-   *   by the user. This second point is risky because the flow of contract
-   *   calls could be: A -> B -> C -> D. The user approved the operation
-   *   in "A", but he doesn't know what will happen in B, C, or D and his
-   *   signature is still in the transaction. Then some malicious contract
-   *   in the middle could take advantage of this point to steal the assets.
-   *
-   * What changed in this check_authority function? It implements approvals
-   * and checks who is the caller:
-   *
-   * - If there is a caller (that is, if this operation was not triggered
-   *   by the user itself but by some contract in the middle), it is approved
-   *   if one of the following conditions are met:
-   *     1. The caller is approved by the user (for all tokens or single
-   *        token).
-   *     2. The caller is the user.
-   *     3. The user has a contract and this contract authorizes the operation.
-   * - If there is NO caller (that is, if this operation appears in the list
-   *   of operations in the transaction, not called by some contract in the
-   *   middle) then the contract will check if one of the following conditions
-   *   are met:
-   *     1. The transaction is signed by an account approved by the user (for
-   *        all tokens or single token).
-   *     2. The user has a contract and this contract authorizes the operation.
-   *     3. The transaction is signed by the user, but with the condition that
-   *        the user doesn't have a contract.
-   *
-   * Note 1: The approvals are granted by the user by using "approve" and
-   * "set_approva_for_all" functions.
-   *
-   * Note 2: Currently there is no a system call to check if an account has
-   * a smart contract wallet or not. Then as a temporal solution, the user has
-   * to call "set_authority_contract" to define that he uses a smart contract
-   * wallet.
+   * Internal function to check if the account triggered
+   * the operation, or if another account is authorized
    */
-  check_authority(
-    account: Uint8Array,
-    acceptOperators: boolean,
-    acceptApprovals: boolean,
-    token_id: Uint8Array
-  ): boolean {
+  check_authority(account: Uint8Array, token_id: Uint8Array): boolean {
+    // check if the operation is authorized directly by the user
+    if (System2.check_authority(account)) return true;
+
+    // check if the user authorized the caller
     const caller = System.getCaller();
+    if (!caller.caller || caller.caller!.length == 0) return false;
 
+    // check if approved for all
     const key = new Uint8Array(50);
-    if (acceptOperators) {
-      key.set(account, 0);
+    key.set(account, 0);
+    key.set(caller.caller!, 25);
+    if (this.operatorApprovals.get(key)!.value == true) return true;
+
+    // check if approved for the token
+    const approvedAddress = this.tokenApprovals.get(token_id)!.account;
+    if (Arrays.equal(approvedAddress, caller.caller)) {
+      // clear temporal approval
+      this.tokenApprovals.remove(token_id);
+      return true;
     }
 
-    let approvedAddress: Uint8Array;
-    if (acceptApprovals) {
-      const a = this.tokenApprovals.get(token_id)!.account;
-      if (a) approvedAddress = a;
-    }
-
-    // check if there is a caller (smart contract in the middle)
-    if (caller.caller && caller.caller!.length > 0) {
-      if (acceptOperators) {
-        // check if the caller is approved for all tokens
-        key.set(caller.caller!, 25);
-        if (this.operatorApprovals.get(key)!.value == true) return true;
-      }
-
-      if (acceptApprovals) {
-        // check if the caller is approved for the token id
-        if (Arrays.equal(approvedAddress, caller.caller)) {
-          // clear temporal approval
-          this.tokenApprovals.remove(token_id);
-          return true;
-        }
-      }
-
-      // check if the account is the caller
-      if (Arrays.equal(account, caller.caller)) return true;
-
-      // check if the contract of the account authorizes the operation
-      if (this.ownerContracts.get(account)!.value == true) {
-        System.log("Account contract called to resolve the authority");
-        return this.is_authorized_by_contract_account(account);
-      }
-
-      // the transaction has a caller but none of the different
-      // options authorized the operation, then it is rejected.
-      return false;
-    }
-
-    // check the signatures related to allowances
-    const signers = this.getSigners();
-    for (let i = 0; i < signers.length; i += 1) {
-      if (acceptOperators) {
-        // check if the signer is approved for all tokens
-        key.set(signers[i], 25);
-        if (this.operatorApprovals.get(key)!.value == true) return true;
-      }
-
-      if (acceptApprovals) {
-        // check if the signer is approved for the token id
-        if (Arrays.equal(approvedAddress, signers[i])) {
-          // clear temporal approval
-          this.tokenApprovals.remove(token_id);
-          return true;
-        }
-      }
-    }
-
-    // check if the account has a contract
-    if (this.ownerContracts.get(account)!.value == true) {
-      // consult the contract of the account
-      System.log("Account contract called to resolve the authority");
-      return this.is_authorized_by_contract_account(account);
-    }
-
-    // there is no caller, no approval from allowances, and the account
-    // doesn't have a contract then check if the account signed the transaction
-    for (let i = 0; i < signers.length; i += 1) {
-      if (Arrays.equal(account, signers[i])) return true;
-    }
-
-    // none of the different options authorized the operation,
-    // then it is rejected.
     return false;
+  }
+
+  _set_royalties(args: nft.royalties): void {
+    const impacted: Uint8Array[] = [];
+    let totalPercentage: u64 = 0;
+    for (let i = 0; i < args.value.length; i += 1) {
+      totalPercentage += args.value[i].percentage;
+      impacted.push(args.value[i].address!);
+      System.require(
+        args.value[i].percentage <= ONE_HUNDRED_PERCENT &&
+          totalPercentage <= ONE_HUNDRED_PERCENT,
+        "the percentages for royalties exceeded 100%"
+      );
+    }
+    this._royalties.put(args);
+    System.event(
+      "collections.royalties_event",
+      Protobuf.encode<nft.royalties>(args, nft.royalties.encode),
+      impacted
+    );
+  }
+
+  _set_metadata(args: nft.metadata_args): void {
+    this.tokenMetadata.put(args.token_id!, new common.str(args.metadata));
+  }
+
+  _approve(args: nft.approve_args): void {
+    this.tokenApprovals.put(args.tokenId!, new common.address(args.to!));
+    const impacted = [args.to!, args.approver!];
+    System.event(
+      "collections.token_approval_event",
+      Protobuf.encode<nft.approve_args>(args, nft.approve_args),
+      impacted
+    );
+  }
+
+  _set_approval_for_all(args: nft.set_approval_for_all_args): void {
+    const key = new Uint8Array(50);
+    key.set(args.approver_address!, 0);
+    key.set(args.operator_address!, 25);
+    this.operatorApprovals.put(key, new common.boole(args.approved));
+
+    const impacted = [args.operator_address!, args.approver_address!];
+    System.event(
+      "collections.operator_approval_event",
+      this.callArgs!.args,
+      impacted
+    );
+  }
+
+  _transfer(args: nft.transfer_args): void {
+    this.tokenOwners.put(args.tokenId!, new common.address(args.to!));
+
+    let fromBalance = this.balances.get(args.from!)!;
+    fromBalance.value -= 1;
+    this.balances.put(args.from!, fromBalance);
+
+    let toBalance = this.balances.get(args.to!)!;
+    toBalance.value += 1;
+    this.balances.put(args.to!, toBalance);
+
+    const impacted = [args.to!, args.from!];
+    System.event(
+      "collections.transfer_event",
+      Protobuf.encode<nft.transfer_args>(args, nft.transfer_args.encode),
+      impacted
+    );
   }
 
   _mint(args: nft.mint_args): void {
@@ -358,7 +318,7 @@ export class Nft {
     const supply = this.supply.get()!;
     System.require(
       supply.value <= u64.MAX_VALUE - 1,
-      "Mint would overflow supply"
+      "mint would overflow supply"
     );
     balance.value += 1;
     supply.value += 1;
@@ -372,58 +332,45 @@ export class Nft {
     );
   }
 
+  _burn(args: token.burn_args): void {
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+    System.require(tokenOwner.account, "token does not exist");
+    this.tokenOwners.remove(args.token_id!);
+
+    const balance = this.balances.get(tokenOwner.account)!;
+    const supply = this.supply.get()!;
+    balance.value -= 1;
+    supply.value -= 1;
+    this.balances.put(tokenOwner.account, balance);
+    this.supply.put(supply);
+
+    const impacted = [tokenOwner.account];
+    System.event(
+      "collections.burn_event",
+      Protobuf.encode<nft.burn_args>(args, nft.burn_args.encode),
+      impacted
+    );
+  }
+
   /**
    * Set royalties
    * @external
    * @event collections.royalties_event nft.royalties
    */
   set_royalties(args: nft.royalties): void {
-    System.require(this.only_owner(), "not authorized by the owner");
-    const impacted: Uint8Array[] = [];
-    let totalPercentage: u64 = 0;
-    for (let i = 0; i < args.value.length; i += 1) {
-      totalPercentage += args.value[i].percentage;
-      impacted.push(args.value[i].address!);
-      System.require(
-        args.value[i].percentage <= ONE_HUNDRED_PERCENT &&
-          totalPercentage <= ONE_HUNDRED_PERCENT,
-        "the percentages for royalties exceeded 100%"
-      );
-    }
-    this._royalties.put(args);
-    System.event("collections.royalties_event", this.callArgs!.args, impacted);
+    const isAuthorized = System2.check_authority(this.contractId);
+    System.require(isAuthorized, "not authorized by the owner");
+    this._set_royalties(args);
   }
 
   /**
-   * Function to define if the user has a smart contract wallet or not
-   * to resolve the authority when making transfers or burns.
-   *
-   * Note: This is a temporary function while a new System call is
-   * developed in koinos to get the contract metadata
+   * Set metadata
+   * @external
    */
-  set_authority_contract(args: nft.set_authority_contract_args): void {
-    const isAuthorized = this.check_authority(
-      args.account!,
-      false,
-      false,
-      new Uint8Array(0)
-    );
-    System.require(
-      isAuthorized,
-      "set_authority_contract operation not authorized"
-    );
-
-    // test a call
-    System.require(
-      this.is_authorized_by_contract_account(args.account!),
-      "not authorized by contract account"
-    );
-
-    this.ownerContracts.put(args.account!, new common.boole(args.enabled));
-
-    System.event("set_authority_contract", this.callArgs!.args, [
-      args.account!,
-    ]);
+  set_metadata(args: nft.metadata_args): void {
+    const isAuthorized = System2.check_authority(this.contractId);
+    System.require(isAuthorized, "not authorized by the owner");
+    this._set_metadata(args);
   }
 
   /**
@@ -433,32 +380,16 @@ export class Nft {
    * @event collections.token_approval_event nft.approve_args
    */
   approve(args: nft.approve_args): void {
-    const approver = args.approver_address!;
-    const to = args.to!;
-    const tokenId = args.token_id!;
-
-    const tokenOwner = this.tokenOwners.get(tokenId)!;
+    const tokenOwner = this.tokenOwners.get(args.tokenId!)!;
     System.require(
-      Arrays.equal(tokenOwner.account, approver),
+      Arrays.equal(tokenOwner.account, args.approver!),
       "approver is not the owner"
     );
 
-    const isAuthorized = this.check_authority(
-      approver,
-      true,
-      false,
-      new Uint8Array(0)
-    );
+    const isAuthorized = System2.check_authority(args.approver!);
     System.require(isAuthorized, "approval operation not authorized");
 
-    this.tokenApprovals.put(tokenId, new common.address(to));
-
-    const impacted = [to, approver];
-    System.event(
-      "collections.token_approval_event",
-      this.callArgs!.args,
-      impacted
-    );
+    this._approve(args);
   }
 
   /**
@@ -468,32 +399,12 @@ export class Nft {
    * @event collections.operator_approval_event nft.set_approval_for_all_args
    */
   set_approval_for_all(args: nft.set_approval_for_all_args): void {
-    const approver = args.approver_address!;
-    const operator = args.operator_address!;
-    const approved = args.approved;
-
-    const isAuthorized = this.check_authority(
-      approver,
-      false,
-      false,
-      new Uint8Array(0)
-    );
+    const isAuthorized = System2.check_authority(args.approver_address!);
     System.require(
       isAuthorized,
       "set_approval_for_all operation not authorized"
     );
-
-    const key = new Uint8Array(50);
-    key.set(approver, 0);
-    key.set(operator, 25);
-    this.operatorApprovals.put(key, new common.boole(approved));
-
-    const impacted = [operator, approver];
-    System.event(
-      "collections.operator_approval_event",
-      this.callArgs!.args,
-      impacted
-    );
+    this._set_approval_for_all(args);
   }
 
   /**
@@ -502,32 +413,16 @@ export class Nft {
    * @event collections.transfer_event nft.transfer_args
    */
   transfer(args: nft.transfer_args): void {
-    const from = args.from!;
-    const to = args.to!;
-    const tokenId = args.token_id!;
-
-    const tokenOwner = this.tokenOwners.get(tokenId)!;
+    const tokenOwner = this.tokenOwners.get(args.token_id)!;
     System.require(
-      Arrays.equal(tokenOwner.account, from),
+      Arrays.equal(tokenOwner.account, args.from!),
       "from is not the owner"
     );
 
-    const isAuthorized = this.check_authority(from, true, true, tokenId);
+    const isAuthorized = this.check_authority(args.from!, args.token_id);
     System.require(isAuthorized, "transfer not authorized");
 
-    tokenOwner.account = to;
-    this.tokenOwners.put(tokenId, tokenOwner);
-
-    let fromBalance = this.balances.get(from)!;
-    fromBalance.value -= 1;
-    this.balances.put(from, fromBalance);
-
-    let toBalance = this.balances.get(to)!;
-    toBalance.value += 1;
-    this.balances.put(to, toBalance);
-
-    const impacted = [to, from];
-    System.event("collections.transfer_event", this.callArgs!.args, impacted);
+    this._transfer(args);
   }
 
   /**
@@ -536,16 +431,8 @@ export class Nft {
    * @event collections.mint_event nft.mint_args
    */
   mint(args: nft.mint_args): void {
-    System.require(this.only_owner(), "not authorized by the owner");
+    const isAuthorized = System2.check_authority(this.contractId);
+    System.require(isAuthorized, "not authorized by the owner");
     this._mint(args);
-  }
-
-  /**
-   * Set royalties
-   * @external
-   * @event collections.royalties_event nft.royalties
-   */
-  burn(args: nft.burn_args): void {
-    System.require(false, "function not implemented");
   }
 }

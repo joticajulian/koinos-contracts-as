@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Token Contract v0.1.0
+// Token Contract v0.1.1
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { System, Storage, Protobuf, Arrays } from "@koinos/sdk-as";
@@ -143,20 +143,23 @@ export class Token {
    * the operation, or if another account is authorized
    */
   check_authority(account: Uint8Array, amount: u64): boolean {
+    // check if the operation is authorized directly by the user
     if (System2.check_authority(account)) return true;
+
+    // check if the user authorized the caller
     const caller = System.getCaller();
-    if (caller.caller && caller.caller!.length > 0) {
-      const key = new Uint8Array(50);
-      key.set(account, 0);
-      key.set(caller.caller!, 25);
-      const allowance = this.allowances.get(key)!;
-      if (allowance.value >= amount) {
-        // spend allowance
-        allowance.value -= amount;
-        this.allowances.put(key, allowance);
-        return true;
-      }
+    if (!caller.caller || caller.caller!.length == 0) return false;
+    const key = new Uint8Array(50);
+    key.set(account, 0);
+    key.set(caller.caller!, 25);
+    const allowance = this.allowances.get(key)!;
+    if (allowance.value >= amount) {
+      // spend allowance
+      allowance.value -= amount;
+      this.allowances.put(key, allowance);
+      return true;
     }
+
     return false;
   }
 

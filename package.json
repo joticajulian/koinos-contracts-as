@@ -1,6 +1,6 @@
 {
   "name": "@koinosbox/contracts",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "license": "MIT",
   "dependencies": {
     "koilib": "^5.5.4",
@@ -15,7 +15,7 @@
     "@as-pect/cli": "^6.2.4",
     "@koinos/mock-vm": "1.0.0",
     "@koinos/sdk-as": "1.0.0",
-    "@koinosbox/contracts": "^1.0.11",
+    "@koinosbox/contracts": "^1.0.12",
     "@roaminroe/protoc": "^2.4.0",
     "@tsconfig/node16": "^1.0.4",
     "@types/node": "^16.18.3",

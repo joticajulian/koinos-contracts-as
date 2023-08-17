@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// NFT Contract v0.1.0
+// NFT Contract v1.0.0
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { Arrays, System, Storage, Protobuf } from "@koinos/sdk-as";
-import { System2, common, token } from "@koinosbox/contracts";
+import { System2, common } from "@koinosbox/contracts";
 import { nft } from "./proto/nft";
 
 const SUPPLY_SPACE_ID = 0;
@@ -23,9 +23,9 @@ export class Nft {
   _symbol: string = "NFT";
   _uri: string = "https://nfts";
 
-  contractId = System.getContractId();
+  contractId: Uint8Array = System.getContractId();
 
-  supply = new Storage.Obj(
+  supply: Storage.Obj<common.uint64> = new Storage.Obj(
     this.contractId,
     SUPPLY_SPACE_ID,
     common.uint64.decode,
@@ -33,7 +33,7 @@ export class Nft {
     () => new common.uint64(0)
   );
 
-  balances = new Storage.Map(
+  balances: Storage.Map<Uint8Array, common.uint64> = new Storage.Map(
     this.contractId,
     BALANCES_SPACE_ID,
     common.uint64.decode,
@@ -41,7 +41,7 @@ export class Nft {
     () => new common.uint64(0)
   );
 
-  _royalties = new Storage.Obj(
+  _royalties: Storage.Obj<nft.royalties> = new Storage.Obj(
     this.contractId,
     ROYALTIES_SPACE_ID,
     nft.royalties.decode,
@@ -49,7 +49,7 @@ export class Nft {
     () => new nft.royalties()
   );
 
-  tokenOwners = new Storage.Map(
+  tokenOwners: Storage.Map<Uint8Array, common.address> = new Storage.Map(
     this.contractId,
     TOKEN_OWNERS_SPACE_ID,
     common.address.decode,
@@ -57,7 +57,7 @@ export class Nft {
     () => new common.address()
   );
 
-  tokenMetadata = new Storage.Map(
+  tokenMetadata: Storage.Map<Uint8Array, common.str> = new Storage.Map(
     this.contractId,
     TOKEN_METADATA_SPACE_ID,
     common.str.decode,
@@ -65,7 +65,7 @@ export class Nft {
     () => new common.str("")
   );
 
-  tokenApprovals = new Storage.Map(
+  tokenApprovals: Storage.Map<Uint8Array, common.address> = new Storage.Map(
     this.contractId,
     TOKEN_APPROVALS_SPACE_ID,
     common.address.decode,
@@ -73,7 +73,7 @@ export class Nft {
     () => new common.address()
   );
 
-  operatorApprovals = new Storage.Map(
+  operatorApprovals: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
     this.contractId,
     TOKEN_OPERATOR_APPROVALS_SPACE_ID,
     common.boole.decode,
@@ -190,15 +190,15 @@ export class Nft {
    * @readonly
    */
   get_operator_approvals(
-    args: token.get_allowances_args
-  ): token.get_allowances_return {
+    args: nft.get_operators_args
+  ): nft.get_operators_return {
     let key = new Uint8Array(50);
     key.set(args.owner!, 0);
     key.set(args.start ? args.start! : new Uint8Array(0), 25);
-    const result = new token.get_allowances_return(args.owner!, []);
+    const result = new nft.get_operators_return(args.owner!, []);
     for (let i = 0; i < args.limit; i += 1) {
       const nextAllowance =
-        args.direction == token.direction.ascending
+        args.direction == nft.direction.ascending
           ? this.operatorApprovals.getNext(key)
           : this.operatorApprovals.getPrev(key);
       if (
@@ -267,11 +267,11 @@ export class Nft {
   }
 
   _approve(args: nft.approve_args): void {
-    this.tokenApprovals.put(args.tokenId!, new common.address(args.to!));
-    const impacted = [args.to!, args.approver!];
+    this.tokenApprovals.put(args.token_id!, new common.address(args.to!));
+    const impacted = [args.to!, args.approver_address!];
     System.event(
       "collections.token_approval_event",
-      Protobuf.encode<nft.approve_args>(args, nft.approve_args),
+      Protobuf.encode<nft.approve_args>(args, nft.approve_args.encode),
       impacted
     );
   }
@@ -291,7 +291,7 @@ export class Nft {
   }
 
   _transfer(args: nft.transfer_args): void {
-    this.tokenOwners.put(args.tokenId!, new common.address(args.to!));
+    this.tokenOwners.put(args.token_id!, new common.address(args.to!));
 
     let fromBalance = this.balances.get(args.from!)!;
     fromBalance.value -= 1;
@@ -332,7 +332,7 @@ export class Nft {
     );
   }
 
-  _burn(args: token.burn_args): void {
+  _burn(args: nft.burn_args): void {
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.account, "token does not exist");
     this.tokenOwners.remove(args.token_id!);
@@ -380,13 +380,13 @@ export class Nft {
    * @event collections.token_approval_event nft.approve_args
    */
   approve(args: nft.approve_args): void {
-    const tokenOwner = this.tokenOwners.get(args.tokenId!)!;
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(
-      Arrays.equal(tokenOwner.account, args.approver!),
+      Arrays.equal(tokenOwner.account, args.approver_address!),
       "approver is not the owner"
     );
 
-    const isAuthorized = System2.check_authority(args.approver!);
+    const isAuthorized = System2.check_authority(args.approver_address!);
     System.require(isAuthorized, "approval operation not authorized");
 
     this._approve(args);
@@ -413,13 +413,13 @@ export class Nft {
    * @event collections.transfer_event nft.transfer_args
    */
   transfer(args: nft.transfer_args): void {
-    const tokenOwner = this.tokenOwners.get(args.token_id)!;
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(
       Arrays.equal(tokenOwner.account, args.from!),
       "from is not the owner"
     );
 
-    const isAuthorized = this.check_authority(args.from!, args.token_id);
+    const isAuthorized = this.check_authority(args.from!, args.token_id!);
     System.require(isAuthorized, "transfer not authorized");
 
     this._transfer(args);

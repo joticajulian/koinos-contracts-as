@@ -16,7 +16,6 @@ let index = `export { System2 } from "./System2"`;
 const contracts = fs.readdirSync("./contracts", { withFileTypes: true });
 contracts.forEach((contract) => {
   if (!contract.isDirectory()) return;
-  if (contract.name === "nft") return;
   const src = path.join("./contracts", contract.name, "./build");
   const dest = path.join("./assembly", contract.name);
   if (fs.existsSync(dest)) fs.rmdirSync(dest, { recursive: true, force: true });
@@ -46,9 +45,13 @@ contracts.forEach((contract) => {
       recursive: true,
       force: true,
     });
-    fse.copy(path.join(dest,"proto"), path.join("./koinosbox-proto", contract.name), {
-      filter: (s) => !s.endsWith(".ts"),
-    });
+    fse.copy(
+      path.join(dest, "proto"),
+      path.join("./koinosbox-proto", contract.name),
+      {
+        filter: (s) => !s.endsWith(".ts"),
+      }
+    );
   }
 
   // update index

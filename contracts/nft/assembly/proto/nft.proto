@@ -64,16 +64,6 @@ message set_approval_for_all_args {
    bool approved = 3;
 }
 
-message set_authority_contract_args {
-   bytes account = 1 [(koinos.btype) = ADDRESS];
-   bool enabled = 2;
-}
-
-message owner_event {
-   bytes from = 1 [(koinos.btype) = ADDRESS];
-   bytes to = 2 [(koinos.btype) = ADDRESS];
-}
-
 enum direction {
    ascending = 0;
    descending = 1;
@@ -87,7 +77,6 @@ message get_operators_args {
 }
 
 message get_operators_return {
-   bytes token_id = 1 [(koinos.btype) = HEX];
-   bytes owner = 2 [(koinos.btype) = ADDRESS];
-   repeated bytes operators = 3 [(koinos.btype) = ADDRESS];
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+   repeated bytes operators = 2 [(koinos.btype) = ADDRESS];
 }

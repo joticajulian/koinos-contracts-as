@@ -3,25 +3,22 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "Nft",
-  proto: ["./proto/nft.proto","./proto/common.proto"],
-  protoDirs: ["../../node_modules/@koinosbox/contracts/assembly/proto"],
-  imports: [],
-  files: ["./Nft.ts", "../../../node_modules/@koinosbox/contracts/assembly/manasharer/ManaSharer.ts"],
+  files: ["./Nft.ts"],
   sourceDir: "./assembly",
   buildDir: "./build",
   protoImport: [
     {
       name: "@koinosbox/contracts",
-      path: "../../koinosbox-proto"
+      path: "../../koinosbox-proto",
     },
     {
       name: "@koinos/sdk-as",
-      path: "../../node_modules/koinos-precompiler-as/koinos-proto/koinos"
+      path: "../../node_modules/koinos-precompiler-as/koinos-proto/koinos",
     },
     {
       name: "__",
-      path: "../../node_modules/koinos-precompiler-as/koinos-proto/google"
-    }
+      path: "../../node_modules/koinos-precompiler-as/koinos-proto/google",
+    },
   ],
   networks: {
     harbinger: {

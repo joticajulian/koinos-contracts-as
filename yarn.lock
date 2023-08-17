@@ -240,13 +240,13 @@
     as-proto "npm:@koinos/as-proto@1.0.0"
     assemblyscript "^0.19.22"
 
-"@koinosbox/contracts@^1.0.12":
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-1.0.12.tgz#4518ef032efb9487a8cb4ef64c64b5697cda7f28"
-  integrity sha512-JXFdGprQ61BETMhBTuskSWaK8mhDqugf8pw52isaQgvf1/6m5DF3tAI0wp7p4MXmwmcsuvDpL7pyCASEerAJSg==
+"@koinosbox/contracts@^1.0.13":
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-1.0.13.tgz#6d44a0911e1665fc6ce1d614358c871f3b42a71f"
+  integrity sha512-DUyp2XJQucWp/6gaDyxhgW2Ow8tVzZIvXiuorHBhq5am7m1P6qQ+A7h1qW/XUgIpKPIWp17c/R1WoFQeXtxAbw==
   dependencies:
     koilib "^5.5.4"
-    koinos-precompiler-as "^0.4.3"
+    koinos-precompiler-as "^1.0.0"
 
 "@multiformats/base-x@^4.0.1":
   version "4.0.1"
@@ -1855,20 +1855,6 @@ koilib@^5.5.4:
     multibase "^4.0.6"
     protobufjs "^7.0.0"
 
-koinos-precompiler-as@^0.4.3:
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/koinos-precompiler-as/-/koinos-precompiler-as-0.4.3.tgz#28e95232169091b3585e2bb5c10d0ad186957043"
-  integrity sha512-YrPgmtn2/pcVzof9VZxzMk9Z8NwDHKp3CDzkI1ZHbpOXEowxgWJ/2Kj5LYBoniexVaQJp04vYKLJDcTuU8WwaQ==
-  dependencies:
-    "@protobuf-ts/protoc" "^2.7.0"
-    as-proto "npm:@koinos/as-proto@1.0.0"
-    commander "^9.4.0"
-    comment-parser "^1.3.1"
-    fs-extra "^10.1.0"
-    koinos-ts-structure-parser "^0.0.21"
-    protobufjs "^7.0.0"
-    protobufjs-cli "^1.0.0"
-
 koinos-precompiler-as@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/koinos-precompiler-as/-/koinos-precompiler-as-1.0.0.tgz#e2fa85ab7e82c822b5d1f5021cfb0c7133305ffc"
@@ -1882,15 +1868,6 @@ koinos-precompiler-as@^1.0.0:
     koinos-ts-structure-parser "^0.1.1"
     protobufjs "^7.0.0"
     protobufjs-cli "^1.0.0"
-
-koinos-ts-structure-parser@^0.0.21:
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/koinos-ts-structure-parser/-/koinos-ts-structure-parser-0.0.21.tgz#62cfaf6875707b87b9d826bb3ec78f70f415badb"
-  integrity sha512-3n5owGwiGJpkd8VTxlOIX3JX3gYVGR4DIANe+y+YaSmwYJoUcDYWT0VMGipMpVcXqkBLlOljRoVrpDuTQ2zs7w==
-  dependencies:
-    ts-structure-model "0.0.1"
-    typescript "3.1.6"
-    underscore "^1.13.6"
 
 koinos-ts-structure-parser@^0.1.1:
   version "0.1.1"

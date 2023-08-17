@@ -6,6 +6,10 @@ if (!fs.existsSync("./assembly")) {
   fs.mkdirSync("assembly");
 }
 
+if (!fs.existsSync("./koinosbox-proto")) {
+  fs.mkdirSync("koinosbox-proto");
+}
+
 fs.copyFileSync("./contracts/System2.ts", "./assembly/System2.ts");
 
 let index = `export { System2 } from "./System2"`;
@@ -41,6 +45,9 @@ contracts.forEach((contract) => {
     fs.rmdirSync(path.join(dest, "proto/koinos"), {
       recursive: true,
       force: true,
+    });
+    fse.copy(path.join(dest,"proto"), path.join("./koinosbox-proto", contract.name), {
+      filter: (s) => !s.endsWith(".ts"),
     });
   }
 

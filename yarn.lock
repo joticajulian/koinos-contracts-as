@@ -1869,10 +1869,33 @@ koinos-precompiler-as@^0.4.3:
     protobufjs "^7.0.0"
     protobufjs-cli "^1.0.0"
 
+koinos-precompiler-as@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/koinos-precompiler-as/-/koinos-precompiler-as-1.0.0.tgz#e2fa85ab7e82c822b5d1f5021cfb0c7133305ffc"
+  integrity sha512-soPxpOFLPynUaj1cqZCKqvlIGafJeemwATcmQmtXrglzoR3J1Z0U4ynlotnYz7S0eDOfyjNmtbfI0uRjows4xg==
+  dependencies:
+    "@protobuf-ts/protoc" "^2.7.0"
+    as-proto "npm:@koinos/as-proto@1.0.0"
+    commander "^9.4.0"
+    comment-parser "^1.3.1"
+    fs-extra "^10.1.0"
+    koinos-ts-structure-parser "^0.1.1"
+    protobufjs "^7.0.0"
+    protobufjs-cli "^1.0.0"
+
 koinos-ts-structure-parser@^0.0.21:
   version "0.0.21"
   resolved "https://registry.yarnpkg.com/koinos-ts-structure-parser/-/koinos-ts-structure-parser-0.0.21.tgz#62cfaf6875707b87b9d826bb3ec78f70f415badb"
   integrity sha512-3n5owGwiGJpkd8VTxlOIX3JX3gYVGR4DIANe+y+YaSmwYJoUcDYWT0VMGipMpVcXqkBLlOljRoVrpDuTQ2zs7w==
+  dependencies:
+    ts-structure-model "0.0.1"
+    typescript "3.1.6"
+    underscore "^1.13.6"
+
+koinos-ts-structure-parser@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/koinos-ts-structure-parser/-/koinos-ts-structure-parser-0.1.1.tgz#760971a9193324ced54810d350710fa3323ab85f"
+  integrity sha512-QsZywax1FlNxedmv8DIWdOnygy2Tr/Csd1tKSg9fnVe2WaD50d7sx+pTrmDtoooQI2fuhyQYJVX4xosB55ZeqA==
   dependencies:
     ts-structure-model "0.0.1"
     typescript "3.1.6"

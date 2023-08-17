@@ -4,11 +4,12 @@
   "license": "MIT",
   "dependencies": {
     "koilib": "^5.5.4",
-    "koinos-precompiler-as": "^0.4.3"
+    "koinos-precompiler-as": "^1.0.0"
   },
   "main": "assembly/index.ts",
   "files": [
-    "assembly"
+    "assembly",
+    "koinosbox-proto"
   ],
   "devDependencies": {
     "@as-covers/core": "^0.2.1",

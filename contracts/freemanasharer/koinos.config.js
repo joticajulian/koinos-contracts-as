@@ -11,6 +11,7 @@ module.exports = {
     {
       name: "@koinosbox/contracts",
       path: "../../koinosbox-proto",
+      exclude: ["freemanasharer"],
     },
     {
       name: "@koinos/sdk-as",

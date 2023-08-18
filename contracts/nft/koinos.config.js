@@ -10,6 +10,7 @@ module.exports = {
     {
       name: "@koinosbox/contracts",
       path: "../../koinosbox-proto",
+      exclude: ["nft"],
     },
     {
       name: "@koinos/sdk-as",

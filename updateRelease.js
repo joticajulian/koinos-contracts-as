@@ -45,6 +45,10 @@ contracts.forEach((contract) => {
       recursive: true,
       force: true,
     });
+    fs.rmdirSync(path.join(dest, "proto/koinosbox-proto"), {
+      recursive: true,
+      force: true,
+    });
     fse.copy(
       path.join(dest, "proto"),
       path.join("./koinosbox-proto", contract.name),
@@ -63,14 +67,23 @@ contracts.forEach((contract) => {
       contractFile !== "constants.ts"
     ) {
       const className = contractFile.replace(".ts", "");
-      index += `\nexport { ${className} } from "./${contract.name}/${className}";`;
+
+      if (contractFile.startsWith("I")) {
+        // Interfaces
+        index += `\nexport { ${className.slice(1)} as ${className} } from "./${
+          contract.name
+        }/${className}";`;
+      } else {
+        // Contracts
+        index += `\nexport { ${className} } from "./${contract.name}/${className}";`;
+      }
     }
 
     if (contractFile === "proto") {
       const protoFiles = fs.readdirSync(path.join(src, "proto"));
       protoFiles.forEach((protoFile) => {
-        if (protoFile.endsWith(".ts")) {
-          const className = protoFile.replace(".ts", "");
+        if (protoFile.endsWith(".proto")) {
+          const className = protoFile.replace(".proto", "");
           index += `\nexport { ${className} } from "./${contract.name}/proto/${className}";`;
         }
       });

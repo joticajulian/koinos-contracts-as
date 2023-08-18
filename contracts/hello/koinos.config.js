@@ -8,6 +8,7 @@ module.exports = {
     {
       name: "@koinosbox/contracts",
       path: "../../koinosbox-proto",
+      exclude: ["hello"],
     },
     {
       name: "@koinos/sdk-as",

@@ -1,10 +1,10 @@
 {
   "name": "@koinosbox/contracts",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "license": "MIT",
   "dependencies": {
     "koilib": "^5.5.4",
-    "koinos-precompiler-as": "^1.0.0"
+    "koinos-precompiler-as": "^1.1.0"
   },
   "main": "assembly/index.ts",
   "files": [
@@ -16,7 +16,7 @@
     "@as-pect/cli": "^6.2.4",
     "@koinos/mock-vm": "1.0.0",
     "@koinos/sdk-as": "1.0.0",
-    "@koinosbox/contracts": "^1.0.13",
+    "@koinosbox/contracts": "^1.0.14",
     "@roaminroe/protoc": "^2.4.0",
     "@tsconfig/node16": "^1.0.4",
     "@types/node": "^16.18.3",
@@ -85,6 +85,8 @@
     "textparserlib:info": "node getSha256.js textparserlib",
     "textparserlib:docker": "docker build --no-cache --progress=plain --build-arg CONTRACT=textparserlib -t temp-image . && docker rmi temp-image",
     "release": "node updateRelease.js",
+    "build:clear-all": "rm -rf contracts/burnkoinhelper/build && rm -rf contracts/freemanasharer/build && rm -rf contracts/hello/build && rm -rf contracts/manasharer/build && rm -rf contracts/nft/build && rm -rf contracts/textparserlib/build && rm -rf contracts/token/build",
+    "build:all": "yarn burnkoinhelper:build && yarn freemanasharer:build && yarn hello:build && yarn manasharer:build && yarn nft:build && yarn textparserlib:build && yarn token:build",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
   },
   "config": {

@@ -240,13 +240,13 @@
     as-proto "npm:@koinos/as-proto@1.0.0"
     assemblyscript "^0.19.22"
 
-"@koinosbox/contracts@^1.0.13":
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-1.0.13.tgz#6d44a0911e1665fc6ce1d614358c871f3b42a71f"
-  integrity sha512-DUyp2XJQucWp/6gaDyxhgW2Ow8tVzZIvXiuorHBhq5am7m1P6qQ+A7h1qW/XUgIpKPIWp17c/R1WoFQeXtxAbw==
+"@koinosbox/contracts@^1.0.14":
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-1.0.14.tgz#3a1c627d687bde6440fe996de808c8021a890fb9"
+  integrity sha512-sNItDMCOaBiUwuwxpJHOn7jPX3/svXJ/HOQXYQqwpJFmGiw8SnJZThAc0iX+/Ncy8FaU01GNTVULU+gJcbpFGg==
   dependencies:
     koilib "^5.5.4"
-    koinos-precompiler-as "^1.0.0"
+    koinos-precompiler-as "^1.1.0"
 
 "@multiformats/base-x@^4.0.1":
   version "4.0.1"
@@ -1855,10 +1855,10 @@ koilib@^5.5.4:
     multibase "^4.0.6"
     protobufjs "^7.0.0"
 
-koinos-precompiler-as@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/koinos-precompiler-as/-/koinos-precompiler-as-1.0.0.tgz#e2fa85ab7e82c822b5d1f5021cfb0c7133305ffc"
-  integrity sha512-soPxpOFLPynUaj1cqZCKqvlIGafJeemwATcmQmtXrglzoR3J1Z0U4ynlotnYz7S0eDOfyjNmtbfI0uRjows4xg==
+koinos-precompiler-as@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/koinos-precompiler-as/-/koinos-precompiler-as-1.1.0.tgz#1d4ef4692769c10a51481fa67d432ad9d9f62957"
+  integrity sha512-kkraDXCg4r7eak+lmXnlTuoiubTm5iX032rmC37KueHnZecladQQba2GnK1gqL+uN04Pf1Qe4iVzOrT8+wVlQg==
   dependencies:
     "@protobuf-ts/protoc" "^2.7.0"
     as-proto "npm:@koinos/as-proto@1.0.0"

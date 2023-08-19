@@ -14,7 +14,6 @@ import {
 } from "@koinos/sdk-as";
 import { System2, token } from "@koinosbox/contracts";
 import { u128 } from "as-bignum";
-//import { koin } from "./proto/koin";
 
 const SUPPLY_SPACE_ID = 0;
 const BALANCES_SPACE_ID = 1;
@@ -103,7 +102,7 @@ export class Koin {
       return new system_calls.consume_account_rc_result(false);
     }
 
-    const balance = this.balances.get(args.account!);
+    const balance = this.balances.get(args.account!)!;
     this.regenerate_mana(balance);
 
     if (balance.mana < args.value) {

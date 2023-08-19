@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "koinos/options.proto";
+
+message get_account_rc_arguments {
+   bytes account = 1 [(koinos.btype) = ADDRESS];
+}
+
+message get_account_rc_result {
+   uint64 value = 1 [jstype = JS_STRING];
+}
+
+message consume_account_rc_arguments {
+   bytes account = 1 [(koinos.btype) = ADDRESS];
+   uint64 value = 2 [jstype = JS_STRING];
+}
+
+message consume_account_rc_result {
+   bool value = 1;
+}

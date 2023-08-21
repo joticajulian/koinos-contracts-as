@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package checkauthority;
+
+import "koinos/options.proto";
+
+enum authorization_type {
+   contract_call = 0;
+   transaction_application = 1;
+   contract_upload = 2;
+}
+
+message checkauthority_args {
+   bytes account = 1 [(koinos.btype) = ADDRESS];
+   authorization_type type = 2;
+   bytes caller = 3 [(koinos.btype) = ADDRESS];
+   uint32 entry_point = 4;
+   bytes data = 5;
+}

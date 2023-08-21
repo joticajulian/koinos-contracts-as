@@ -33,6 +33,14 @@
     "yaml": "^2.1.3"
   },
   "scripts": {
+    "checkauthority:asbuild:debug": "asc contracts/checkauthority/build/index.ts --config contracts/checkauthority/asconfig.json --use abort= --target debug",
+    "checkauthority:asbuild:release": "asc contracts/checkauthority/build/index.ts --config contracts/checkauthority/asconfig.json --use abort= --target release",
+    "checkauthority:build": "yarn checkauthority:precompile && yarn checkauthority:asbuild:release",
+    "checkauthority:precompile": "koinos-precompiler-as contracts/checkauthority",
+    "checkauthority:test": "asp --verbose --config contracts/checkauthority/as-pect.config.js",
+    "checkauthority:deploy": "ts-node contracts/checkauthority/scripts/deployment.ts",
+    "checkauthority:info": "node getSha256.js checkauthority",
+    "checkauthority:docker": "docker build --no-cache --progress=plain --build-arg CONTRACT=checkauthority -t temp-image . && docker rmi temp-image",
     "hello:asbuild:debug": "asc contracts/hello/build/index.ts --config contracts/hello/asconfig.json --use abort= --target debug",
     "hello:asbuild:release": "asc contracts/hello/build/index.ts --config contracts/hello/asconfig.json --use abort= --target release",
     "hello:build": "yarn hello:precompile && yarn hello:asbuild:release",

@@ -10,9 +10,10 @@ const SUPPLY_SPACE_ID = 0;
 const BALANCES_SPACE_ID = 1;
 const ROYALTIES_SPACE_ID = 2;
 const TOKEN_OWNERS_SPACE_ID = 3;
-const TOKEN_METADATA_SPACE_ID = 4;
-const TOKEN_APPROVALS_SPACE_ID = 5;
-const TOKEN_OPERATOR_APPROVALS_SPACE_ID = 6;
+const TOKENS_BY_OWNER_SPACE_ID = 4;
+const TOKEN_METADATA_SPACE_ID = 5;
+const TOKEN_APPROVALS_SPACE_ID = 6;
+const TOKEN_OPERATOR_APPROVALS_SPACE_ID = 7;
 
 export const ONE_HUNDRED_PERCENT: u64 = 10000;
 
@@ -55,6 +56,14 @@ export class Nft {
     common.address.decode,
     common.address.encode,
     () => new common.address()
+  );
+
+  tokenOwnerPairs: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
+    this.contractId,
+    TOKENS_BY_OWNER_SPACE_ID,
+    common.boole.decode,
+    common.boole.encode,
+    () => new common.boole(false)
   );
 
   tokenMetadata: Storage.Map<Uint8Array, common.str> = new Storage.Map(
@@ -160,6 +169,42 @@ export class Nft {
    */
   metadata_of(args: nft.token): common.str {
     return this.tokenMetadata.get(args.token_id!)!;
+  }
+
+  get_tokens(args: nft.get_tokens_args): nft.token_ids {
+    const direction =
+      args.direction == common.direction.ascending
+        ? Storage.Direction.Ascending
+        : Storage.Direction.Descending;
+    const tokenIds = this.tokenOwners.getManyKeys(
+      args.start ? args.start! : new Uint8Array(0),
+      args.limit,
+      direction
+    );
+    return new nft.token_ids(tokenIds);
+  }
+
+  get_tokens_by_owner(args: nft.get_tokens_by_owner_args): nft.token_ids {
+    let startLength = args.start ? args.start!.length : 0;
+    let key = new Uint8Array(25 + startLength);
+    key.set(args.owner!, 0);
+    key.set(args.start ? args.start! : new Uint8Array(0), 25);
+    const result = new nft.token_ids([]);
+    for (let i = 0; i < args.limit; i += 1) {
+      const nextTokenOwnerPair =
+        args.direction == nft.direction.ascending
+          ? this.tokenOwnerPairs.getNext(key)
+          : this.tokenOwnerPairs.getPrev(key);
+      if (
+        !nextTokenOwnerPair ||
+        !Arrays.equal(args.owner!, nextTokenOwnerPair.key!.slice(0, 25))
+      )
+        break;
+      const tokenId = nextTokenOwnerPair.key!.slice(25);
+      result.token_ids.push(tokenId);
+      key = nextTokenOwnerPair.key!;
+    }
+    return result;
   }
 
   /**

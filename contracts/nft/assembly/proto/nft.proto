@@ -80,3 +80,20 @@ message get_operators_return {
    bytes owner = 1 [(koinos.btype) = ADDRESS];
    repeated bytes operators = 2 [(koinos.btype) = ADDRESS];
 }
+
+message get_tokens_args {
+   bytes start = 1 [(koinos.btype) = HEX];
+   int32 limit = 2;
+   direction direction = 3;
+}
+
+message get_tokens_by_owner_args {
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+   bytes start = 2 [(koinos.btype) = HEX];
+   int32 limit = 3;
+   direction direction = 4;
+}
+
+message token_ids {
+   repeated bytes token_ids = 1 [(koinos.btype) = HEX];
+}

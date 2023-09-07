@@ -1,0 +1,20 @@
+{
+  "targets": {
+    "debug": {
+      "binaryFile": "./build/debug/testwallet.wasm",
+      "textFile": "./build/debug/testwallet.wat",
+      "sourceMap": true,
+      "debug": true
+    },
+    "release": {
+      "binaryFile": "./build/release/testwallet.wasm",
+      "textFile": "./build/release/testwallet.wat",
+      "sourceMap": true,
+      "optimizeLevel": 3,
+      "shrinkLevel": 0,
+      "converge": false,
+      "noAssert": false
+    }
+  },
+  "options": {}
+}

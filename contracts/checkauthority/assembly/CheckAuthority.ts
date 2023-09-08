@@ -39,6 +39,10 @@ export class CheckAuthority {
   check_authority(
     args: checkauthority.checkauthority_args
   ): authority.authorize_result {
+    if (args.caller && Arrays.equal(args.caller!, args.account!)) {
+      return new authority.authorize_result(true);
+    }
+
     const contractMetadata = this.contractMetadata.get(args.account!);
     if (contractMetadata) {
       let authorizeOverride = false;
@@ -114,10 +118,6 @@ export class CheckAuthority {
     }
 
     if (args.caller && args.caller!.length > 0) {
-      if (Arrays.equal(args.caller!, args.account!)) {
-        return new authority.authorize_result(true);
-      }
-
       // The caller is not allowed to speak in name of the user.
       //
       // If you want to allow callers to perform operations in name

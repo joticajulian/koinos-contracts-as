@@ -274,6 +274,35 @@ it("should call the authorize function of a smart wallet", async () => {
   );
 });
 
+// TODO: fix ABI generator for this test
+it.skip("should fail when calling the authorize function directly (from user mode)", async () => {
+  expect.assertions(1);
+
+  const tx = new Transaction({
+    signer: testWalletAliceAccount,
+    provider: localKoinos.getProvider(),
+  });
+
+  // set allowance in the smart wallet
+  await tx.pushOperation(testWalletAlice.functions["authorize"], {
+    type: 0,
+    call: {
+      contract_id: testWalletAliceAccount.address,
+      entry_point: 1,
+    },
+  });
+
+  await expect(tx.send()).rejects.toThrow(
+    JSON.stringify({
+      error: "calling privileged thunk from non-privileged code",
+      code: 103,
+      logs: [
+        "transaction reverted: calling privileged thunk from non-privileged code",
+      ],
+    })
+  );
+});
+
 it("should call the authorize function of a smart wallet initiated by a third party", async () => {
   expect.assertions(1);
 

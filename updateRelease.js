@@ -19,7 +19,12 @@ contracts.forEach((contract) => {
   const src = path.join("./contracts", contract.name, "./build");
   const dest = path.join("./assembly", contract.name);
   if (fs.existsSync(dest)) fs.rmdirSync(dest, { recursive: true, force: true });
-  fse.copySync(src, dest);
+  fse.copySync(src, dest, {
+    filter: (s) => {
+      const base = path.parse(s).base.toLowerCase();
+      return !base.startsWith("test") && !base.startsWith("itest");
+    },
+  });
 
   if (fs.existsSync(path.join(dest, "__tests__"))) {
     fs.rmdirSync(path.join(dest, "__tests__"), {

@@ -41,14 +41,14 @@ export class TestThirdParty {
     if (callRes.code != 0) {
       const errorMessage = `failed to call 'TestContract.operate_assets': ${
         callRes.res.error && callRes.res.error!.message
-          ? callRes.res.error!.message!
+          ? callRes.res.error!.message
           : "unknown error"
       }`;
       System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
     }
     if (!callRes.res.object) return new common.boole();
     return Protobuf.decode<common.boole>(
-      callRes.res.object!,
+      callRes.res.object,
       common.boole.decode
     );
   }

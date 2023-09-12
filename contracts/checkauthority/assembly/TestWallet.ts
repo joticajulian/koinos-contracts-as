@@ -42,11 +42,11 @@ export class TestWallet {
     const allowance = this.allowance.get()!;
     System.log(`type: ${args.type}`);
     if (args.call) {
-      if (args.call!.caller)
-        System.log(`caller: ${Base58.encode(args.call!.caller!)}`);
+      if (args.call!.caller && args.call!.caller.length > 0)
+        System.log(`caller: ${Base58.encode(args.call!.caller)}`);
       else System.log("no caller");
-      System.log(`contract id: ${Base58.encode(args.call!.contract_id!)}`);
-      System.log(`data: ${Base64.encode(args.call!.data!)}`);
+      System.log(`contract id: ${Base58.encode(args.call!.contract_id)}`);
+      System.log(`data: ${Base64.encode(args.call!.data)}`);
       System.log(`entry point: ${args.call!.entry_point}`);
     }
     return new authority.authorize_result(allowance.value);
@@ -87,14 +87,14 @@ export class TestWallet {
     if (callRes.code != 0) {
       const errorMessage = `failed to call 'TestContract.operate_assets': ${
         callRes.res.error && callRes.res.error!.message
-          ? callRes.res.error!.message!
+          ? callRes.res.error!.message
           : "unknown error"
       }`;
       System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
     }
     if (!callRes.res.object) return new common.boole();
     return Protobuf.decode<common.boole>(
-      callRes.res.object!,
+      callRes.res.object,
       common.boole.decode
     );
   }

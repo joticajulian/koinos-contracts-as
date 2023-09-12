@@ -8,12 +8,12 @@ export namespace System2 {
       sigBytes,
       value.list_type.decode
     );
-    const txId = System.getTransactionField("id")!.bytes_value!;
+    const txId = System.getTransactionField("id")!.bytes_value;
 
     const signers: Array<Uint8Array> = [];
     for (let i = 0; i < signatures.values.length; i++) {
       const publicKey = System.recoverPublicKey(
-        signatures.values[i].bytes_value!,
+        signatures.values[i].bytes_value,
         txId
       );
       const address = Crypto.addressFromPublicKey(publicKey!);
@@ -54,7 +54,7 @@ export namespace System2 {
   export function check_authority(account: Uint8Array): boolean {
     const caller = System.getCaller();
 
-    if (caller.caller && caller.caller!.length > 0) {
+    if (caller.caller && caller.caller.length > 0) {
       // check if the account is the caller
       if (Arrays.equal(account, caller.caller)) return true;
 

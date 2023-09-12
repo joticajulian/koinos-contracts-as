@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Check Authority Contract v1.0.0
+// Check Authority Contract v1.0.1
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import {
@@ -88,8 +88,8 @@ export class CheckAuthority {
             new authority.call_data(
               System.getCaller().caller,
               args.entry_point,
-              args.caller,
-              args.data
+              args.caller ? args.caller! : new Uint8Array(0),
+              args.data ? args.data! : new Uint8Array(0)
             )
           ),
           authority.authorize_arguments.encode
@@ -102,7 +102,7 @@ export class CheckAuthority {
         if (callRes.code != 0) {
           const errorMessage = `failed to call authorize function: ${
             callRes.res.error && callRes.res.error!.message
-              ? callRes.res.error!.message!
+              ? callRes.res.error!.message
               : "unknown error"
           }`;
           System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
@@ -111,7 +111,7 @@ export class CheckAuthority {
           return new authority.authorize_result(false);
         }
         return Protobuf.decode<authority.authorize_result>(
-          callRes.res.object!,
+          callRes.res.object,
           authority.authorize_result.decode
         );
       }
@@ -132,11 +132,11 @@ export class CheckAuthority {
       sigBytes,
       value.list_type.decode
     );
-    const txId = System.getTransactionField("id")!.bytes_value!;
+    const txId = System.getTransactionField("id")!.bytes_value;
 
     for (let i = 0; i < signatures.values.length; i++) {
       const publicKey = System.recoverPublicKey(
-        signatures.values[i].bytes_value!,
+        signatures.values[i].bytes_value,
         txId
       );
       const address = Crypto.addressFromPublicKey(publicKey!);

@@ -42,7 +42,7 @@ No. The functionality of the smart contract wallets remains intact. Please check
 
 No. Both system calls will co-exist and the developers will be free to select any of them for their contracts. However, it is recommended to use the new one for the reasons explained above.
 
-The new system call will use the ID 607. See the different IDs in [system_call_ids.proto from koinos-proto](https://github.com/koinos/koinos-proto/blob/master/koinos/chain/system_call_ids.proto).
+The new system call will use the ID 607. See the [different system call IDs in koinos-proto](https://github.com/koinos/koinos-proto/blob/master/koinos/chain/system_call_ids.proto).
 
 ## Testing
 

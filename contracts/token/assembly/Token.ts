@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Token Contract v0.1.1
+// Token Contract v0.1.2
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { System, Storage, Protobuf, Arrays } from "@koinos/sdk-as";
@@ -148,10 +148,10 @@ export class Token {
 
     // check if the user authorized the caller
     const caller = System.getCaller();
-    if (!caller.caller || caller.caller!.length == 0) return false;
+    if (!caller.caller || caller.caller.length == 0) return false;
     const key = new Uint8Array(50);
     key.set(account, 0);
-    key.set(caller.caller!, 25);
+    key.set(caller.caller, 25);
     const allowance = this.allowances.get(key)!;
     if (allowance.value >= amount) {
       // spend allowance

@@ -1,10 +1,7 @@
-import fs from "fs";
-import crypto from "crypto";
-import path from "path";
 import { Signer, Contract, Provider, Transaction } from "koilib";
+import { Abi } from "koilib/lib/interface";
 import abi from "../build/checkauthority-abi.json";
 import koinosConfig from "../koinos.config.js";
-import { Abi } from "koilib/lib/interface";
 
 const HARBINGER_GOVERNANCE_CONTRACT_ID = "17MjUXDCuTX1p9Kyqy48SQkkPfKScoggo";
 const MAINNET_GOVERNANCE_CONTRACT_ID = "19qj51eTbSFJYU7ZagudkpxPgNSzPMfdPX";
@@ -226,16 +223,17 @@ async function main() {
   });
   await tx.prepare();
 
+  const operationMerkleRoot = tx.transaction.header.operation_merkle_root;
   const { receipt, transaction } = await contract.functions.submit_proposal({
     operations: tx.transaction.operations,
-    operation_merkle_root: tx.transaction.header.operation_merkle_root,
+    operation_merkle_root: operationMerkleRoot,
     fee: "2000000000",
   });
   console.log("Transaction submitted. Receipt: ");
   console.log(receipt);
   const { blockNumber } = await transaction.wait("byBlock", 60000);
   console.log(
-    `Proposal submitted in block number ${blockNumber} (${networkName})`
+    `Proposal 0x${operationMerkleRoot} submitted in block number ${blockNumber} (${networkName})`
   );
 }
 

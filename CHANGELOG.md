@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v1.0.16](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.16) (2023-09-13)
+
+### 🐛 Bug Fixes
+
+- Removing patch-package dependency in favor of @koinosbox/sdk-as
+- The update in the SDK required minor updates in some contracts:
+  * Burnkoinhelper contract v1.0.1
+  * Check authority contract v1.0.1
+  * NFT contract v1.0.1
+  * Token contract v0.1.2
+
 ## [v1.0.15](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.15) (2023-09-12)
 
 ### 🚀 Features

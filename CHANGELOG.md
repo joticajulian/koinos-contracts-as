@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v1.0.15](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.15) (2023-09-12)
+
+### 🚀 Features
+
+- Check authority contract v1.0.0
+
 ## [v1.0.14](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.14) (2023-08-18)
 
 ### 🐛 Bug Fixes

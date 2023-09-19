@@ -92,6 +92,7 @@
     "nft:build": "yarn nft:precompile && yarn nft:asbuild:release",
     "nft:precompile": "koinos-precompiler-as contracts/nft",
     "nft:test": "asp --verbose --config contracts/nft/as-pect.config.js",
+    "nft:test:e2e": "yarn jest nft-e2e.spec.ts",
     "nft:deploy": "ts-node contracts/nft/scripts/deployment.ts",
     "nft:info": "node getSha256.js nft",
     "nft:docker": "docker build --no-cache --progress=plain --build-arg CONTRACT=nft -t temp-image . && docker rmi temp-image",

@@ -53,7 +53,6 @@ async function main() {
     },
   });
 
-  
   const testWallet = new Contract({
     signer: testWalletAccount,
     provider,

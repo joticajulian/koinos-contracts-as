@@ -15,6 +15,8 @@ const TOKEN_METADATA_SPACE_ID = 5;
 const TOKEN_APPROVALS_SPACE_ID = 6;
 const TOKEN_OPERATOR_APPROVALS_SPACE_ID = 7;
 
+const MAX_TOKEN_ID_LENGTH = 32;
+
 export const ONE_HUNDRED_PERCENT: u64 = 10000;
 
 export class Nft {
@@ -171,6 +173,11 @@ export class Nft {
     return this.tokenMetadata.get(args.token_id!)!;
   }
 
+  /**
+   * Get list of token IDs
+   * @external
+   * @readonly
+   */
   get_tokens(args: nft.get_tokens_args): nft.token_ids {
     const direction =
       args.direction == common.direction.ascending
@@ -184,11 +191,18 @@ export class Nft {
     return new nft.token_ids(tokenIds);
   }
 
+  /**
+   * Get tokens owned by an address
+   * @external
+   * @readonly
+   */
   get_tokens_by_owner(args: nft.get_tokens_by_owner_args): nft.token_ids {
-    let startLength = args.start ? args.start!.length : 0;
-    let key = new Uint8Array(25 + startLength);
+    let key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
     key.set(args.owner!, 0);
-    key.set(args.start ? args.start! : new Uint8Array(0), 25);
+    if (args.start) {
+      key[25] = args.start!.length;
+      key.set(args.start!, 26);
+    }
     const result = new nft.token_ids([]);
     for (let i = 0; i < args.limit; i += 1) {
       const nextTokenOwnerPair =
@@ -200,7 +214,8 @@ export class Nft {
         !Arrays.equal(args.owner!, nextTokenOwnerPair.key!.slice(0, 25))
       )
         break;
-      const tokenId = nextTokenOwnerPair.key!.slice(25);
+      const tokenIdLength = nextTokenOwnerPair.key![25];
+      const tokenId = nextTokenOwnerPair.key!.slice(26, 26 + tokenIdLength);
       result.token_ids.push(tokenId);
       key = nextTokenOwnerPair.key!;
     }
@@ -338,6 +353,15 @@ export class Nft {
   _transfer(args: nft.transfer_args): void {
     this.tokenOwners.put(args.token_id!, new common.address(args.to!));
 
+    let key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
+    key.set(args.from!, 0);
+    key[25] = args.token_id!.length;
+    key.set(args.token_id!, 26);
+    this.tokenOwnerPairs.remove(key);
+
+    key.set(args.to!, 0);
+    this.tokenOwnerPairs.put(key, new common.boole(true));
+
     let fromBalance = this.balances.get(args.from!)!;
     fromBalance.value -= 1;
     this.balances.put(args.from!, fromBalance);
@@ -355,9 +379,18 @@ export class Nft {
   }
 
   _mint(args: nft.mint_args): void {
+    System.require(
+      args.token_id!.length <= MAX_TOKEN_ID_LENGTH,
+      `the max token id length is ${MAX_TOKEN_ID_LENGTH}`
+    );
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(!tokenOwner.account, "token already minted");
     this.tokenOwners.put(args.token_id!, new common.address(args.to!));
+    const key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
+    key.set(args.to!, 0);
+    key[25] = args.token_id!.length;
+    key.set(args.token_id!, 26);
+    this.tokenOwnerPairs.put(key, new common.boole(true));
 
     const balance = this.balances.get(args.to!)!;
     const supply = this.supply.get()!;
@@ -381,6 +414,11 @@ export class Nft {
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.account, "token does not exist");
     this.tokenOwners.remove(args.token_id!);
+    const key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
+    key.set(tokenOwner.account!, 0);
+    key[25] = args.token_id!.length;
+    key.set(args.token_id!, 26);
+    this.tokenOwnerPairs.remove(key);
 
     const balance = this.balances.get(tokenOwner.account)!;
     const supply = this.supply.get()!;

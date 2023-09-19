@@ -9,12 +9,14 @@ export class TestContract {
   callArgs: System.getArgumentsReturn | null;
 
   /**
-   * my operation
+   * Function that checks if the user allows the current
+   * operation by calling the check authority system call
    * @external
    */
-  my_operation(args: common.address): common.boole {
+  operate_assets(args: common.address): common.boole {
     const isAuthorized = System.checkCallContractAuthority(args.account!);
     System.require(isAuthorized, "not authorized");
+    System.log("authorized to operate with the assets");
     return new common.boole(true);
   }
 }

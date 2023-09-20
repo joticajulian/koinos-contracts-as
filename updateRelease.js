@@ -69,7 +69,9 @@ contracts.forEach((contract) => {
     if (
       contractFile.endsWith(".ts") &&
       contractFile !== "index.ts" &&
-      contractFile !== "constants.ts"
+      contractFile !== "constants.ts" &&
+      !contractFile.toLowerCase().startsWith("test") &&
+      !contractFile.toLowerCase().startsWith("itest")
     ) {
       const className = contractFile.replace(".ts", "");
 
@@ -87,7 +89,11 @@ contracts.forEach((contract) => {
     if (contractFile === "proto") {
       const protoFiles = fs.readdirSync(path.join(src, "proto"));
       protoFiles.forEach((protoFile) => {
-        if (protoFile.endsWith(".proto")) {
+        if (
+          protoFile.endsWith(".proto") &&
+          !protoFile.toLowerCase().startsWith("test") &&
+          !protoFile.toLowerCase().startsWith("itest")
+        ) {
           const className = protoFile.replace(".proto", "");
           index += `\nexport { ${className} } from "./${contract.name}/proto/${className}";`;
         }

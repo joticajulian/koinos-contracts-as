@@ -2,7 +2,7 @@
 // Token Contract v0.1.2
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { System, Storage, Protobuf, Arrays } from "@koinos/sdk-as";
+import { System, Storage, Protobuf, Arrays, authority } from "@koinos/sdk-as";
 import { System2 } from "@koinosbox/contracts";
 import { token } from "./proto/token";
 
@@ -143,11 +143,22 @@ export class Token {
    * the operation, or if another account is authorized
    */
   check_authority(account: Uint8Array, amount: u64): boolean {
+    const caller = System.getCaller();
+
     // check if the operation is authorized directly by the user
-    if (System2.check_authority(account)) return true;
+    if (
+      System.checkAuthority2(
+        authority.authorization_type.contract_call,
+        account,
+        this.callArgs.args,
+        caller.caller,
+        this.callArgs.entry_point
+      )
+    ) {
+      return true;
+    }
 
     // check if the user authorized the caller
-    const caller = System.getCaller();
     if (!caller.caller || caller.caller.length == 0) return false;
     const key = new Uint8Array(50);
     key.set(account, 0);

@@ -17,6 +17,11 @@ module.exports = {
       path: "../../node_modules/koinos-precompiler-as/koinos-proto/google",
     },
   ],
+  deployOptions: {
+    authorizesCallContract: true,
+    authorizesTransactionApplication: true,
+    authorizesUploadContract: true,
+  },
   networks: {
     harbinger: {
       rpcNodes: [

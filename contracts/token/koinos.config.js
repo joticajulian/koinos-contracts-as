@@ -24,4 +24,5 @@ module.exports = {
       path: "../../node_modules/koinos-precompiler-as/koinos-proto/google",
     },
   ],
+  deployOptions: {},
 };

@@ -13,13 +13,13 @@ async function asyncSpawn(command: string) {
 
   if (child.stdout) {
     child.stdout.on("data", (data: Buffer) => {
-      console.log(data.toString());
+      process.stdout.write(data.toString());
     });
   }
 
   if (child.stderr) {
     child.stderr.on("data", (data: Buffer) => {
-      console.log(data.toString());
+      process.stdout.write(data.toString());
     });
   }
 
@@ -40,7 +40,7 @@ async function asyncSpawn(command: string) {
 async function precompile(projectName: string, contractName: string) {
   let command = `yarn koinos-precompiler-as contracts/${projectName}`;
   if (projectName !== contractName)
-    command += ` koinos-${contractName}.config.js`;
+    command += `/koinos-${contractName}.config.js`;
   await asyncSpawn(command);
 }
 
@@ -89,8 +89,14 @@ async function asbuild(projectName: string, contractName: string) {
   }
 }
 
-async function deploy() {
-  await deployContract;
+async function test(projectName: string) {
+  await asyncSpawn(
+    `yarn asp --verbose --config contracts/${projectName}/as-pect.config.js`
+  );
+}
+
+async function testE2E(projectName: string) {
+  await asyncSpawn(`yarn jest ${projectName}-e2e.spec.ts`);
 }
 
 async function docker(pathContract: string) {
@@ -131,6 +137,27 @@ async function main() {
     case "build": {
       await precompile(projectName, contractName);
       await asbuild(projectName, contractName);
+      break;
+    }
+    case "build-all": {
+      const files = fs
+        .readdirSync(
+          path.join(__dirname, "../contracts", projectName, "assembly")
+        )
+        .filter((f) => f.endsWith(".ts"))
+        .map((f) => f.toLowerCase().slice(0, -3));
+      for (let i = 0; i < files.length; i += 1) {
+        await precompile(projectName, files[i]);
+        await asbuild(projectName, files[i]);
+      }
+      break;
+    }
+    case "test": {
+      await test(projectName);
+      break;
+    }
+    case "test-e2e": {
+      await testE2E(projectName);
       break;
     }
     case "deploy": {

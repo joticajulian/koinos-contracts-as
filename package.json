@@ -39,11 +39,10 @@
     "yaml": "^2.1.3"
   },
   "scripts": {
+    "build-all": "ts-node scripts/command build-all",
     "dev": "ts-node scripts/commandContract",
     "clear-builds": "ts-node scripts/command clear-builds",
     "release": "node updateRelease.js",
-    "build:clear-all": "rm -rf contracts/burnkoinhelper/build && rm -rf contracts/freemanasharer/build && rm -rf contracts/hello/build && rm -rf contracts/manasharer/build && rm -rf contracts/nft/build && rm -rf contracts/textparserlib/build && rm -rf contracts/token/build",
-    "build:all": "yarn burnkoinhelper:build && yarn freemanasharer:build && yarn hello:build && yarn manasharer:build && yarn nft:build && yarn textparserlib:build && yarn token:build",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
   },
   "config": {

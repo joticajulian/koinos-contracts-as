@@ -3,6 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "Nft",
+  version: "1.0.2",
   files: ["./Nft.ts"],
   sourceDir: "./assembly",
   buildDir: "./build",
@@ -21,6 +22,7 @@ module.exports = {
       path: "../../node_modules/koinos-precompiler-as/koinos-proto/google",
     },
   ],
+  deployOptions: {},
   networks: {
     harbinger: {
       rpcNodes: [

@@ -3,6 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "TextParserLib",
+  version: "0.1.0",
   proto: ["./proto/testmessage.proto"],
   files: ["./TextParserLib.ts"],
   sourceDir: "./assembly",
@@ -22,6 +23,7 @@ module.exports = {
       path: "../../node_modules/koinos-precompiler-as/koinos-proto/google",
     },
   ],
+  deployOptions: {},
   networks: {
     harbinger: {
       rpcNodes: [

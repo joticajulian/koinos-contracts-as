@@ -3,6 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "FreeManaSharer",
+  version: "1.0.0",
   proto: ["./proto/freemanasharer.proto"],
   files: ["./FreeManaSharer.ts"],
   sourceDir: "./assembly",
@@ -22,6 +23,9 @@ module.exports = {
       path: "../../node_modules/koinos-precompiler-as/koinos-proto/google",
     },
   ],
+  deployOptions: {
+    authorizesTransactionApplication: true,
+  },
   networks: {
     harbinger: {
       rpcNodes: [

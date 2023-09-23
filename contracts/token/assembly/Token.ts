@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Token Contract v0.1.2
+// Token Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { System, Storage, Protobuf, Arrays, authority } from "@koinos/sdk-as";

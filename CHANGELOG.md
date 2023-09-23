@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v1.0.17](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.18) (2023-09-23)
+
+No changes. But new contract hashes
+
+## [v1.0.17](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.17) (2023-09-23)
+
+### 🚀 Features
+
+- Script to submit proposals
+- check authority: Deployment of test contracts
+- New commands for compiling, testing, and deploying code
+- Introduction of HDKoinos to simplify deployments
+- Create snapshots
+- Hello contract removed
+
+### 🐛 Bug Fixes
+
+- NFT contract v1.0.2
+  - Fix get_tokens_by_owner
+
 ## [v1.0.16](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.16) (2023-09-13)
 
 ### 🐛 Bug Fixes

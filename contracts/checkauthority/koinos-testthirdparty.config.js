@@ -2,9 +2,9 @@ const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
-  class: "TestContract",
+  class: "TestThirdParty",
   proto: ["./proto/checkauthority.proto"],
-  files: ["./TestContract.ts"],
+  files: ["./TestThirdParty.ts"],
   sourceDir: "./assembly",
   buildDir: "./build",
   protoImport: [
@@ -22,6 +22,11 @@ module.exports = {
       path: "../../node_modules/koinos-precompiler-as/koinos-proto/google",
     },
   ],
+  deployOptions: {
+    authorizesCallContract: true,
+    authorizesTransactionApplication: true,
+    authorizesUploadContract: true,
+  },
   networks: {
     harbinger: {
       rpcNodes: [

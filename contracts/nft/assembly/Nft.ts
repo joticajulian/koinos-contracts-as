@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// NFT Contract v1.0.1
+// NFT Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { Arrays, System, Storage, Protobuf } from "@koinos/sdk-as";

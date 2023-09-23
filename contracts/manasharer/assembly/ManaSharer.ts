@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Mana Sharer Contract v1.0.0
+// Mana Sharer Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { System, Storage, Arrays, authority } from "@koinos/sdk-as";

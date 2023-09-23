@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Burnkoin Helper Contract v1.0.1
+// Burnkoin Helper Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { System } from "@koinos/sdk-as";

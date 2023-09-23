@@ -20,11 +20,21 @@ export function getInfo(projectName: string, contractName: string) {
   );
   const data = fs.readFileSync(filePath);
   const hash = crypto.createHash("sha256").update(data).digest("hex");
+  const pathConfigFile = path.join(
+    __dirname,
+    "../contracts",
+    projectName,
+    projectName === contractName
+      ? "koinos.config.js"
+      : `koinos-${contractName}.config.js`
+  );
+  const configFile = require(pathConfigFile);
   return {
     contract:
       projectName === contractName
         ? contractName
         : `${projectName}/${contractName}`,
+    version: configFile.version,
     size: data.length,
     sizeHuman: humanFileSize(data.length),
     sha256: hash,

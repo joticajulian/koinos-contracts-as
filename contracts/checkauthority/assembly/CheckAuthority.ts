@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Check Authority Contract v1.0.1
+// Check Authority Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import {

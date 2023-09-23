@@ -3,6 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "Burnkoinhelper",
+  version: "1.0.1",
   proto: ["./proto/burnkoin.proto"],
   files: ["./Burnkoinhelper.ts"],
   sourceDir: "./assembly",

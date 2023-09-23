@@ -3,6 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "CheckAuthority",
+  version: "1.0.1",
   proto: ["./proto/checkauthority.proto"],
   files: ["./CheckAuthority.ts"],
   sourceDir: "./assembly",

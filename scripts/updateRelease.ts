@@ -120,10 +120,22 @@ contracts.forEach((contract) => {
     }
   });
 
-  // update snapshot
+  // update snapshot and versions in files
   const deployableContracts = getDeployableContracts(contract.name);
   deployableContracts.forEach((deployable) => {
-    snapshot.push(getInfo(contract.name, deployable));
+    const info = getInfo(contract.name, deployable);
+    snapshot.push(info);
+
+    // update versions in published files
+    const tsFile = fs
+      .readdirSync(dest)
+      .find((f) => f.replace(".ts", "").toLowerCase() === deployable);
+    if (tsFile) {
+      const destTsFile = path.join(dest, tsFile);
+      const data = fs.readFileSync(destTsFile, "utf8");
+      data.replace("{{ version }}", `v${info.version}`);
+      fs.writeFileSync(destTsFile, data);
+    }
   });
 });
 

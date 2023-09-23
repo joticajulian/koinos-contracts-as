@@ -2,27 +2,27 @@
   {
     "contract": "burnkoinhelper",
     "version": "1.0.1",
-    "size": 25215,
-    "sizeHuman": "24.62 kB",
-    "sha256": "819c99f61adcb5af1b268eea8efe18bd98ac45463a04d6ec31563220da7e7ddb"
+    "size": 25063,
+    "sizeHuman": "24.48 kB",
+    "sha256": "ed2a2766b2d785094a3772ecf868d678d31b72c60d3d64e5229987a46ae59079"
   },
   {
     "contract": "checkauthority/testcontract",
-    "size": 18754,
-    "sizeHuman": "18.31 kB",
-    "sha256": "4600d06bd12aaa71f3e8dda9eeae6ca3f4e1c7d74e985e1c076e3831fe7e2714"
+    "size": 18602,
+    "sizeHuman": "18.17 kB",
+    "sha256": "4b885040e7ecbbfbc33f52fc54de74a3f494c3eeabc130b67e4982ab6ae91103"
   },
   {
     "contract": "checkauthority/testthirdparty",
-    "size": 21872,
-    "sizeHuman": "21.36 kB",
-    "sha256": "9fb8a4812ec4f524ca58075b7aa4223a7365b35b41945ac95868ec9e59351a70"
+    "size": 21720,
+    "sizeHuman": "21.21 kB",
+    "sha256": "ad3b2dc36e188417130f2c4292a2844337f1919a365bb054a6ecbb12df6e1acc"
   },
   {
     "contract": "checkauthority/testwallet",
-    "size": 28453,
-    "sizeHuman": "27.79 kB",
-    "sha256": "5e78afaea203be19f4cdf97f78d70c196016875e3d44d032a9abc0e3cc96b790"
+    "size": 28301,
+    "sizeHuman": "27.64 kB",
+    "sha256": "07dea5cb810ccdd05c9f9ffc7879a9d1139c1df2af3b2bfdbd20e5f0918b0b99"
   },
   {
     "contract": "checkauthority",
@@ -41,16 +41,16 @@
   {
     "contract": "manasharer",
     "version": "1.0.0",
-    "size": 33480,
-    "sizeHuman": "32.70 kB",
-    "sha256": "da32e23a7f183ace88f63f29adf3a5d166c1818b089e786551ea657446a4c97a"
+    "size": 33328,
+    "sizeHuman": "32.55 kB",
+    "sha256": "4cf2523cd089fe4973c3c1fd3281dffd14273a028229fa7f68de8069cd0b930a"
   },
   {
     "contract": "nft",
     "version": "1.0.2",
-    "size": 52050,
-    "sizeHuman": "50.83 kB",
-    "sha256": "725d3c2ca212e98a9e0600ed42141aba0d3be44a36b4e29f34ac04000eb433a2"
+    "size": 51670,
+    "sizeHuman": "50.46 kB",
+    "sha256": "01df0892b48626a8a49618e00aebc4b82a498528148e37768b864a1527175649"
   },
   {
     "contract": "textparserlib",
@@ -62,8 +62,8 @@
   {
     "contract": "token",
     "version": "0.1.2",
-    "size": 38616,
-    "sizeHuman": "37.71 kB",
-    "sha256": "25de27abf5b6a0965492b8e047ad358dac33cb2d3d1be4e0d7edd6047705584c"
+    "size": 38464,
+    "sizeHuman": "37.56 kB",
+    "sha256": "e0aaaf5d9d9596b486720f33ebcaf147b7228c60c495a061b751322d1ecdd4b3"
   }
 ]

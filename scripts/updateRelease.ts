@@ -1,6 +1,8 @@
-const fs = require("fs");
-const fse = require("fs-extra");
-const path = require("path");
+import fs from "fs";
+import * as fse from "fs-extra";
+import path from "path";
+import { getInfo } from "./info";
+import { getDeployableContracts } from "./compiler";
 
 if (!fs.existsSync("./assembly")) {
   fs.mkdirSync("assembly");
@@ -13,14 +15,17 @@ if (!fs.existsSync("./koinosbox-proto")) {
 fs.copyFileSync("./contracts/System2.ts", "./assembly/System2.ts");
 
 let index = `export { System2 } from "./System2"`;
-const contracts = fs.readdirSync("./contracts", { withFileTypes: true });
+const snapshot = [];
+const contractsPath = path.join(__dirname, "../contracts");
+const contracts = fs.readdirSync(contractsPath, { withFileTypes: true });
 contracts.forEach((contract) => {
   if (!contract.isDirectory()) return;
-  const src = path.join("./contracts", contract.name, "./build");
-  const dest = path.join("./assembly", contract.name);
-  if (fs.existsSync(dest)) fs.rmdirSync(dest, { recursive: true, force: true });
+  const src = path.join(__dirname, "../contracts", contract.name, "./build");
+  const dest = path.join(__dirname, "../assembly", contract.name);
+  if (fs.existsSync(dest))
+    fs.rmdirSync(dest, { recursive: true /*force: true*/ });
   fse.copySync(src, dest, {
-    filter: (s) => {
+    filter: (s: string) => {
       const base = path.parse(s).base.toLowerCase();
       return !base.startsWith("test") && !base.startsWith("itest");
     },
@@ -29,7 +34,7 @@ contracts.forEach((contract) => {
   if (fs.existsSync(path.join(dest, "__tests__"))) {
     fs.rmdirSync(path.join(dest, "__tests__"), {
       recursive: true,
-      force: true,
+      //force: true,
     });
   }
 
@@ -44,21 +49,21 @@ contracts.forEach((contract) => {
   if (fs.existsSync(path.join(dest, "proto"))) {
     fs.rmdirSync(path.join(dest, "proto/google"), {
       recursive: true,
-      force: true,
+      //force: true,
     });
     fs.rmdirSync(path.join(dest, "proto/koinos"), {
       recursive: true,
-      force: true,
+      //force: true,
     });
     fs.rmdirSync(path.join(dest, "proto/koinosbox-proto"), {
       recursive: true,
-      force: true,
+      //force: true,
     });
     fse.copy(
       path.join(dest, "proto"),
-      path.join("./koinosbox-proto", contract.name),
+      path.join(__dirname, "../koinosbox-proto", contract.name),
       {
-        filter: (s) => !s.endsWith(".ts"),
+        filter: (s: string) => !s.endsWith(".ts"),
       }
     );
   }
@@ -102,9 +107,9 @@ contracts.forEach((contract) => {
 
     if (contractFile === "interfaces") {
       const interfaces = fs.readdirSync(path.join(src, "interfaces"));
-      interfaces.forEach((interface) => {
-        if (interface.endsWith(".ts")) {
-          const className = interface.replace(".ts", "");
+      interfaces.forEach((interf) => {
+        if (interf.endsWith(".ts")) {
+          const className = interf.replace(".ts", "");
           index += `\nexport { ${className.slice(
             1
           )} as ${className} } from "./${
@@ -115,5 +120,15 @@ contracts.forEach((contract) => {
     }
   });
 
-  fs.writeFileSync("./assembly/index.ts", index);
+  // update snapshot
+  const deployableContracts = getDeployableContracts(contract.name);
+  deployableContracts.forEach((deployable) => {
+    snapshot.push(getInfo(contract.name, deployable));
+  });
 });
+
+fs.writeFileSync(path.join(__dirname, "../assembly/index.ts"), index);
+fs.writeFileSync(
+  path.join(__dirname, "../snapshot.json"),
+  JSON.stringify(snapshot, null, 2)
+);

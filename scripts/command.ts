@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { asbuild, precompile } from "./compiler";
+import { asbuild, getDeployableContracts, precompile } from "./compiler";
 
 const [command] = process.argv.slice(2);
 
@@ -24,9 +24,13 @@ async function main() {
         .readdirSync(contractsPath, { withFileTypes: true })
         .filter((c) => c.isDirectory());
       for (let i = 0; i < contracts.length; i += 1) {
-        const contractName = contracts[0].name;
-        await precompile(contractName, contractName);
-        await asbuild(contractName, contractName);
+        const projectName = contracts[i].name;
+        const deployableContracts = getDeployableContracts(projectName);
+        for (let j = 0; j < deployableContracts.length; j += 1) {
+          const contractName = deployableContracts[j];
+          await precompile(projectName, contractName);
+          await asbuild(projectName, contractName);
+        }
       }
       break;
     }

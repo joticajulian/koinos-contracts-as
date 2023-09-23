@@ -1,8 +1,15 @@
 import fs from "fs";
 import path from "path";
-import { showInfo } from "./showInfo";
+import { showInfo } from "./info";
 import { deployContract } from "./deployContract";
-import { precompile, asbuild, test, testE2E, docker } from "./compiler";
+import {
+  precompile,
+  asbuild,
+  test,
+  testE2E,
+  docker,
+  getDeployableContracts,
+} from "./compiler";
 
 const [pathContract, command, ...args] = process.argv.slice(2);
 
@@ -24,20 +31,15 @@ async function main() {
       break;
     }
     case "build-all": {
-      const projectPath = path.join(__dirname, "../contracts", projectName);
-      const contractsWithConfigFile = fs
-        .readdirSync(projectPath)
-        .filter((f) => f.startsWith("koinos") && f.endsWith(".config.js"))
-        .map((f) => {
-          if (f === "koinos.config.js") return projectName;
-          return f.replace("koinos-", "").replace(".config.js", "");
-        });
+      const deployableContracts = getDeployableContracts(projectName);
       const files = fs
-        .readdirSync(path.join(projectPath, "assembly"))
+        .readdirSync(
+          path.join(__dirname, "../contracts", projectName, "assembly")
+        )
         .filter(
           (f) =>
             f.endsWith(".ts") &&
-            contractsWithConfigFile.includes(f.toLocaleLowerCase().slice(0, -3))
+            deployableContracts.includes(f.toLocaleLowerCase().slice(0, -3))
         )
         .map((f) => f.toLowerCase().slice(0, -3));
       for (let i = 0; i < files.length; i += 1) {

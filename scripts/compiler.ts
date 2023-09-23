@@ -117,3 +117,14 @@ RUN yarn dev ${pathContract} info`
     throw error;
   }
 }
+
+export function getDeployableContracts(projectName: string) {
+  const projectPath = path.join(__dirname, "../contracts", projectName);
+  return fs
+    .readdirSync(projectPath)
+    .filter((f) => f.startsWith("koinos") && f.endsWith(".config.js"))
+    .map((f) => {
+      if (f === "koinos.config.js") return projectName;
+      return f.replace("koinos-", "").replace(".config.js", "");
+    });
+}

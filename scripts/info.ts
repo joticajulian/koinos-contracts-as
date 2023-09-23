@@ -11,6 +11,26 @@ function humanFileSize(size: number) {
   );
 }
 
+export function getInfo(projectName: string, contractName: string) {
+  const filePath = path.join(
+    __dirname,
+    "../contracts",
+    projectName,
+    `build/release/${contractName}.wasm`
+  );
+  const data = fs.readFileSync(filePath);
+  const hash = crypto.createHash("sha256").update(data).digest("hex");
+  return {
+    contract:
+      projectName === contractName
+        ? contractName
+        : `${projectName}/${contractName}`,
+    size: data.length,
+    sizeHuman: humanFileSize(data.length),
+    sha256: hash,
+  };
+}
+
 export function showInfo(projectName: string, contractName: string) {
   const filePath = path.join(
     __dirname,

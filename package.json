@@ -9,7 +9,8 @@
   "main": "assembly/index.ts",
   "files": [
     "assembly",
-    "koinosbox-proto"
+    "koinosbox-proto",
+    "snapshot.json"
   ],
   "devDependencies": {
     "@as-covers/core": "^0.2.1",
@@ -42,7 +43,7 @@
     "build-all": "ts-node scripts/command build-all",
     "dev": "ts-node scripts/commandContract",
     "clear-builds": "ts-node scripts/command clear-builds",
-    "release": "node updateRelease.js",
+    "release": "ts-node scripts/updateRelease",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
   },
   "config": {

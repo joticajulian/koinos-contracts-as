@@ -33,6 +33,12 @@ module.exports = {
       freeMana: keysHarbinger(process.env.HARBINGER_FREE_MANA),
       manaSharer: keysHarbinger(process.env.HARBINGER_MANA_SHARER),
       token: keysHarbinger(process.env.HARBINGER_TOKEN),
+      "token/testthirdparty": keysHarbinger(
+        process.env.HARBINGER_TOKEN_TEST_THIRD_PARTY
+      ),
+      "token/testwallet": keysHarbinger(
+        process.env.HARBINGER_TOKEN_TEST_WALLET
+      ),
     },
   },
   mainnet: {

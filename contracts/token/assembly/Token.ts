@@ -150,9 +150,9 @@ export class Token {
       System.checkAuthority2(
         authority.authorization_type.contract_call,
         account,
-        this.callArgs.args,
+        this.callArgs!.args,
         caller.caller,
-        this.callArgs.entry_point
+        this.callArgs!.entry_point
       )
     ) {
       return true;

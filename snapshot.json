@@ -1,0 +1,69 @@
+[
+  {
+    "contract": "burnkoinhelper",
+    "version": "1.0.1",
+    "size": 25215,
+    "sizeHuman": "24.62 kB",
+    "sha256": "819c99f61adcb5af1b268eea8efe18bd98ac45463a04d6ec31563220da7e7ddb"
+  },
+  {
+    "contract": "checkauthority/testcontract",
+    "size": 18754,
+    "sizeHuman": "18.31 kB",
+    "sha256": "4600d06bd12aaa71f3e8dda9eeae6ca3f4e1c7d74e985e1c076e3831fe7e2714"
+  },
+  {
+    "contract": "checkauthority/testthirdparty",
+    "size": 21872,
+    "sizeHuman": "21.36 kB",
+    "sha256": "9fb8a4812ec4f524ca58075b7aa4223a7365b35b41945ac95868ec9e59351a70"
+  },
+  {
+    "contract": "checkauthority/testwallet",
+    "size": 28453,
+    "sizeHuman": "27.79 kB",
+    "sha256": "5e78afaea203be19f4cdf97f78d70c196016875e3d44d032a9abc0e3cc96b790"
+  },
+  {
+    "contract": "checkauthority",
+    "version": "1.0.1",
+    "size": 28574,
+    "sizeHuman": "27.90 kB",
+    "sha256": "753b86d37ae33b52f859f5f9982f38aeff7cf8a97d40e0140416c2862e934b25"
+  },
+  {
+    "contract": "freemanasharer",
+    "version": "1.0.0",
+    "size": 15508,
+    "sizeHuman": "15.14 kB",
+    "sha256": "bff8cf771d4b82e45eccf87f21f6e3091037b2fdf6bb1a960d55e46256ba02ab"
+  },
+  {
+    "contract": "manasharer",
+    "version": "1.0.0",
+    "size": 33480,
+    "sizeHuman": "32.70 kB",
+    "sha256": "da32e23a7f183ace88f63f29adf3a5d166c1818b089e786551ea657446a4c97a"
+  },
+  {
+    "contract": "nft",
+    "version": "1.0.2",
+    "size": 52050,
+    "sizeHuman": "50.83 kB",
+    "sha256": "725d3c2ca212e98a9e0600ed42141aba0d3be44a36b4e29f34ac04000eb433a2"
+  },
+  {
+    "contract": "textparserlib",
+    "version": "0.1.0",
+    "size": 13799,
+    "sizeHuman": "13.48 kB",
+    "sha256": "615424d38527ac30db2163e8658c7f9ff0ce2e7b3a2ada04fb7d40a63b6a37a7"
+  },
+  {
+    "contract": "token",
+    "version": "0.1.2",
+    "size": 38616,
+    "sizeHuman": "37.71 kB",
+    "sha256": "25de27abf5b6a0965492b8e047ad358dac33cb2d3d1be4e0d7edd6047705584c"
+  }
+]

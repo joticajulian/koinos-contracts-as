@@ -132,8 +132,8 @@ contracts.forEach((contract) => {
       .find((f) => f.replace(".ts", "").toLowerCase() === deployable);
     if (tsFile) {
       const destTsFile = path.join(dest, tsFile);
-      const data = fs.readFileSync(destTsFile, "utf8");
-      data.replace("{{ version }}", `v${info.version}`);
+      let data = fs.readFileSync(destTsFile, "utf8");
+      data = data.replace("{{ version }}", `v${info.version}`);
       fs.writeFileSync(destTsFile, data);
     }
   });

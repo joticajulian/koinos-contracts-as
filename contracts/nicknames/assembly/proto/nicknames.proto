@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package nicknames;
+
+import "koinos/options.proto"; 
+
+message tabi {
+   repeated string patterns = 1;
+}
+
+message set_tabi_args {
+   bytes token_id = 1 [(koinos.btype) = HEX];
+   tabi tabi = 2;
+}

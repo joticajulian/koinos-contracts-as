@@ -3,10 +3,16 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { System, Storage, StringBytes } from "@koinos/sdk-as";
-import { Nft, System2, nft } from "@koinosbox/contracts";
+import { Nft, System2, nft, common } from "@koinosbox/contracts";
 import { nicknames } from "./proto/nicknames";
 
 const TABIS_SPACE_ID = 8;
+
+// same purpose as TOKEN_OWNERS_SPACE_ID (link nfts with owners)
+// but forcing a fixed length to be able to order them alphabetically.
+// This space doesn't replace TOKEN_OWNERS_SPACE_ID.
+const ORDERED_TOKEN_OWNERS_SPACE_ID = 9;
+
 const MAX_TOKEN_ID_LENGTH = 32;
 
 export class Nicknames extends Nft {
@@ -21,6 +27,13 @@ export class Nicknames extends Nft {
     nicknames.tabi.decode,
     nicknames.tabi.encode,
     () => new nicknames.tabi()
+  );
+
+  orderedTokens: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
+    this.contractId,
+    ORDERED_TOKEN_OWNERS_SPACE_ID,
+    common.boole.decode,
+    common.boole.encode
   );
 
   /**
@@ -120,17 +133,17 @@ export class Nicknames extends Nft {
 
     const key = new Uint8Array(MAX_TOKEN_ID_LENGTH);
     key.set(tokenId, 0);
-    const current = this.tokenOwners.get(key)!;
-    System.require(!current.account, `'${name}' already exist`);
-    const prev = this.tokenOwners.getPrev(key);
-    const next = this.tokenOwners.getNext(key);
+    const current = this.orderedTokens.get(key);
+    System.require(!current, `'${name}' already exist`);
+    const prev = this.orderedTokens.getPrev(key);
+    const next = this.orderedTokens.getNext(key);
     if (prev) {
       let i = prev.key!.findIndex((k) => k == 0);
       if (i < 0) i = prev.key!.length;
       const prevName = StringBytes.bytesToString(prev.key!.slice(0, i));
       System.require(
         this.levenshtein_distance(name, prevName) > 3,
-        `'${name}' is similar to the existing name1 '${prevName}'`
+        `'${name}' is similar to the existing name '${prevName}'`
       );
     }
     if (next) {
@@ -139,7 +152,7 @@ export class Nicknames extends Nft {
       const nextName = StringBytes.bytesToString(next.key!.slice(0, i));
       System.require(
         this.levenshtein_distance(name, nextName) > 3,
-        `'${name}' is similar to the existing name2 '${nextName}'`
+        `'${name}' is similar to the existing name '${nextName}'`
       );
     }
   }
@@ -152,6 +165,9 @@ export class Nicknames extends Nft {
     this.verifyValidName(args.token_id!);
     const isAuthorized = System2.check_authority(args.to!);
     System.require(isAuthorized, "not authorized by 'to'");
+    const key = new Uint8Array(MAX_TOKEN_ID_LENGTH);
+    key.set(args.token_id!, 0);
+    this.orderedTokens.put(key, new common.boole(true));
     this._mint(args);
   }
 }

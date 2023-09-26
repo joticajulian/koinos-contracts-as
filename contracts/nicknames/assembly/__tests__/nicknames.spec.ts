@@ -93,15 +93,13 @@ describe("Nicknames", () => {
     const nick = new Nicknames();
     const mintArgs = new nft.mint_args(
       USER_ID,
-      StringBytes.stringToBytes("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+      StringBytes.stringToBytes("google")
     );
     nick.callArgs = new System.getArgumentsReturn();
     nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
     nick.mint(mintArgs);
 
-    mintArgs.token_id = StringBytes.stringToBytes(
-      "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-    );
+    mintArgs.token_id = StringBytes.stringToBytes("alice");
     nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
     nick.mint(mintArgs);
 
@@ -111,28 +109,28 @@ describe("Nicknames", () => {
       const nick = new Nicknames();
       const mintArgs = new nft.mint_args(
         USER_ID,
-        StringBytes.stringToBytes("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhggg")
+        StringBytes.stringToBytes("googel")
       );
       nick.callArgs = new System.getArgumentsReturn();
       nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
       nick.mint(mintArgs);
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe(
-      "'hhhhhhhhhhhhhhhhhhhhhhhhhhhhhggg' is similar to the existing name2 'hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh'"
+      "'googel' is similar to the existing name 'google'"
     );
 
     expect(() => {
       const nick = new Nicknames();
       const mintArgs = new nft.mint_args(
         USER_ID,
-        StringBytes.stringToBytes("eeeeeeeeeeeeeeeeeeeeeeeeeeeeefff")
+        StringBytes.stringToBytes("aljce")
       );
       nick.callArgs = new System.getArgumentsReturn();
       nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
       nick.mint(mintArgs);
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe(
-      "'eeeeeeeeeeeeeeeeeeeeeeeeeeeeefff' is similar to the existing name1 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'"
+      "'aljce' is similar to the existing name 'alice'"
     );
   });
 });

@@ -324,6 +324,11 @@ export class Nft {
 
   _set_metadata(args: nft.metadata_args): void {
     this.tokenMetadata.put(args.token_id!, new common.str(args.metadata));
+    System.event(
+      "collections.set_metadata_event",
+      Protobuf.encode<nft.metadata_args>(args, nft.metadata_args.encode),
+      []
+    );
   }
 
   _approve(args: nft.approve_args): void {
@@ -449,6 +454,7 @@ export class Nft {
   /**
    * Set metadata
    * @external
+   * @event collections.set_metadata_event nft.metadata_args
    */
   set_metadata(args: nft.metadata_args): void {
     const isAuthorized = System2.check_authority(this.contractId);

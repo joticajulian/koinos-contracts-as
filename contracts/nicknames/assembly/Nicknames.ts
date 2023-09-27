@@ -129,6 +129,7 @@ export class Nicknames extends Nft {
       }
     }
 
+    // verify it is not similar to other names
     const key = new Uint8Array(MAX_TOKEN_ID_LENGTH);
     key.set(tokenId, 0);
     const current = this.orderedTokens.get(key);
@@ -140,7 +141,7 @@ export class Nicknames extends Nft {
       if (i < 0) i = prev.key!.length;
       const prevName = StringBytes.bytesToString(prev.key!.slice(0, i));
       System.require(
-        this.levenshtein_distance(name, prevName) > 3,
+        this.levenshtein_distance(name, prevName) >= 4,
         `'${name}' is similar to the existing name '${prevName}'`
       );
     }
@@ -149,8 +150,37 @@ export class Nicknames extends Nft {
       if (i < 0) i = next.key!.length;
       const nextName = StringBytes.bytesToString(next.key!.slice(0, i));
       System.require(
-        this.levenshtein_distance(name, nextName) > 3,
+        this.levenshtein_distance(name, nextName) >= 4,
         `'${name}' is similar to the existing name '${nextName}'`
+      );
+    }
+
+    // verify it is not similar to the names starting in the second letter
+    const key2 = new Uint8Array(MAX_TOKEN_ID_LENGTH);
+    key2.set(tokenId.slice(1), 0);
+    const current2 = this.orderedTokens.get(key2);
+    System.require(
+      !current2,
+      `'${name}' is similar to the existing name '${name.slice(1)}'`
+    );
+    const prev2 = this.orderedTokens.getPrev(key2);
+    const next2 = this.orderedTokens.getNext(key2);
+    if (prev2) {
+      let i = prev2.key!.findIndex((k) => k == 0);
+      if (i < 0) i = prev2.key!.length;
+      const prevName2 = StringBytes.bytesToString(prev2.key!.slice(0, i));
+      System.require(
+        this.levenshtein_distance(name, prevName2) >= 4,
+        `'${name}' is similar to the existing name '${prevName2}'`
+      );
+    }
+    if (next2) {
+      let i = next2.key!.findIndex((k) => k == 0);
+      if (i < 0) i = next2.key!.length;
+      const nextName2 = StringBytes.bytesToString(next2.key!.slice(0, i));
+      System.require(
+        this.levenshtein_distance(name, nextName2) >= 4,
+        `'${name}' is similar to the existing name '${nextName2}'`
       );
     }
   }

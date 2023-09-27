@@ -95,23 +95,24 @@ export class Nicknames extends Nft {
       name.length >= 5 && name.length <= 32,
       "the name must have between 5 and 32 characters"
     );
-    let begin: i32 = 0;
-    while (true) {
-      let end = name.indexOf(".", begin);
-      if (end < 0) end = name.length;
+    const words = name.split(".");
+    for (let i = 0; i < words.length; i += 1) {
+      const word = words[i];
       System.require(
-        end - begin >= 5,
+        word.length >= 5,
         "dots must divide words of at least 5 characters"
       );
 
-      for (let i = begin; i < end; i += 1) {
-        const charCode = name.charCodeAt(i);
-        if (i == begin) {
+      System.require(!word.includes("--"), "invalid segment '--'");
+
+      for (let j = 0; j < word.length; j += 1) {
+        const charCode = word.charCodeAt(j);
+        if (j == 0) {
           System.require(
             charCode >= 97 && charCode <= 122, // is a lowercase letter (a-z)
-            "words must start with a letter"
+            "words must start with a lowercase letter"
           );
-        } else if (i == end - 1) {
+        } else if (j == word.length - 1) {
           System.require(
             (charCode >= 97 && charCode <= 122) || // is a lowercase letter (a-z), or
               (charCode >= 48 && charCode <= 57), // is a number (0-9), or
@@ -126,9 +127,6 @@ export class Nicknames extends Nft {
           );
         }
       }
-
-      if (end == name.length) break;
-      begin = end + 1;
     }
 
     const key = new Uint8Array(MAX_TOKEN_ID_LENGTH);

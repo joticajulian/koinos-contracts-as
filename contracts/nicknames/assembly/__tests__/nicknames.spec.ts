@@ -60,7 +60,9 @@ describe("Nicknames", () => {
       const nick = new Nicknames();
       nick.verifyValidName(StringBytes.stringToBytes("0koinos"));
     }).toThrow();
-    expect(MockVM.getErrorMessage()).toBe("words must start with a letter");
+    expect(MockVM.getErrorMessage()).toBe(
+      "words must start with a lowercase letter"
+    );
 
     expect(() => {
       const nick = new Nicknames();
@@ -73,6 +75,12 @@ describe("Nicknames", () => {
     expect(() => {
       const nick = new Nicknames();
       nick.verifyValidName(StringBytes.stringToBytes("x------"));
+    }).toThrow();
+    expect(MockVM.getErrorMessage()).toBe("invalid segment '--'");
+
+    expect(() => {
+      const nick = new Nicknames();
+      nick.verifyValidName(StringBytes.stringToBytes("abcdef-"));
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe(
       "words must end with lowercase letters or numbers"

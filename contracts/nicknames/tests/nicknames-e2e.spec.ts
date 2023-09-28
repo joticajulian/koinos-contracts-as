@@ -1,7 +1,7 @@
 import { LocalKoinos } from "@roamin/local-koinos";
 import { Contract, Signer, Transaction } from "koilib";
 import path from "path";
-import { Abi, TransactionReceipt } from "koilib/lib/interface";
+import { Abi } from "koilib/lib/interface";
 import { randomBytes } from "crypto";
 import { beforeAll, afterAll, it, expect } from "@jest/globals";
 import * as abi from "../build/nicknames-abi.json";
@@ -73,27 +73,23 @@ it("should work", async () => {
 
   await tx.pushOperation(nick["mint"], {
     to: account1.address,
-    token_id: encodeHex("alice"),
+    token_id: encodeHex("absorb"),
   });
   await tx.pushOperation(nick["mint"], {
     to: account1.address,
-    token_id: encodeHex("alice1234"),
+    token_id: encodeHex("pumpkin"),
   });
   await tx.pushOperation(nick["mint"], {
     to: account1.address,
-    token_id: encodeHex("bobby"),
+    token_id: encodeHex("carlos1234"),
   });
   await tx.pushOperation(nick["mint"], {
     to: account1.address,
-    token_id: encodeHex("baloons"),
+    token_id: encodeHex("review"),
   });
   await tx.pushOperation(nick["mint"], {
     to: account1.address,
-    token_id: encodeHex("bobby1234"),
-  });
-  await tx.pushOperation(nick["mint"], {
-    to: account1.address,
-    token_id: encodeHex("burnburn1234"),
+    token_id: encodeHex("outside"),
   });
 
   const receipt = await tx.send();
@@ -103,7 +99,7 @@ it("should work", async () => {
 
   // get owner of token
   const { result: resultOwnerOf } = await nick["owner_of"]({
-    token_id: encodeHex("bobby"),
+    token_id: encodeHex("absorb"),
   });
   expect(resultOwnerOf).toStrictEqual({
     account: account1.address,
@@ -117,14 +113,9 @@ it("should work", async () => {
   });
 
   expect(resultListTokens).toStrictEqual({
-    token_ids: [
-      "alice",
-      "bobby",
-      "baloons",
-      "alice1234",
-      "bobby1234",
-      "burnburn1234",
-    ].map(encodeHex),
+    token_ids: ["absorb", "review", "outside", "pumpkin", "carlos1234"].map(
+      encodeHex
+    ),
   });
 
   // get tokens of account 1
@@ -135,44 +126,60 @@ it("should work", async () => {
     direction: 0,
   });
   expect(tokensA1).toStrictEqual({
-    token_ids: [
-      "alice",
-      "bobby",
-      "baloons",
-      "alice1234",
-      "bobby1234",
-      "burnburn1234",
-    ].map(encodeHex),
+    token_ids: ["absorb", "review", "outside", "pumpkin", "carlos1234"].map(
+      encodeHex
+    ),
   });
 
   // reject similar names
-  await expect(
-    nick["mint"]({
-      to: account1.address,
-      token_id: encodeHex("bobby12"),
-    })
-  ).rejects.toThrow(
-    JSON.stringify({
-      error: "'bobby12' is similar to the existing name 'bobby'",
-      code: 1,
-      logs: [
-        "transaction reverted: 'bobby12' is similar to the existing name 'bobby'",
-      ],
-    })
-  );
+  const tests = [
+    /**
+     * check by alphabetic order
+     */
+    // same name
+    ["pumpkin", "'pumpkin' already exist"],
+    // similar to the previous
+    ["absorc", "'absorc' is similar to the existing name 'absorb'"],
+    // similar to the next
+    ["pumpkim", "'pumpkim' is similar to the existing name 'pumpkin'"],
 
-  await expect(
-    nick["mint"]({
-      to: account1.address,
-      token_id: encodeHex("obby12"),
-    })
-  ).rejects.toThrow(
-    JSON.stringify({
-      error: "'obby12' is similar to the existing name 'bobby'",
-      code: 1,
-      logs: [
-        "transaction reverted: 'obby12' is similar to the existing name 'bobby'",
-      ],
-    })
-  );
+    /**
+     * check by alphabetic order where the
+     * first letter of the candidate is not taken
+     * into account
+     */
+    // same from second letter
+    ["tpumpkin", "'tpumpkin' is similar to the existing name 'pumpkin'"],
+    // second letter similar to the previous
+    ["tabsorbb", "'tabsorbb' is similar to the existing name 'absorb'"],
+    // second letter similar to the next
+    ["tpumpkim", "'tpumpkim' is similar to the existing name 'pumpkin'"],
+
+    /**
+     * check by alphabetic order but this time the
+     * first letter of the existing names are not taken
+     * into account
+     */
+    // same from second letter
+    ["umpkin", "'umpkin' is similar to the existing name '?umpkin'"],
+    // similar to second letter of previous
+    ["umpkio", "'umpkio' is similar to the existing name '?umpkin'"],
+    // similar to second letter of next
+    ["umpkim", "'umpkim' is similar to the existing name '?umpkin'"],
+  ];
+
+  for (let i = 0; i < tests.length; i += 1) {
+    await expect(
+      nick["mint"]({
+        to: account1.address,
+        token_id: encodeHex(tests[i][0]),
+      })
+    ).rejects.toThrow(
+      JSON.stringify({
+        error: tests[i][1],
+        code: 1,
+        logs: [`transaction reverted: ${tests[i][1]}`],
+      })
+    );
+  }
 });

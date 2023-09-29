@@ -285,12 +285,6 @@ export class Nft {
     const caller = System.getCaller();
     if (!caller.caller || caller.caller.length == 0) return false;
 
-    // check if approved for all
-    const key = new Uint8Array(50);
-    key.set(account, 0);
-    key.set(caller.caller, 25);
-    if (this.operatorApprovals.get(key)!.value == true) return true;
-
     // check if approved for the token
     const approvedAddress = this.tokenApprovals.get(token_id)!.account;
     if (Arrays.equal(approvedAddress, caller.caller)) {
@@ -298,6 +292,12 @@ export class Nft {
       this.tokenApprovals.remove(token_id);
       return true;
     }
+
+    // check if approved for all
+    const key = new Uint8Array(50);
+    key.set(account, 0);
+    key.set(caller.caller, 25);
+    if (this.operatorApprovals.get(key)!.value == true) return true;
 
     return false;
   }

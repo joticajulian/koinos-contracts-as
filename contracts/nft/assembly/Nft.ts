@@ -24,7 +24,7 @@ export class Nft {
 
   _name: string = "My NFT";
   _symbol: string = "NFT";
-  _uri: string = "https://nfts";
+  _uri: string = "";
 
   contractId: Uint8Array = System.getContractId();
 
@@ -285,12 +285,6 @@ export class Nft {
     const caller = System.getCaller();
     if (!caller.caller || caller.caller.length == 0) return false;
 
-    // check if approved for all
-    const key = new Uint8Array(50);
-    key.set(account, 0);
-    key.set(caller.caller, 25);
-    if (this.operatorApprovals.get(key)!.value == true) return true;
-
     // check if approved for the token
     const approvedAddress = this.tokenApprovals.get(token_id)!.account;
     if (Arrays.equal(approvedAddress, caller.caller)) {
@@ -298,6 +292,12 @@ export class Nft {
       this.tokenApprovals.remove(token_id);
       return true;
     }
+
+    // check if approved for all
+    const key = new Uint8Array(50);
+    key.set(account, 0);
+    key.set(caller.caller, 25);
+    if (this.operatorApprovals.get(key)!.value == true) return true;
 
     return false;
   }
@@ -324,6 +324,11 @@ export class Nft {
 
   _set_metadata(args: nft.metadata_args): void {
     this.tokenMetadata.put(args.token_id!, new common.str(args.metadata));
+    System.event(
+      "collections.set_metadata_event",
+      Protobuf.encode<nft.metadata_args>(args, nft.metadata_args.encode),
+      []
+    );
   }
 
   _approve(args: nft.approve_args): void {
@@ -449,6 +454,7 @@ export class Nft {
   /**
    * Set metadata
    * @external
+   * @event collections.set_metadata_event nft.metadata_args
    */
   set_metadata(args: nft.metadata_args): void {
     const isAuthorized = System2.check_authority(this.contractId);

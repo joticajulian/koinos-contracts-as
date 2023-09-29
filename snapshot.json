@@ -47,10 +47,10 @@
   },
   {
     "contract": "nft",
-    "version": "1.0.2",
-    "size": 51670,
-    "sizeHuman": "50.46 kB",
-    "sha256": "01df0892b48626a8a49618e00aebc4b82a498528148e37768b864a1527175649"
+    "version": "1.0.3",
+    "size": 52129,
+    "sizeHuman": "50.91 kB",
+    "sha256": "37cd2117a8a736de5215ad02361cb27a90384fa357c6cd597bdea5a6e510505e"
   },
   {
     "contract": "textparserlib",

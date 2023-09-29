@@ -24,7 +24,7 @@ export class Nft {
 
   _name: string = "My NFT";
   _symbol: string = "NFT";
-  _uri: string = "https://nfts";
+  _uri: string = "";
 
   contractId: Uint8Array = System.getContractId();
 

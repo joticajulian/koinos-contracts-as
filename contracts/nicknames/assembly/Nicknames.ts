@@ -101,9 +101,9 @@ export class Nicknames extends Nft {
     const nearName = StringBytes.bytesToString(nearObj.key!.slice(0, i));
     System.require(
       this.levenshteinDistance(name, nearName) >= 3,
-      `'${name}' is similar to the existing name '${
+      `@${name} is similar to the existing name @${
         firstUnknown ? "?" : ""
-      }${nearName}'`
+      }${nearName}`
     );
   }
 
@@ -112,7 +112,7 @@ export class Nicknames extends Nft {
    * in KAP domains.
    * This function will be removed in the future
    */
-  verifyNameInKapDomains(name: string): void {
+  verifyNameInKapDomains(name: string, readMode: boolean): void {
     const kap = new INft(Base58.decode("13tmzDmfqCsbYT26C4CmKxq86d33senqH3"));
 
     // check if the name + ".koin" exists in KAP domains
@@ -123,7 +123,7 @@ export class Nicknames extends Nft {
     let tokenOwner = kap.owner_of(new nft.token(tokenIdKap));
     if (tokenOwner.account) {
       System.require(
-        System2.check_authority(tokenOwner.account!),
+        !readMode && System2.check_authority(tokenOwner.account!),
         `@${name} is reserved for the owner of kap://${kapName}`
       );
     }
@@ -137,13 +137,13 @@ export class Nicknames extends Nft {
     tokenOwner = kap.owner_of(new nft.token(tokenIdKap));
     if (tokenOwner.account) {
       System.require(
-        System2.check_authority(tokenOwner.account!),
+        !readMode && System2.check_authority(tokenOwner.account!),
         `@${name} is reserved for the owner of kap://${kapName}`
       );
     }
   }
 
-  verifyValidName(tokenId: Uint8Array): void {
+  verifyValidName(tokenId: Uint8Array, readMode: boolean): void {
     const name = StringBytes.bytesToString(tokenId);
     System.require(
       name.length >= 3 && name.length <= 32,
@@ -194,7 +194,7 @@ export class Nicknames extends Nft {
     const key = new Uint8Array(MAX_TOKEN_ID_LENGTH);
     key.set(tokenId, 0);
     const current = this.orderedTokens.get(key);
-    System.require(!current, `'${name}' already exist`);
+    System.require(!current, `@${name} already exist`);
     this.verifyNotSimilar(name, this.orderedTokens.getPrev(key));
     this.verifyNotSimilar(name, this.orderedTokens.getNext(key));
 
@@ -206,7 +206,7 @@ export class Nicknames extends Nft {
     const current2 = this.orderedTokens.get(key2);
     System.require(
       !current2,
-      `'${name}' is similar to the existing name '${name.slice(1)}'`
+      `@${name} is similar to the existing name @${name.slice(1)}`
     );
     this.verifyNotSimilar(name, this.orderedTokens.getPrev(key2));
     this.verifyNotSimilar(name, this.orderedTokens.getNext(key2));
@@ -217,12 +217,12 @@ export class Nicknames extends Nft {
     const current3 = this.orderedTokens2.get(key);
     System.require(
       !current3,
-      `'${name}' is similar to the existing name '?${name}'`
+      `@${name} is similar to the existing name @?${name}`
     );
     this.verifyNotSimilar(name, this.orderedTokens2.getPrev(key), true);
     this.verifyNotSimilar(name, this.orderedTokens2.getNext(key), true);
 
-    this.verifyNameInKapDomains(name);
+    this.verifyNameInKapDomains(name, readMode);
   }
 
   /**
@@ -230,9 +230,10 @@ export class Nicknames extends Nft {
    * @external
    * @readonly
    */
-  verify_valid_name(args: common.str): void {
+  verify_valid_name(args: common.str): common.str {
     const tokenId = StringBytes.stringToBytes(args.value!);
-    this.verifyValidName(tokenId);
+    this.verifyValidName(tokenId, true);
+    return new common.str(`${args.value!} is available`);
   }
 
   /**
@@ -240,7 +241,7 @@ export class Nicknames extends Nft {
    * @external
    */
   mint(args: nft.mint_args): void {
-    this.verifyValidName(args.token_id!);
+    this.verifyValidName(args.token_id!, false);
     const isAuthorized = System2.check_authority(args.to!);
     System.require(isAuthorized, "not authorized by 'to'");
 

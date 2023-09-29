@@ -38,14 +38,10 @@ module.exports = {
   mainnet: {
     rpcNodes: ["https://api.koinos.io", "https://api.koinosblocks.com"],
     accounts: {
-      manaSharer: {
-        privateKey: process.env.MAINNET_MANA_SHARER_PRIVATE_KEY,
-        id: process.env.MAINNET_MANA_SHARER_ID,
+      freeMana: {
+        id: process.env.MAINNET_FREE_MANA_ID,
       },
-      contract: {
-        privateKey: process.env.MAINNET_TOKEN_CONTRACT_PRIVATE_KEY,
-        id: process.env.MAINNET_TOKEN_CONTRACT_ID,
-      },
+      nicknames: keysMainnet(process.env.MAINNET_NICKNAMES),
     },
   },
 };

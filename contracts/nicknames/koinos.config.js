@@ -5,7 +5,7 @@ dotenv.config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "Nicknames",
-  version: "0.0.0",
+  version: "1.0.0",
   proto: ["./proto/nicknames.proto"],
   files: ["./Nicknames.ts", "../../nft/assembly/Nft.ts"],
   sourceDir: "./assembly",

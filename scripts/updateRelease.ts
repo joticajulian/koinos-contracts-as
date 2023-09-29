@@ -18,6 +18,7 @@ let index = `export { System2 } from "./System2"`;
 const snapshot = [];
 const contractsPath = path.join(__dirname, "../contracts");
 const contracts = fs.readdirSync(contractsPath, { withFileTypes: true });
+const insertedContractFiles: string[] = [];
 contracts.forEach((contract) => {
   if (!contract.isDirectory()) return;
   const src = path.join(__dirname, "../contracts", contract.name, "./build");
@@ -76,8 +77,10 @@ contracts.forEach((contract) => {
       contractFile !== "index.ts" &&
       contractFile !== "constants.ts" &&
       !contractFile.toLowerCase().startsWith("test") &&
-      !contractFile.toLowerCase().startsWith("itest")
+      !contractFile.toLowerCase().startsWith("itest") &&
+      !insertedContractFiles.includes(contractFile)
     ) {
+      insertedContractFiles.push(contractFile);
       const className = contractFile.replace(".ts", "");
 
       if (contractFile.startsWith("I")) {

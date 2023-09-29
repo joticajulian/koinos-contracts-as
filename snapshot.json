@@ -53,6 +53,13 @@
     "sha256": "37cd2117a8a736de5215ad02361cb27a90384fa357c6cd597bdea5a6e510505e"
   },
   {
+    "contract": "nicknames",
+    "version": "1.0.0",
+    "size": 64614,
+    "sizeHuman": "63.10 kB",
+    "sha256": "8a400a544dc8fa2907f2b1bf2cd75ebfbdfdbd26d01819c7888103a21e05f361"
+  },
+  {
     "contract": "textparserlib",
     "version": "0.1.0",
     "size": 13799,

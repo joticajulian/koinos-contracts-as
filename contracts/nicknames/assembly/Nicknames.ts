@@ -233,7 +233,7 @@ export class Nicknames extends Nft {
   verify_valid_name(args: common.str): common.str {
     const tokenId = StringBytes.stringToBytes(args.value!);
     this.verifyValidName(tokenId, true);
-    return new common.str(`${args.value!} is available`);
+    return new common.str(`@${args.value!} is available`);
   }
 
   /**

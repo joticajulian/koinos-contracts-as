@@ -2,20 +2,29 @@
 // Nicknames Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { System, Storage, StringBytes } from "@koinos/sdk-as";
-import { Nft, System2, nft, common } from "@koinosbox/contracts";
+import {
+  System,
+  Storage,
+  StringBytes,
+  Arrays,
+  Protobuf,
+  Base58,
+} from "@koinos/sdk-as";
+import { Nft, System2, nft, common, INft } from "@koinosbox/contracts";
 import { nicknames } from "./proto/nicknames";
-
-const TABIS_SPACE_ID = 8;
 
 // same purpose as TOKEN_OWNERS_SPACE_ID (link nfts with owners)
 // but forcing a fixed length to be able to order them alphabetically.
 // This space doesn't replace TOKEN_OWNERS_SPACE_ID.
-const ORDERED_TOKEN_OWNERS_SPACE_ID = 9;
+const ORDERED_TOKEN_OWNERS_SPACE_ID = 8;
 
 // same purpose as the previous one but ordering them by
 // the second letter
-const ORDERED_TOKEN_OWNERS_SPACE_ID_2 = 10;
+const ORDERED_TOKEN_OWNERS_SPACE_ID_2 = 9;
+
+const TABIS_SPACE_ID = 10;
+
+const COMMUNITY_NAMES_SPACE_ID = 9;
 
 const MAX_TOKEN_ID_LENGTH = 32;
 
@@ -47,33 +56,14 @@ export class Nicknames extends Nft {
     common.boole.encode
   );
 
-  /**
-   * Set Text ABI for a token
-   * @external
-   * @event nicknames.set_tabi nicknames.set_tabi_args
-   */
-  set_tabi(args: nicknames.set_tabi_args): void {
-    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    const isAuthorized = System2.check_authority(tokenOwner.account!);
-    System.require(isAuthorized, "not authorized by the owner");
-    this.tabis.put(args.token_id!, args.tabi!);
-    System.event("nicknames.set_tabi", this.callArgs!.args, [
-      tokenOwner.account!,
-    ]);
-  }
+  communityNames: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
+    this.contractId,
+    COMMUNITY_NAMES_SPACE_ID,
+    common.boole.decode,
+    common.boole.encode
+  );
 
-  /**
-   * Set metadata
-   * @external
-   */
-  set_metadata(args: nft.metadata_args): void {
-    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    const isAuthorized = System2.check_authority(tokenOwner.account!);
-    System.require(isAuthorized, "not authorized by the owner");
-    this._set_metadata(args);
-  }
-
-  levenshtein_distance(str1: string, str2: string): u32 {
+  levenshteinDistance(str1: string, str2: string): u32 {
     const track = new Array<Array<u32>>(str2.length + 1);
     for (let j = 0; j <= str2.length; j += 1) {
       track[j] = new Array<u32>(str1.length + 1);
@@ -110,25 +100,67 @@ export class Nicknames extends Nft {
     if (i < 0) i = nearObj.key!.length;
     const nearName = StringBytes.bytesToString(nearObj.key!.slice(0, i));
     System.require(
-      this.levenshtein_distance(name, nearName) >= 3,
+      this.levenshteinDistance(name, nearName) >= 3,
       `'${name}' is similar to the existing name '${
         firstUnknown ? "?" : ""
       }${nearName}'`
     );
   }
 
+  /**
+   * Temporary function to reserve the names created
+   * in KAP domains.
+   * This function will be removed in the future
+   */
+  verifyNameInKapDomains(name: string): void {
+    const kap = new INft(Base58.decode("13tmzDmfqCsbYT26C4CmKxq86d33senqH3"));
+
+    // check if the name + ".koin" exists in KAP domains
+    // Example: if kap://alice.koin exists then its owner
+    //          is the only one that can create @alice
+    let kapName = `${name}.koin`;
+    let tokenIdKap = StringBytes.stringToBytes(kapName);
+    let tokenOwner = kap.owner_of(new nft.token(tokenIdKap));
+    if (tokenOwner.account) {
+      System.require(
+        System2.check_authority(tokenOwner.account!),
+        `@${name} is reserved for the owner of kap://${kapName}`
+      );
+    }
+
+    // check if names ending with .koinos exists in KAP domains
+    // Example: if kap://alice.koin exists then its owner
+    //          is the only one that can create @alice.koinos
+    if (!name.endsWith(".koinos")) return;
+    kapName = name.slice(0, name.length - 2);
+    tokenIdKap = StringBytes.stringToBytes(kapName);
+    tokenOwner = kap.owner_of(new nft.token(tokenIdKap));
+    if (tokenOwner.account) {
+      System.require(
+        System2.check_authority(tokenOwner.account!),
+        `@${name} is reserved for the owner of kap://${kapName}`
+      );
+    }
+  }
+
   verifyValidName(tokenId: Uint8Array): void {
     const name = StringBytes.bytesToString(tokenId);
     System.require(
-      name.length >= 5 && name.length <= 32,
-      "the name must have between 5 and 32 characters"
+      name.length >= 3 && name.length <= 32,
+      "the name must have between 3 and 32 characters"
     );
+
+    // do not accept names ending with .koin to avoid
+    // confussions with the names used in the principal domain
+    // of KAP Domains (.koin)
+    System.require(!name.endsWith(".koin"), "the name cannot end with .koin");
+
     const words = name.split(".");
     for (let i = 0; i < words.length; i += 1) {
       const word = words[i];
       System.require(
-        word.length >= 5,
-        "dots must divide words of at least 5 characters"
+        word.length >= 3,
+        "dots must divide words of at least 3 characters"
       );
 
       System.require(!word.includes("--"), "invalid segment '--'");
@@ -189,6 +221,18 @@ export class Nicknames extends Nft {
     );
     this.verifyNotSimilar(name, this.orderedTokens2.getPrev(key), true);
     this.verifyNotSimilar(name, this.orderedTokens2.getNext(key), true);
+
+    this.verifyNameInKapDomains(name);
+  }
+
+  /**
+   * Verify if a new name is valid
+   * @external
+   * @readonly
+   */
+  verify_valid_name(args: common.str): void {
+    const tokenId = StringBytes.stringToBytes(args.value!);
+    this.verifyValidName(tokenId);
   }
 
   /**
@@ -212,5 +256,102 @@ export class Nicknames extends Nft {
 
     // mint the token
     this._mint(args);
+  }
+
+  /**
+   * Transfer Name
+   * @external
+   * @event collections.transfer_event nft.transfer_args
+   */
+  transfer(args: nft.transfer_args): void {
+    const isCommunityName = this.communityNames.get(args.token_id!);
+    if (isCommunityName) {
+      // TODO: use only gov system after the grace period
+      System.require(
+        System.checkSystemAuthority() ||
+          System2.check_authority(this.contractId),
+        "transfer not authorized by the community"
+      );
+    } else {
+      const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+      System.require(
+        Arrays.equal(tokenOwner.account, args.from!),
+        "from is not the owner"
+      );
+
+      const isAuthorized = this.check_authority(args.from!, args.token_id!);
+      System.require(isAuthorized, "transfer not authorized");
+    }
+
+    this._transfer(args);
+  }
+
+  /**
+   * Transfer name to another address and define that the
+   * name will be controlled by the community
+   * @external
+   * @event collections.transfer_event nft.transfer_args
+   * @event collections.transferred_to_community nft.transfer_args
+   */
+  transfer_to_community(args: nft.transfer_args): void {
+    // transfer the token
+    this.transfer(args);
+
+    // set the token as a community name
+    this.communityNames.put(args.token_id!, new common.boole(true));
+    const impacted = [args.to!, args.from!];
+    System.event(
+      "collections.transferred_to_community",
+      Protobuf.encode<nft.transfer_args>(args, nft.transfer_args.encode),
+      impacted
+    );
+  }
+
+  /**
+   * Set Text ABI for a token
+   * @external
+   * @event nicknames.set_tabi nicknames.set_tabi_args
+   */
+  set_tabi(args: nicknames.set_tabi_args): void {
+    const isCommunityName = this.communityNames.get(args.token_id!);
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+    if (isCommunityName) {
+      // TODO: use only gov system after the grace period
+      System.require(
+        System.checkSystemAuthority() ||
+          System2.check_authority(this.contractId),
+        "not authorized by the community"
+      );
+    } else {
+      const isAuthorized = System2.check_authority(tokenOwner.account!);
+      System.require(isAuthorized, "not authorized by the owner");
+    }
+
+    this.tabis.put(args.token_id!, args.tabi!);
+    System.event("nicknames.set_tabi", this.callArgs!.args, [
+      tokenOwner.account!,
+    ]);
+  }
+
+  /**
+   * Set metadata
+   * @external
+   */
+  set_metadata(args: nft.metadata_args): void {
+    const isCommunityName = this.communityNames.get(args.token_id!);
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+    if (isCommunityName) {
+      // TODO: use only gov system after the grace period
+      System.require(
+        System.checkSystemAuthority() ||
+          System2.check_authority(this.contractId),
+        "not authorized by the community"
+      );
+    } else {
+      const isAuthorized = System2.check_authority(tokenOwner.account!);
+      System.require(isAuthorized, "not authorized by the owner");
+    }
+
+    this._set_metadata(args);
   }
 }

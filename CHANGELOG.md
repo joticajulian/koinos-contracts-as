@@ -2,7 +2,16 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
-## [v1.0.17](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.18) (2023-09-23)
+## [v1.0.19](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.19) (2023-09-29)
+
+### 🐛 Bug Fixes
+
+- NFT contract v1.0.3
+  - emit event for set metadata
+  - during a transfer remove token approval in case owner approved for all
+  - empty uri by default
+
+## [v1.0.18](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.18) (2023-09-23)
 
 No changes. But new contract hashes
 

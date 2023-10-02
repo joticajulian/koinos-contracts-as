@@ -239,6 +239,7 @@ export class Nicknames extends Nft {
   /**
    * Create new name
    * @external
+   * @event collections.mint_event nft.mint_args
    */
   mint(args: nft.mint_args): void {
     this.verifyValidName(args.token_id!, false);
@@ -262,6 +263,7 @@ export class Nicknames extends Nft {
   /**
    * Delete a name
    * @external
+   * @event collections.burn_event nft.burn_args
    */
   burn(args: nft.burn_args): void {
     const isCommunityName = this.communityNames.get(args.token_id!);
@@ -279,6 +281,17 @@ export class Nicknames extends Nft {
       System.require(isAuthorized, "burn not authorized");
     }
 
+    // remove it from the space that orders them alphabetically
+    const key = new Uint8Array(MAX_TOKEN_ID_LENGTH);
+    key.set(args.token_id!, 0);
+    this.orderedTokens.remove(key);
+
+    // remove it from the space that orders them alphabetically by the second letter
+    const key2 = new Uint8Array(MAX_TOKEN_ID_LENGTH);
+    key2.set(args.token_id!.slice(1), 0);
+    this.orderedTokens2.remove(key2);
+
+    // burn the token
     this._burn(args);
   }
 
@@ -360,6 +373,7 @@ export class Nicknames extends Nft {
   /**
    * Set metadata
    * @external
+   * @event collections.set_metadata_event nft.metadata_args
    */
   set_metadata(args: nft.metadata_args): void {
     const isCommunityName = this.communityNames.get(args.token_id!);

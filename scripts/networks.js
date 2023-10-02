@@ -33,6 +33,7 @@ module.exports = {
       freeMana: keysHarbinger(process.env.HARBINGER_FREE_MANA),
       manaSharer: keysHarbinger(process.env.HARBINGER_MANA_SHARER),
       token: keysHarbinger(process.env.HARBINGER_TOKEN),
+      nicknames: keysHarbinger(process.env.HARBINGER_NICKNAMES),
     },
   },
   mainnet: {

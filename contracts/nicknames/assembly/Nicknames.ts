@@ -260,6 +260,29 @@ export class Nicknames extends Nft {
   }
 
   /**
+   * Delete a name
+   * @external
+   */
+  burn(args: nft.burn_args): void {
+    const isCommunityName = this.communityNames.get(args.token_id!);
+    if (isCommunityName) {
+      // TODO: use only gov system after the grace period
+      System.require(
+        System.checkSystemAuthority() ||
+          System2.check_authority(this.contractId),
+        "burn not authorized by the community"
+      );
+    } else {
+      const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+      System.require(tokenOwner.account, "token does not exist");
+      const isAuthorized = System2.check_authority(tokenOwner.account!);
+      System.require(isAuthorized, "burn not authorized");
+    }
+
+    this._burn(args);
+  }
+
+  /**
    * Transfer Name
    * @external
    * @event collections.transfer_event nft.transfer_args

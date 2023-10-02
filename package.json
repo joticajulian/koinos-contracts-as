@@ -44,6 +44,7 @@
     "dev": "ts-node scripts/commandContract",
     "clear-builds": "ts-node scripts/command clear-builds",
     "release": "ts-node scripts/updateRelease",
+    "check-contract": "node scripts/checkContractUploads.js",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
   },
   "config": {

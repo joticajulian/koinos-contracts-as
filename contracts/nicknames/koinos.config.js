@@ -7,9 +7,15 @@ module.exports = {
   class: "Nicknames",
   version: "1.1.0",
   proto: ["./proto/nicknames.proto"],
-  files: ["./Nicknames.ts", "../../nft/assembly/Nft.ts"],
+  files: ["./Nicknames.ts"],
   sourceDir: "./assembly",
   buildDir: "./build",
+  filesImport: [
+    {
+      dependency: "@koinosbox/contracts",
+      path: "../../node_modules/@koinosbox/contracts/assembly/nft/Nft.ts",
+    },
+  ],
   protoImport: [
     {
       name: "@koinosbox/contracts",

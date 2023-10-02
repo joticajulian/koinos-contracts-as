@@ -425,14 +425,14 @@ export class Nft {
     key.set(args.token_id!, 26);
     this.tokenOwnerPairs.remove(key);
 
-    const balance = this.balances.get(tokenOwner.account)!;
+    const balance = this.balances.get(tokenOwner.account!)!;
     const supply = this.supply.get()!;
     balance.value -= 1;
     supply.value -= 1;
-    this.balances.put(tokenOwner.account, balance);
+    this.balances.put(tokenOwner.account!, balance);
     this.supply.put(supply);
 
-    const impacted = [tokenOwner.account];
+    const impacted = [tokenOwner.account!];
     System.event(
       "collections.burn_event",
       Protobuf.encode<nft.burn_args>(args, nft.burn_args.encode),

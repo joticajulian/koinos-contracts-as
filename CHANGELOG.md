@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v1.1.2](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.1.2) (2023-10-03)
+
+### 🚀 Features
+
+- Nicknames: script to mint in harbinger
+
+### 🐛 Bug Fixes
+
+- Nicknames v1.1.1:
+  - Fix burn function (remove token from all lists)
+  - Fix events in ABI
+
 ## [v1.1.1](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.1.1) (2023-10-02)
 
 ### 🚀 Features

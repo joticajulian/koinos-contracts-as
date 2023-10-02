@@ -102,5 +102,7 @@ const networkName = inputNetworkName || "harbinger";
   console.log(receipt);
   console.log("Transaction submitted");
   const { blockNumber } = await tx.wait();
-  console.log(`names registered in block number ${blockNumber} (${networkName})`);
+  console.log(
+    `names registered in block number ${blockNumber} (${networkName})`
+  );
 })();

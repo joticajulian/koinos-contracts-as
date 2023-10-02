@@ -2,12 +2,21 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v1.1.1](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.1.1) (2023-10-02)
+
+### 🚀 Features
+
+- Nicknames v1.1.0: Function to burn tokens
+
+### 🐛 Bug Fixes
+
+- NFT contract v1.0.4: Fix burn function compilation
+
 ## [v1.1.0](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.1.0) (2023-09-30)
 
 ### 🚀 Features
 
 - Nicknames contract v1.0.0
-
 
 ## [v1.0.19](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.0.19) (2023-09-29)
 

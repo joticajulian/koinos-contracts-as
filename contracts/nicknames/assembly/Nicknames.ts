@@ -33,6 +33,7 @@ export class Nicknames extends Nft {
 
   _name: string = "Nicknames";
   _symbol: string = "NICK";
+  _uri: string = "https://kondor-nft-api-w6enmqacja-uc.a.run.app/nicknames";
 
   tabis: Storage.Map<Uint8Array, nicknames.tabi> = new Storage.Map(
     this.contractId,

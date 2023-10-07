@@ -50,6 +50,10 @@ const networkName = inputNetworkName || "harbinger";
             name: "nicknames",
             address: "1KD9Es7LBBjA1FY3ViCgQJ7e6WH1ipKbhz",
           },
+          {
+            name: "burnkoin",
+            address: "1NsQbH5AhQXgtSNg1ejpFqTi2hmCWz1eQS",
+          },
         ]
       : // harbinger
         [

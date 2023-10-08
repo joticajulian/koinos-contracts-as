@@ -322,6 +322,11 @@ export class Nicknames extends Nft {
     }
 
     this._transfer(args);
+
+    // remove it from community names if that is the case.
+    // For instance, when the community transfer a community
+    // token to a particular user.
+    this.communityNames.remove(args.token_id!);
   }
 
   /**

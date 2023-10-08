@@ -5,6 +5,7 @@ import {
   StringBytes,
   System,
   chain,
+  system_calls,
 } from "@koinos/sdk-as";
 import { nft } from "@koinosbox/contracts";
 import { Nicknames } from "../Nicknames";
@@ -16,49 +17,55 @@ describe("Nicknames", () => {
   beforeEach(() => {
     MockVM.reset();
     MockVM.setContractId(CONTRACT_ID);
+    const result = new system_calls.exit_arguments(0, new chain.result(new Uint8Array(0)));
+    MockVM.setCallContractResults([
+      result,
+      result,
+      result,
+    ]);
   });
 
   it("should get the levenshtein distance", () => {
     const nick = new Nicknames();
-    expect(nick.levenshtein_distance("monkey", "money")).toBe(1);
-    expect(nick.levenshtein_distance("koin", "konn")).toBe(1);
-    expect(nick.levenshtein_distance("google", "googel")).toBe(2);
-    expect(nick.levenshtein_distance("virtualhashpower", "virtualhash")).toBe(
+    expect(nick.levenshteinDistance("monkey", "money")).toBe(1);
+    expect(nick.levenshteinDistance("koin", "konn")).toBe(1);
+    expect(nick.levenshteinDistance("google", "googel")).toBe(2);
+    expect(nick.levenshteinDistance("virtualhashpower", "virtualhash")).toBe(
       5
     );
-    expect(nick.levenshtein_distance("koinos", "")).toBe(6);
-    expect(nick.levenshtein_distance("", "koinos")).toBe(6);
+    expect(nick.levenshteinDistance("koinos", "")).toBe(6);
+    expect(nick.levenshteinDistance("", "koinos")).toBe(6);
   });
 
   it("should verify valid names", () => {
     expect(() => {
       const nick = new Nicknames();
-      nick.verifyValidName(StringBytes.stringToBytes("julian"));
+      nick.verifyValidName(StringBytes.stringToBytes("julian"), true);
     }).not.toThrow();
 
     expect(() => {
       const nick = new Nicknames();
-      nick.verifyValidName(StringBytes.stringToBytes("julian.gonzalez"));
+      nick.verifyValidName(StringBytes.stringToBytes("julian.gonzalez"), true);
     }).not.toThrow();
 
     expect(() => {
       const nick = new Nicknames();
-      nick.verifyValidName(StringBytes.stringToBytes("julian-gonzalez0"));
+      nick.verifyValidName(StringBytes.stringToBytes("julian-gonzalez0"), true);
     }).not.toThrow();
   });
 
   it("should reject invalid names", () => {
     expect(() => {
       const nick = new Nicknames();
-      nick.verifyValidName(StringBytes.stringToBytes("julian.koin"));
+      nick.verifyValidName(StringBytes.stringToBytes("julian.co"), true);
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe(
-      "dots must divide words of at least 5 characters"
+      "dots must divide words of at least 3 characters"
     );
 
     expect(() => {
       const nick = new Nicknames();
-      nick.verifyValidName(StringBytes.stringToBytes("0koinos"));
+      nick.verifyValidName(StringBytes.stringToBytes("0koinos"), true);
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe(
       "words must start with a lowercase letter"
@@ -66,21 +73,21 @@ describe("Nicknames", () => {
 
     expect(() => {
       const nick = new Nicknames();
-      nick.verifyValidName(StringBytes.stringToBytes("x"));
+      nick.verifyValidName(StringBytes.stringToBytes("x"), true);
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe(
-      "the name must have between 5 and 32 characters"
+      "the name must have between 3 and 32 characters"
     );
 
     expect(() => {
       const nick = new Nicknames();
-      nick.verifyValidName(StringBytes.stringToBytes("x------"));
+      nick.verifyValidName(StringBytes.stringToBytes("x------"), true);
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe("invalid segment '--'");
 
     expect(() => {
       const nick = new Nicknames();
-      nick.verifyValidName(StringBytes.stringToBytes("abcdef-"));
+      nick.verifyValidName(StringBytes.stringToBytes("abcdef-"), true);
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe(
       "words must end with lowercase letters or numbers"
@@ -88,7 +95,7 @@ describe("Nicknames", () => {
 
     expect(() => {
       const nick = new Nicknames();
-      nick.verifyValidName(StringBytes.stringToBytes("abc?de0"));
+      nick.verifyValidName(StringBytes.stringToBytes("abc?de0"), true);
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe(
       "words must contain only lowercase letters, numbers, dots, or hyphens"
@@ -124,7 +131,7 @@ describe("Nicknames", () => {
       nick.mint(mintArgs);
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe(
-      "'googel' is similar to the existing name 'google'"
+      "@googel is similar to the existing name @google"
     );
 
     expect(() => {
@@ -138,7 +145,7 @@ describe("Nicknames", () => {
       nick.mint(mintArgs);
     }).toThrow();
     expect(MockVM.getErrorMessage()).toBe(
-      "'aljce' is similar to the existing name 'alice'"
+      "@aljce is similar to the existing name @alice"
     );
   });
 });

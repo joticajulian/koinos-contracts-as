@@ -26,6 +26,8 @@ const TABIS_SPACE_ID = 10;
 
 const COMMUNITY_NAMES_SPACE_ID = 9;
 
+const NAMES_IN_DISPUTE_SPACE_ID = 10;
+
 const MAX_TOKEN_ID_LENGTH = 32;
 
 export class Nicknames extends Nft {
@@ -60,6 +62,13 @@ export class Nicknames extends Nft {
   communityNames: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
     this.contractId,
     COMMUNITY_NAMES_SPACE_ID,
+    common.boole.decode,
+    common.boole.encode
+  );
+
+  namesInDispute: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
+    this.contractId,
+    NAMES_IN_DISPUTE_SPACE_ID,
     common.boole.decode,
     common.boole.encode
   );
@@ -190,40 +199,94 @@ export class Nicknames extends Nft {
       }
     }
 
-    // verify that the new name is not similar to other names
-    // Example: if "victor" exists, then "victoh" should be rejected
+    // Following we make 4 verifications:
+    // 1- try to fit the new name in the list of names
+    // 2- try to fit the new name in the list of names ordered by the second letter
+    // 3- try to fit the new name less first letter in the list of names
+    // 4- try to fit the new name less first letter in the list of names ordered by the second letter
+    //
+    // Example:
+    //   The names are: [absorb, carlos1234, julian, outside, pumpkin, review]
+    //   The new name is "fumpkin"
+    //
+    // 1- try to fit the new name in the list of names
+    // absorb
+    // carlos1234
+    //   fumpkin <-- OK
+    // julian
+    // outside
+    // pumpkin
+    // review
+    //
+    // 2- try to fit the new name in the list of names ordered by the second letter
+    // ?arlos1234
+    // ?bsorb
+    // ?eview
+    //   fumpkin <-- OK
+    // ?ulian
+    // ?umpkin
+    // ?utside
+    //
+    // 3- try to fit the new name less first letter in the list of names
+    // absorb
+    // carlos1234
+    // julian
+    // outside
+    // pumpkin
+    // review
+    //   umpkin <-- OK
+    //
+    // 4- try to fit the new name less first letter in the list of names ordered by the second letter
+    // ?arlos1234
+    // ?bsorb
+    // ?eview
+    // ?ulian
+    // ?umpkin
+    //   umpkin <-- FAIL
+    // ?utside
+
+    // key id for the new name
     const key = new Uint8Array(MAX_TOKEN_ID_LENGTH);
     key.set(tokenId, 0);
-    const current = this.orderedTokens.get(key);
-    System.require(!current, `@${name} already exist`);
+
+    // key id for the new name less first letter
+    const key2 = new Uint8Array(MAX_TOKEN_ID_LENGTH);
+    key2.set(tokenId.slice(1), 0);
+
+    // 1- try to fit the new name in the list of names
+    let sameName = this.orderedTokens.get(key);
+    System.require(!sameName, `@${name} already exist`);
     this.verifyNotSimilar(name, this.orderedTokens.getPrev(key));
     this.verifyNotSimilar(name, this.orderedTokens.getNext(key));
 
-    // verify that the new name starting in the second letter
-    // is not similar to the names
-    // Example: if "victor" exists, then "vvictor" should be rejected
-    const key2 = new Uint8Array(MAX_TOKEN_ID_LENGTH);
-    key2.set(tokenId.slice(1), 0);
-    const current2 = this.orderedTokens.get(key2);
+    // 2- try to fit the new name in the list of names ordered by the second letter
+    sameName = this.orderedTokens2.get(key);
     System.require(
-      !current2,
-      `@${name} is similar to the existing name @${name.slice(1)}`
-    );
-    this.verifyNotSimilar(name, this.orderedTokens.getPrev(key2));
-    this.verifyNotSimilar(name, this.orderedTokens.getNext(key2));
-
-    // verify that the new name is not similar to the names starting
-    // in the second letter
-    // Example: if "victor" exists, then "ictor" should be rejected
-    const current3 = this.orderedTokens2.get(key);
-    System.require(
-      !current3,
+      !sameName,
       `@${name} is similar to the existing name @?${name}`
     );
     this.verifyNotSimilar(name, this.orderedTokens2.getPrev(key), true);
     this.verifyNotSimilar(name, this.orderedTokens2.getNext(key), true);
 
-    this.verifyNameInKapDomains(name, readMode);
+    // 3- try to fit the new name less first letter in the list of names
+    sameName = this.orderedTokens.get(key2);
+    System.require(
+      !sameName,
+      `@${name} is similar to the existing name @${name.slice(1)}`
+    );
+    this.verifyNotSimilar(name, this.orderedTokens.getPrev(key2));
+    this.verifyNotSimilar(name, this.orderedTokens.getNext(key2));
+
+    // 4- try to fit the new name less first letter in the list of names ordered by the second letter
+    sameName = this.orderedTokens2.get(key2);
+    System.require(
+      !sameName,
+      `@${name} is similar to the existing name @?${name.slice(1)}`
+    );
+    this.verifyNotSimilar(name, this.orderedTokens2.getPrev(key2), true);
+    this.verifyNotSimilar(name, this.orderedTokens2.getNext(key2), true);
+
+    // this.verifyNameInKapDomains(name, readMode);
   }
 
   /**
@@ -267,6 +330,10 @@ export class Nicknames extends Nft {
    * @event collections.burn_event nft.burn_args
    */
   burn(args: nft.burn_args): void {
+    // check if it's a name in dispute
+    const nameInDispute = this.namesInDispute.get(args.token_id!);
+    System.require(!nameInDispute, "name in dispute");
+
     const isCommunityName = this.communityNames.get(args.token_id!);
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
@@ -302,6 +369,10 @@ export class Nicknames extends Nft {
    * @event collections.transfer_event nft.transfer_args
    */
   transfer(args: nft.transfer_args): void {
+    // check if it's a name in dispute
+    const nameInDispute = this.namesInDispute.get(args.token_id!);
+    System.require(!nameInDispute, "name in dispute");
+
     const isCommunityName = this.communityNames.get(args.token_id!);
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
@@ -358,6 +429,7 @@ export class Nicknames extends Nft {
   set_tabi(args: nicknames.set_tabi_args): void {
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+    System.require(tokenOwner.account, "token does not exist");
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
       System.require(
@@ -384,6 +456,7 @@ export class Nicknames extends Nft {
   set_metadata(args: nft.metadata_args): void {
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+    System.require(tokenOwner.account, "token does not exist");
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
       System.require(
@@ -397,5 +470,18 @@ export class Nicknames extends Nft {
     }
 
     this._set_metadata(args);
+  }
+
+  /**
+   * Set name in dispute
+   * @external
+   */
+  set_name_in_dispute(args: nft.token): void {
+    // TODO: use only gov system after the grace period
+    System.require(
+      System.checkSystemAuthority() || System2.check_authority(this.contractId),
+      "not authorized by the community"
+    );
+    this.namesInDispute.put(args.token_id!, new common.boole(true));
   }
 }

@@ -17,12 +17,11 @@ describe("Nicknames", () => {
   beforeEach(() => {
     MockVM.reset();
     MockVM.setContractId(CONTRACT_ID);
-    const result = new system_calls.exit_arguments(0, new chain.result(new Uint8Array(0)));
-    MockVM.setCallContractResults([
-      result,
-      result,
-      result,
-    ]);
+    const result = new system_calls.exit_arguments(
+      0,
+      new chain.result(new Uint8Array(0))
+    );
+    MockVM.setCallContractResults([result, result, result]);
   });
 
   it("should get the levenshtein distance", () => {
@@ -30,9 +29,7 @@ describe("Nicknames", () => {
     expect(nick.levenshteinDistance("monkey", "money")).toBe(1);
     expect(nick.levenshteinDistance("koin", "konn")).toBe(1);
     expect(nick.levenshteinDistance("google", "googel")).toBe(2);
-    expect(nick.levenshteinDistance("virtualhashpower", "virtualhash")).toBe(
-      5
-    );
+    expect(nick.levenshteinDistance("virtualhashpower", "virtualhash")).toBe(5);
     expect(nick.levenshteinDistance("koinos", "")).toBe(6);
     expect(nick.levenshteinDistance("", "koinos")).toBe(6);
   });

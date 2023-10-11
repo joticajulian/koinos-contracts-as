@@ -145,4 +145,53 @@ describe("Nicknames", () => {
       "@aljce is similar to the existing name @alice"
     );
   });
+
+  it("should reject new names similar to existing ones", () => {
+    MockVM.setCaller(new chain.caller_data(USER_ID, chain.privilege.user_mode));
+
+    const nick = new Nicknames();
+    const mintArgs = new nft.mint_args(
+      USER_ID,
+      StringBytes.stringToBytes("absorb")
+    );
+    nick.callArgs = new System.getArgumentsReturn();
+    nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
+    nick.mint(mintArgs);
+
+    mintArgs.token_id = StringBytes.stringToBytes("pumpkin");
+    nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
+    nick.mint(mintArgs);
+
+    mintArgs.token_id = StringBytes.stringToBytes("carlos1234");
+    nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
+    nick.mint(mintArgs);
+
+    mintArgs.token_id = StringBytes.stringToBytes("review");
+    nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
+    nick.mint(mintArgs);
+
+    mintArgs.token_id = StringBytes.stringToBytes("outside");
+    nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
+    nick.mint(mintArgs);
+
+    mintArgs.token_id = StringBytes.stringToBytes("julian");
+    nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
+    nick.mint(mintArgs);
+
+    MockVM.commitTransaction();
+
+    expect(() => {
+      const nick = new Nicknames();
+      const mintArgs = new nft.mint_args(
+        USER_ID,
+        StringBytes.stringToBytes("tpumpkin")
+      );
+      nick.callArgs = new System.getArgumentsReturn();
+      nick.callArgs!.args = Protobuf.encode(mintArgs, nft.mint_args.encode);
+      nick.mint(mintArgs);
+    }).toThrow();
+    expect(MockVM.getErrorMessage()).toBe(
+      "@tpumpkin is similar to the existing name @pumpkin"
+    );
+  });
 });

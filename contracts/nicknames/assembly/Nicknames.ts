@@ -13,6 +13,8 @@ import {
 import { Nft, System2, nft, common, INft } from "@koinosbox/contracts";
 import { nicknames } from "./proto/nicknames";
 
+System.setSystemBufferSize(2048);
+
 // same purpose as TOKEN_OWNERS_SPACE_ID (link nfts with owners)
 // but forcing a fixed length to be able to order them alphabetically.
 // This space doesn't replace TOKEN_OWNERS_SPACE_ID.
@@ -24,9 +26,9 @@ const ORDERED_TOKEN_OWNERS_SPACE_ID_2 = 9;
 
 const TABIS_SPACE_ID = 10;
 
-const COMMUNITY_NAMES_SPACE_ID = 9;
+const COMMUNITY_NAMES_SPACE_ID = 11;
 
-const NAMES_IN_DISPUTE_SPACE_ID = 10;
+const NAMES_IN_DISPUTE_SPACE_ID = 12;
 
 const MAX_TOKEN_ID_LENGTH = 32;
 

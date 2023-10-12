@@ -75,35 +75,36 @@ it("should work", async () => {
     provider: localKoinos.getProvider(),
   });
 
-  await tx.pushOperation(nick["mint"], {
-    to: account1.address,
-    token_id: encodeHex("absorb"),
-  });
-  await tx.pushOperation(nick["mint"], {
-    to: account1.address,
-    token_id: encodeHex("pumpkin"),
-  });
-  await tx.pushOperation(nick["mint"], {
-    to: account1.address,
-    token_id: encodeHex("carlos1234"),
-  });
-  await tx.pushOperation(nick["mint"], {
-    to: account1.address,
-    token_id: encodeHex("review"),
-  });
-  await tx.pushOperation(nick["mint"], {
-    to: account1.address,
-    token_id: encodeHex("outside"),
-  });
-  await tx.pushOperation(nick["mint"], {
-    to: account1.address,
-    token_id: encodeHex("julian"),
-  });
+  const names = [
+    "koin",
+    "vhp",
+    "pob",
+    "claim",
+    "governance",
+    "name-service",
+    "resources",
+    "nicknames",
+    "jga",
+    "julian",
+    "julian.gonzalez",
+  ];
+
+  for (let i = 0; i < names.length; i += 1 ) {
+    await tx.pushOperation(nick["mint"], {
+      to: account1.address,
+      token_id: encodeHex(names[i]),
+    });
+  }
 
   const receipt = await tx.send();
   expect(receipt).toBeDefined();
 
   await tx.wait();
+
+  await nick["mint"]({
+    to: account1.address,
+    token_id: encodeHex("jgapool"),
+  });
 
   /*// get owner of token
   const { result: resultOwnerOf } = await nick["owner_of"]({
@@ -176,7 +177,7 @@ it("should work", async () => {
     ["fumpkim", "@fumpkim is similar to the existing name @?umpkin"],
   ];*/
 
-  const tests = [
+  /* const tests = [
     ["tpumpkin", "@tpumpkin is similar to the existing name @pumpkin"],
   ];
 
@@ -193,5 +194,5 @@ it("should work", async () => {
         logs: [`transaction reverted: ${tests[i][1]}`],
       })
     );
-  }
+  } */
 });

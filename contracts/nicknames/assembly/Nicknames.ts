@@ -13,7 +13,7 @@ import {
 import { Nft, System2, nft, common, INft } from "@koinosbox/contracts";
 import { nicknames } from "./proto/nicknames";
 
-System.setSystemBufferSize(2048);
+System.setSystemBufferSize(524288);
 
 // same purpose as TOKEN_OWNERS_SPACE_ID (link nfts with owners)
 // but forcing a fixed length to be able to order them alphabetically.

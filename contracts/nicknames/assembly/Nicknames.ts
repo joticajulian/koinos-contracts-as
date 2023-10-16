@@ -13,7 +13,7 @@ import {
 import { Nft, System2, nft, common, INft } from "@koinosbox/contracts";
 import { nicknames } from "./proto/nicknames";
 
-System.setSystemBufferSize(524288);
+System.setSystemBufferSize(524288*2);
 
 // same purpose as TOKEN_OWNERS_SPACE_ID (link nfts with owners)
 // but forcing a fixed length to be able to order them alphabetically.
@@ -23,6 +23,8 @@ const ORDERED_TOKEN_OWNERS_SPACE_ID = 8;
 // same purpose as the previous one but ordering them by
 // the second letter
 const ORDERED_TOKEN_OWNERS_SPACE_ID_2 = 9;
+
+const TOKEN_SIMILARITY_START_SPACE_ID = 20;
 
 const TABIS_SPACE_ID = 10;
 
@@ -47,7 +49,7 @@ export class Nicknames extends Nft {
     () => new nicknames.tabi()
   );
 
-  orderedTokens: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
+  /*orderedTokens: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
     this.contractId,
     ORDERED_TOKEN_OWNERS_SPACE_ID,
     common.boole.decode,
@@ -59,7 +61,7 @@ export class Nicknames extends Nft {
     ORDERED_TOKEN_OWNERS_SPACE_ID_2,
     common.boole.decode,
     common.boole.encode
-  );
+  );*/
 
   communityNames: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
     this.contractId,
@@ -75,48 +77,34 @@ export class Nicknames extends Nft {
     common.boole.encode
   );
 
-  levenshteinDistance(str1: string, str2: string): u32 {
-    const track = new Array<Array<u32>>(str2.length + 1);
-    for (let j = 0; j <= str2.length; j += 1) {
-      track[j] = new Array<u32>(str1.length + 1);
-      if (j === 0) {
-        for (let i = 0; i <= str1.length; i += 1) {
-          track[0][i] = i;
-        }
-      }
-      track[j][0] = j;
-    }
-
-    for (let j = 1; j <= str2.length; j += 1) {
-      for (let i = 1; i <= str1.length; i += 1) {
-        const indicator = str1[i - 1] == str2[j - 1] ? 0 : 1;
-        const deletion = track[j][i - 1] + 1;
-        const insertion = track[j - 1][i] + 1;
-        const substitution = track[j - 1][i - 1] + indicator;
-
-        // calculate the minimum between deletion, insertion, and subtitution
-        let min = deletion < insertion ? deletion : insertion;
-        track[j][i] = min < substitution ? min : substitution;
-      }
-    }
-    return track[str2.length][str1.length];
-  }
-
   verifyNotSimilar(
     name: string,
-    nearObj: System.ProtoDatabaseObject<common.boole> | null,
-    firstUnknown: boolean = false
+    tokenId: Uint8Array,
+    pos: i32
   ): void {
-    if (!nearObj) return;
-    let i = nearObj.key!.findIndex((k) => k == 0);
-    if (i < 0) i = nearObj.key!.length;
-    const nearName = StringBytes.bytesToString(nearObj.key!.slice(0, i));
-    System.require(
-      this.levenshteinDistance(name, nearName) >= 3,
-      `@${name} is similar to the existing name @${
-        firstUnknown ? "?" : ""
-      }${nearName}`
+    let similarTokenId = new Uint8Array(tokenId.length - 1);
+    similarTokenId.set(tokenId.slice(0, pos), 0);
+    if (pos + 1 < tokenId.length) similarTokenId.set(tokenId.slice(pos + 1), pos);
+
+    const tokenSimilarity: Storage.Map<Uint8Array, common.str> = new Storage.Map(
+      this.contractId,
+      TOKEN_SIMILARITY_START_SPACE_ID + pos,
+      common.str.decode,
+      common.str.encode
     );
+    let s2 = tokenSimilarity.get(similarTokenId);
+    if (s2) {
+      System.exit(1, StringBytes.stringToBytes(`@${name} is similar to the existing name @${s2!.value!}`));
+    }
+    if (pos + 1 < tokenId.length) {
+      similarTokenId = new Uint8Array(tokenId.length - 2); //System.log("b");
+      similarTokenId.set(tokenId.slice(0, pos), 0); //System.log("c");
+      if (pos + 2 < tokenId.length) similarTokenId.set(tokenId.slice(pos + 2), pos); //System.log("d");
+      s2 = tokenSimilarity.get(similarTokenId); //System.log("e");
+      if (s2) {
+        System.exit(1, StringBytes.stringToBytes(`@${name} is similar to the existing name @${s2!.value!}`));
+      }
+    }
   }
 
   /**
@@ -200,95 +188,13 @@ export class Nicknames extends Nft {
         }
       }
     }
+    const s = this.tokenOwners.get(tokenId)!;
+    System.require(!s.account, `@${name} already exists`);
+    for (let i = 0; i < tokenId.length; i += 1) {
+      this.verifyNotSimilar(name, tokenId, i);
+    }
 
-    // Following we make 4 verifications:
-    // 1- try to fit the new name in the list of names
-    // 2- try to fit the new name in the list of names ordered by the second letter
-    // 3- try to fit the new name less first letter in the list of names
-    // 4- try to fit the new name less first letter in the list of names ordered by the second letter
-    //
-    // Example:
-    //   The names are: [absorb, carlos1234, julian, outside, pumpkin, review]
-    //   The new name is "fumpkin"
-    //
-    // 1- try to fit the new name in the list of names
-    // absorb
-    // carlos1234
-    //   fumpkin <-- OK
-    // julian
-    // outside
-    // pumpkin
-    // review
-    //
-    // 2- try to fit the new name in the list of names ordered by the second letter
-    // ?arlos1234
-    // ?bsorb
-    // ?eview
-    //   fumpkin <-- OK
-    // ?ulian
-    // ?umpkin
-    // ?utside
-    //
-    // 3- try to fit the new name less first letter in the list of names
-    // absorb
-    // carlos1234
-    // julian
-    // outside
-    // pumpkin
-    // review
-    //   umpkin <-- OK
-    //
-    // 4- try to fit the new name less first letter in the list of names ordered by the second letter
-    // ?arlos1234
-    // ?bsorb
-    // ?eview
-    // ?ulian
-    // ?umpkin
-    //   umpkin <-- FAIL
-    // ?utside
-
-    // key id for the new name
-    const key = new Uint8Array(MAX_TOKEN_ID_LENGTH);
-    key.set(tokenId, 0);
-
-    // key id for the new name less first letter
-    const key2 = new Uint8Array(MAX_TOKEN_ID_LENGTH);
-    key2.set(tokenId.slice(1), 0);
-
-    // 1- try to fit the new name in the list of names
-    let sameName = this.orderedTokens.get(key);
-    System.require(!sameName, `@${name} already exist`);
-    this.verifyNotSimilar(name, this.orderedTokens.getPrev(key));
-    this.verifyNotSimilar(name, this.orderedTokens.getNext(key));
-
-    // 2- try to fit the new name in the list of names ordered by the second letter
-    sameName = this.orderedTokens2.get(key);
-    System.require(
-      !sameName,
-      `@${name} is similar to the existing name @?${name}`
-    );
-    this.verifyNotSimilar(name, this.orderedTokens2.getPrev(key), true);
-    this.verifyNotSimilar(name, this.orderedTokens2.getNext(key), true);
-
-    // 3- try to fit the new name less first letter in the list of names
-    sameName = this.orderedTokens.get(key2);
-    System.require(
-      !sameName,
-      `@${name} is similar to the existing name @${name.slice(1)}`
-    );
-    this.verifyNotSimilar(name, this.orderedTokens.getPrev(key2));
-    this.verifyNotSimilar(name, this.orderedTokens.getNext(key2));
-
-    // 4- try to fit the new name less first letter in the list of names ordered by the second letter
-    sameName = this.orderedTokens2.get(key2);
-    System.require(
-      !sameName,
-      `@${name} is similar to the existing name @?${name.slice(1)}`
-    );
-    this.verifyNotSimilar(name, this.orderedTokens2.getPrev(key2), true);
-    this.verifyNotSimilar(name, this.orderedTokens2.getNext(key2), true);
-
-    // this.verifyNameInKapDomains(name, readMode);
+    // this.verifyNameInKapDomains(name, readMode);*/
   }
 
   /**
@@ -307,20 +213,27 @@ export class Nicknames extends Nft {
    * @external
    * @event collections.mint_event nft.mint_args
    */
-  mint(args: nft.mint_args): void {
+  mint(args: nft.mint_args): void {//System.log("minting");
     this.verifyValidName(args.token_id!, false);
     const isAuthorized = System2.check_authority(args.to!);
     System.require(isAuthorized, "not authorized by 'to'");
+    
+    const name = StringBytes.bytesToString(args.token_id!);
+    let similarTokenId = new Uint8Array(args.token_id!.length - 1);
+    for (let i = 0; i < args.token_id!.length; i += 1) {
+      similarTokenId.set(args.token_id!.slice(0, i), 0);
+      if (i + 1 < args.token_id!.length) {
+        similarTokenId.set(args.token_id!.slice(i + 1), i);
+      }
 
-    // save it in the space that orders them alphabetically
-    const key = new Uint8Array(MAX_TOKEN_ID_LENGTH);
-    key.set(args.token_id!, 0);
-    this.orderedTokens.put(key, new common.boole(true));
-
-    // save it in the space that orders them alphabetically by the second letter
-    const key2 = new Uint8Array(MAX_TOKEN_ID_LENGTH);
-    key2.set(args.token_id!.slice(1), 0);
-    this.orderedTokens2.put(key2, new common.boole(true));
+      const tokenSimilarity: Storage.Map<Uint8Array, common.str> = new Storage.Map(
+        this.contractId,
+        TOKEN_SIMILARITY_START_SPACE_ID + i,
+        common.str.decode,
+        common.str.encode
+      );
+      tokenSimilarity.put(similarTokenId, new common.str(name));
+    }
 
     // mint the token
     this._mint(args);
@@ -351,15 +264,20 @@ export class Nicknames extends Nft {
       System.require(isAuthorized, "burn not authorized");
     }
 
-    // remove it from the space that orders them alphabetically
-    const key = new Uint8Array(MAX_TOKEN_ID_LENGTH);
-    key.set(args.token_id!, 0);
-    this.orderedTokens.remove(key);
-
-    // remove it from the space that orders them alphabetically by the second letter
-    const key2 = new Uint8Array(MAX_TOKEN_ID_LENGTH);
-    key2.set(args.token_id!.slice(1), 0);
-    this.orderedTokens2.remove(key2);
+    let similarTokenId = new Uint8Array(args.token_id!.length - 1);
+    for (let i = 0; i < args.token_id!.length; i += 1) {
+      similarTokenId.set(args.token_id!.slice(0, i), 0);
+      if (i + 1 < args.token_id!.length) {
+        similarTokenId.set(args.token_id!.slice(i + 1), i);
+      }
+      const tokenSimilarity: Storage.Map<Uint8Array, common.str> = new Storage.Map(
+        this.contractId,
+        TOKEN_SIMILARITY_START_SPACE_ID + i,
+        common.str.decode,
+        common.str.encode
+      );
+      tokenSimilarity.remove(similarTokenId);
+    }
 
     // burn the token
     this._burn(args);

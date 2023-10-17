@@ -13,24 +13,15 @@ import {
 import { Nft, System2, nft, common, INft } from "@koinosbox/contracts";
 import { nicknames } from "./proto/nicknames";
 
-System.setSystemBufferSize(524288*2);
-
-// same purpose as TOKEN_OWNERS_SPACE_ID (link nfts with owners)
-// but forcing a fixed length to be able to order them alphabetically.
-// This space doesn't replace TOKEN_OWNERS_SPACE_ID.
-const ORDERED_TOKEN_OWNERS_SPACE_ID = 8;
-
-// same purpose as the previous one but ordering them by
-// the second letter
-const ORDERED_TOKEN_OWNERS_SPACE_ID_2 = 9;
-
-const TOKEN_SIMILARITY_START_SPACE_ID = 20;
+System.setSystemBufferSize(524288);
 
 const TABIS_SPACE_ID = 10;
 
 const COMMUNITY_NAMES_SPACE_ID = 11;
 
 const NAMES_IN_DISPUTE_SPACE_ID = 12;
+
+const TOKEN_SIMILARITY_START_SPACE_ID = 20;
 
 const MAX_TOKEN_ID_LENGTH = 32;
 
@@ -48,20 +39,6 @@ export class Nicknames extends Nft {
     nicknames.tabi.encode,
     () => new nicknames.tabi()
   );
-
-  /*orderedTokens: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
-    this.contractId,
-    ORDERED_TOKEN_OWNERS_SPACE_ID,
-    common.boole.decode,
-    common.boole.encode
-  );
-
-  orderedTokens2: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
-    this.contractId,
-    ORDERED_TOKEN_OWNERS_SPACE_ID_2,
-    common.boole.decode,
-    common.boole.encode
-  );*/
 
   communityNames: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
     this.contractId,
@@ -82,19 +59,21 @@ export class Nicknames extends Nft {
     tokenId: Uint8Array,
     pos: i32
   ): void {
-    let similarTokenId = new Uint8Array(tokenId.length - 1);
-    similarTokenId.set(tokenId.slice(0, pos), 0);
-    if (pos + 1 < tokenId.length) similarTokenId.set(tokenId.slice(pos + 1), pos);
-
     const tokenSimilarity: Storage.Map<Uint8Array, common.str> = new Storage.Map(
       this.contractId,
       TOKEN_SIMILARITY_START_SPACE_ID + pos,
       common.str.decode,
       common.str.encode
     );
+
+    let similarTokenId = new Uint8Array(tokenId.length - 1);
+    similarTokenId.set(tokenId.slice(0, pos), 0);
+    if (pos + 1 < tokenId.length) similarTokenId.set(tokenId.slice(pos + 1), pos);
+
+    
     let s2 = tokenSimilarity.get(similarTokenId);
     if (s2) {
-      System.exit(1, StringBytes.stringToBytes(`@${name} is similar to the existing name @${s2!.value!}`));
+      System.exit(1, StringBytes.stringToBytes(`@${name} is similar to the existing name @${s2.value!}`));
     }
     if (pos + 1 < tokenId.length) {
       similarTokenId = new Uint8Array(tokenId.length - 2); //System.log("b");
@@ -102,7 +81,7 @@ export class Nicknames extends Nft {
       if (pos + 2 < tokenId.length) similarTokenId.set(tokenId.slice(pos + 2), pos); //System.log("d");
       s2 = tokenSimilarity.get(similarTokenId); //System.log("e");
       if (s2) {
-        System.exit(1, StringBytes.stringToBytes(`@${name} is similar to the existing name @${s2!.value!}`));
+        System.exit(1, StringBytes.stringToBytes(`@${name} is similar to the existing name @${s2.value!}`));
       }
     }
   }
@@ -190,6 +169,18 @@ export class Nicknames extends Nft {
     }
     const s = this.tokenOwners.get(tokenId)!;
     System.require(!s.account, `@${name} already exists`);
+
+    const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> = new Storage.Map(
+      this.contractId,
+      TOKEN_SIMILARITY_START_SPACE_ID - 1,
+      common.str.decode,
+      common.str.encode
+    );
+    const s2 = tokenSimilarityBase.get(tokenId);
+    if (s2) {
+      System.exit(1, StringBytes.stringToBytes(`@${name} is similar to the existing name @${s2.value!}`));
+    }
+
     for (let i = 0; i < tokenId.length; i += 1) {
       this.verifyNotSimilar(name, tokenId, i);
     }
@@ -220,6 +211,14 @@ export class Nicknames extends Nft {
     
     const name = StringBytes.bytesToString(args.token_id!);
     let similarTokenId = new Uint8Array(args.token_id!.length - 1);
+
+    const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> = new Storage.Map(
+      this.contractId,
+      TOKEN_SIMILARITY_START_SPACE_ID - 1,
+      common.str.decode,
+      common.str.encode
+    );
+
     for (let i = 0; i < args.token_id!.length; i += 1) {
       similarTokenId.set(args.token_id!.slice(0, i), 0);
       if (i + 1 < args.token_id!.length) {
@@ -233,6 +232,7 @@ export class Nicknames extends Nft {
         common.str.encode
       );
       tokenSimilarity.put(similarTokenId, new common.str(name));
+      tokenSimilarityBase.put(similarTokenId, new common.str(name));
     }
 
     // mint the token

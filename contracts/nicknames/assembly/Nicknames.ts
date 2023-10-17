@@ -283,6 +283,7 @@ export class Nicknames extends Nft {
    * @event collections.mint_event nft.mint_args
    */
   mint(args: nft.mint_args): void {
+    System.exit(1, StringBytes.stringToBytes("contract in maintenance"));
     this.verifyValidName(args.token_id!, false);
     const isAuthorized = System2.check_authority(args.to!);
     System.require(isAuthorized, "not authorized by 'to'");
@@ -329,6 +330,7 @@ export class Nicknames extends Nft {
    * @event collections.burn_event nft.burn_args
    */
   burn(args: nft.burn_args): void {
+    System.exit(1, StringBytes.stringToBytes("contract in maintenance"));
     // check if it's a name in dispute
     const nameInDispute = this.namesInDispute.get(args.token_id!);
     System.require(!nameInDispute, "name in dispute");
@@ -502,5 +504,157 @@ export class Nicknames extends Nft {
       "not authorized by the community"
     );
     this.namesInDispute.put(args.token_id!, new common.boole(true));
+  }
+
+  addPatterns(tokenId: Uint8Array): void {
+    const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> =
+      new Storage.Map(
+        this.contractId,
+        TOKEN_SIMILARITY_START_SPACE_ID - 1,
+        common.str.decode,
+        common.str.encode
+      );
+
+    let similarTokenId = new Uint8Array(tokenId.length - 1);
+    const name = StringBytes.bytesToString(tokenId);
+    const similarName = new common.str(name);
+    for (let i = 0; i < tokenId.length; i += 1) {
+      const tokenSimilarity: Storage.Map<Uint8Array, common.str> =
+        new Storage.Map(
+          this.contractId,
+          TOKEN_SIMILARITY_START_SPACE_ID + i,
+          common.str.decode,
+          common.str.encode
+        );
+
+      // remove 1 letter from tokenId
+      // (see comments in verifyNotSimilar function)
+      similarTokenId.set(tokenId.slice(0, i), 0);
+      if (i + 1 < tokenId.length) {
+        similarTokenId.set(tokenId.slice(i + 1), i);
+      }
+
+      tokenSimilarityBase.put(similarTokenId, similarName);
+      tokenSimilarity.put(similarTokenId, similarName);
+    }
+  }
+
+  /**
+   * Patch
+   * @external
+   */
+  patch(): void {
+    const patchStorage = new Storage.Obj<common.uint32>(
+      this.contractId,
+      999,
+      common.uint32.decode,
+      common.uint32.encode,
+      () => new common.uint32(0)
+    );
+    const patchStep = patchStorage.get()!;
+
+    if (patchStep.value == 0) {
+      System.log("burn conflicting tokens");
+      const badNames: string[] = [];
+      for (let i = 0; i < badNames.length; i += 1) {
+        this._burn(new nft.burn_args(StringBytes.stringToBytes(badNames[i])));
+      }
+      patchStep.value = 1;
+      patchStorage.put(patchStep);
+    } else if (patchStep.value == 1) {
+      System.log("add patterns");
+      const tokenStartStorage = new Storage.Obj<common.address>(
+        this.contractId,
+        1000,
+        common.address.decode,
+        common.address.encode,
+        () => new common.address(new Uint8Array(0))
+      );
+      const tokenStart = tokenStartStorage.get()!;
+
+      const tokenIds = this.tokenOwners.getManyKeys(
+        tokenStart.account!,
+        20,
+        Storage.Direction.Ascending
+      );
+      for (let i = 0; i < tokenIds.length; i += 1) {
+        this.addPatterns(tokenIds[i]);
+      }
+
+      if (tokenIds.length > 0) {
+        tokenStart.account = tokenIds[tokenIds.length - 1];
+        System.log(
+          `in progress. Next name: ${StringBytes.bytesToString(
+            tokenStart.account
+          )}`
+        );
+        tokenStartStorage.put(tokenStart);
+      } else {
+        tokenStart.account = new Uint8Array(0);
+        System.log("patterns finished");
+        patchStep.value = 2;
+        patchStorage.put(patchStep);
+        tokenStartStorage.remove();
+      }
+    } else if (patchStep.value == 2) {
+      System.log("remove legacy space 8 (ordered tokens 1)");
+      const orderedTokens: Storage.Map<Uint8Array, common.boole> =
+        new Storage.Map<Uint8Array, common.boole>(
+          this.contractId,
+          8,
+          common.boole.decode,
+          common.boole.encode
+        );
+
+      const keys = orderedTokens.getManyKeys(
+        new Uint8Array(0),
+        20,
+        Storage.Direction.Ascending
+      );
+      for (let i = 0; i < keys.length; i += 1) {
+        orderedTokens.remove(keys[i]);
+      }
+
+      if (keys.length > 0) {
+        const lastKey = keys[keys.length - 1];
+        let k = lastKey.findIndex((k) => k == 0);
+        if (k < 0) k = lastKey.length;
+        const name = StringBytes.bytesToString(lastKey.slice(0, k));
+        System.log(`in progress. Next name: ${name}`);
+      } else {
+        System.log("legacy space 8 finished");
+        patchStep.value = 3;
+        patchStorage.put(patchStep);
+      }
+    } else if (patchStep.value == 3) {
+      System.log("remove legacy space 9 (ordered tokens 2)");
+      const orderedTokens2: Storage.Map<Uint8Array, common.boole> =
+        new Storage.Map<Uint8Array, common.boole>(
+          this.contractId,
+          9,
+          common.boole.decode,
+          common.boole.encode
+        );
+
+      const keys = orderedTokens2.getManyKeys(
+        new Uint8Array(0),
+        20,
+        Storage.Direction.Ascending
+      );
+      for (let i = 0; i < keys.length; i += 1) {
+        orderedTokens2.remove(keys[i]);
+      }
+
+      if (keys.length > 0) {
+        const lastKey = keys[keys.length - 1];
+        let k = lastKey.findIndex((k) => k == 0);
+        if (k < 0) k = lastKey.length;
+        const name = StringBytes.bytesToString(lastKey.slice(0, k));
+        System.log(`in progress. Next name: ${name}`);
+      } else {
+        System.log("legacy space 9 finished");
+        patchStorage.remove();
+      }
+    }
   }
 }

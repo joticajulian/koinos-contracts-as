@@ -76,20 +76,15 @@ it("should work", async () => {
   });
 
   const names = [
-    "koin",
-    "vhp",
-    "pob",
-    "claim",
-    "governance",
-    "name-service",
-    "resources",
-    "nicknames",
-    "jga",
     "julian",
-    "julian.gonzalez",
+    "carlos1234",
+    "review",
+    "outside",
+    "absorb",
+    "pumpkin",
   ];
 
-  for (let i = 0; i < names.length; i += 1 ) {
+  for (let i = 0; i < names.length; i += 1) {
     await tx.pushOperation(nick["mint"], {
       to: account1.address,
       token_id: encodeHex(names[i]),
@@ -101,14 +96,9 @@ it("should work", async () => {
 
   await tx.wait();
 
-  await nick["mint"]({
-    to: account1.address,
-    token_id: encodeHex("jgapool"),
-  });
-
-  /*// get owner of token
+  // get owner of token
   const { result: resultOwnerOf } = await nick["owner_of"]({
-    token_id: encodeHex("absorb"),
+    token_id: encodeHex("outside"),
   });
   expect(resultOwnerOf).toStrictEqual({
     account: account1.address,
@@ -122,9 +112,14 @@ it("should work", async () => {
   });
 
   expect(resultListTokens).toStrictEqual({
-    token_ids: ["absorb", "julian", "review", "outside", "pumpkin", "carlos1234"].map(
-      encodeHex
-    ),
+    token_ids: [
+      "absorb",
+      "julian",
+      "review",
+      "outside",
+      "pumpkin",
+      "carlos1234",
+    ].map(encodeHex),
   });
 
   // get tokens of account 1
@@ -135,64 +130,75 @@ it("should work", async () => {
     direction: 0,
   });
   expect(tokensA1).toStrictEqual({
-    token_ids: ["absorb", "julian", "review", "outside", "pumpkin", "carlos1234"].map(
-      encodeHex
-    ),
+    token_ids: [
+      "absorb",
+      "julian",
+      "review",
+      "outside",
+      "pumpkin",
+      "carlos1234",
+    ].map(encodeHex),
+  });
+});
+
+it.each([
+  ["pumpkin", "@pumpkin already exists"],
+  ["absorc", "@absorc is similar to the existing name @absorb"],
+  ["pumpkim", "@pumpkim is similar to the existing name @pumpkin"],
+  ["tpumpkin", "@tpumpkin is similar to the existing name @pumpkin"],
+  ["absrb", "@absrb is similar to the existing name @absorb"],
+  ["pumpkinn", "@pumpkinn is similar to the existing name @pumpkin"],
+  ["umpkin", "@umpkin is similar to the existing name @pumpkin"],
+  ["punpkin", "@punpkin is similar to the existing name @pumpkin"],
+])("should fail for %s", async (name, error) => {
+  await expect(
+    nick["mint"]({
+      to: account1.address,
+      token_id: encodeHex(name),
+    })
+  ).rejects.toThrow(
+    JSON.stringify({
+      error,
+      code: 1,
+      logs: [`transaction reverted: ${error}`],
+    })
+  );
+});
+
+it("should work for large names", async () => {
+  let result = await nick["mint"]({
+    to: account1.address,
+    token_id: encodeHex("a123456789012345678901234567890a"),
   });
 
-  // reject similar names
-  const tests = [
-    // check by alphabetic order
-    //
-    // same name
-    ["pumpkin", "@pumpkin already exist"],
-    // similar to the previous
-    ["absorc", "@absorc is similar to the existing name @absorb"],
-    // similar to the next
-    ["pumpkim", "@pumpkim is similar to the existing name @pumpkin"],
+  expect(result.receipt).toStrictEqual(
+    expect.objectContaining({
+      compute_bandwidth_used: "2575617",
+      disk_storage_used: "6457",
+      network_bandwidth_used: "314",
+    })
+  );
 
-    // check by alphabetic order where the
-    // first letter of the candidate is not taken
-    // into account
-    //
-    // same from second letter
-    ["tpumpkin", "@tpumpkin is similar to the existing name @pumpkin"],
-    // second letter similar to the previous
-    ["tabsorbb", "@tabsorbb is similar to the existing name @absorb"],
-    // second letter similar to the next
-    ["tpumpkim", "@tpumpkim is similar to the existing name @pumpkin"],
+  // mint a small name to check the difference
+  // in the mana costs
+  result = await nick["mint"]({
+    to: account1.address,
+    token_id: encodeHex("a12"),
+  });
 
-    // check by alphabetic order but this time the
-    // first letter of the existing names are not taken
-    // into account
-    //
-    // same from second letter
-    ["umpkin", "@umpkin is similar to the existing name @?umpkin"],
-    // similar to second letter of previous
-    ["umpkio", "@umpkio is similar to the existing name @?umpkin"],
-    // similar to second letter of next
-    ["umpkim", "@umpkim is similar to the existing name @?umpkin"],
+  expect(result.receipt).toStrictEqual(
+    expect.objectContaining({
+      compute_bandwidth_used: "1160357",
+      disk_storage_used: "396",
+      network_bandwidth_used: "285",
+    })
+  );
 
-    // others
-    ["fumpkim", "@fumpkim is similar to the existing name @?umpkin"],
-  ];*/
-
-  /* const tests = [
-    ["tpumpkin", "@tpumpkin is similar to the existing name @pumpkin"],
-  ];
-
-  for (let i = 0; i < tests.length; i += 1) {
-    await expect(
-      nick["mint"]({
-        to: account1.address,
-        token_id: encodeHex(tests[i][0]),
-      })
-    ).rejects.toThrow(
-      JSON.stringify({
-        error: tests[i][1],
-        code: 1,
-        logs: [`transaction reverted: ${tests[i][1]}`],
-      })
-    );
-  } */
+  // As reference, this is the cost associated in the first
+  // version of nicknames (using Levenshtein distance)
+  // using a name of 9 letters
+  //
+  // disk_storage_used: "342"
+  // network_bandwidth_used: "346"
+  // compute_bandwidth_used: "3157419"
 });

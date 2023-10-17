@@ -21,9 +21,12 @@ const COMMUNITY_NAMES_SPACE_ID = 11;
 
 const NAMES_IN_DISPUTE_SPACE_ID = 12;
 
+/**
+ * List of spaces going from ID=19 to ID=51
+ * Each space is used to store a patterns for names
+ * in order to identify similarities
+ */
 const TOKEN_SIMILARITY_START_SPACE_ID = 20;
-
-const MAX_TOKEN_ID_LENGTH = 32;
 
 export class Nicknames extends Nft {
   callArgs: System.getArgumentsReturn | null;
@@ -54,34 +57,118 @@ export class Nicknames extends Nft {
     common.boole.encode
   );
 
-  verifyNotSimilar(
-    name: string,
-    tokenId: Uint8Array,
-    pos: i32
-  ): void {
-    const tokenSimilarity: Storage.Map<Uint8Array, common.str> = new Storage.Map(
-      this.contractId,
-      TOKEN_SIMILARITY_START_SPACE_ID + pos,
-      common.str.decode,
-      common.str.encode
-    );
+  verifyNotSimilar(name: string, tokenId: Uint8Array): void {
+    /**
+     * When the name @alice is created, the contract creates a list
+     * of patters that are saved in the database in order to detect
+     * similar names in the future.
+     *
+     * SPACE_ID       PATTERN       SIMILAR NAME
+     * 19              lice         alice
+     * 19             a ice         alice
+     * 19             al ce         alice
+     * 19             ali e         alice
+     * 19             alic          alice
+     *
+     * 20              lice         alice
+     *
+     * 21             a ice         alice
+     *
+     * 22             al ce         alice
+     *
+     * 23             ali e         alice
+     *
+     * 24             alic          alice
+     *
+     * Let' say someone tries to register the name @alicia
+     *
+     * - @alicia cannot exist in the space 19 --> OK
+     *
+     * Then, some patters are created and checked against the
+     * other spaces.
+     *
+     * Removing 1 letter:
+     * - @ licia cannot exist in the space 20 --> OK
+     * - @a icia cannot exist in the space 21 --> OK
+     * - @al cia cannot exist in the space 22 --> OK
+     * - @ali ia cannot exist in the space 23 --> OK
+     * - @alic a cannot exist in the space 24 --> OK
+     * - @alici  cannot exist in the space 25 --> OK
+     *
+     * Removing 2 letters:
+     * - @  icia cannot exist in the space 20 --> OK
+     * - @a  cia cannot exist in the space 21 --> OK
+     * - @al  ia cannot exist in the space 22 --> OK
+     * - @ali  a cannot exist in the space 23 --> OK
+     * - @alic   cannot exist in the space 24 --> FAIL !!
+     *
+     * @alicia cannot be created because it's similar to @alice
+     */
 
-    let similarTokenId = new Uint8Array(tokenId.length - 1);
-    similarTokenId.set(tokenId.slice(0, pos), 0);
-    if (pos + 1 < tokenId.length) similarTokenId.set(tokenId.slice(pos + 1), pos);
-
-    
-    let s2 = tokenSimilarity.get(similarTokenId);
-    if (s2) {
-      System.exit(1, StringBytes.stringToBytes(`@${name} is similar to the existing name @${s2.value!}`));
+    const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> =
+      new Storage.Map(
+        this.contractId,
+        TOKEN_SIMILARITY_START_SPACE_ID - 1,
+        common.str.decode,
+        common.str.encode
+      );
+    let similarName = tokenSimilarityBase.get(tokenId);
+    if (similarName) {
+      System.exit(
+        1,
+        StringBytes.stringToBytes(
+          `@${name} is similar to the existing name @${similarName.value!}`
+        )
+      );
     }
-    if (pos + 1 < tokenId.length) {
-      similarTokenId = new Uint8Array(tokenId.length - 2); //System.log("b");
-      similarTokenId.set(tokenId.slice(0, pos), 0); //System.log("c");
-      if (pos + 2 < tokenId.length) similarTokenId.set(tokenId.slice(pos + 2), pos); //System.log("d");
-      s2 = tokenSimilarity.get(similarTokenId); //System.log("e");
-      if (s2) {
-        System.exit(1, StringBytes.stringToBytes(`@${name} is similar to the existing name @${s2.value!}`));
+
+    let similarTokenId: Uint8Array;
+
+    for (let i = 0; i < tokenId.length; i += 1) {
+      const tokenSimilarity: Storage.Map<Uint8Array, common.str> =
+        new Storage.Map(
+          this.contractId,
+          TOKEN_SIMILARITY_START_SPACE_ID + i,
+          common.str.decode,
+          common.str.encode
+        );
+
+      // remove 1 letter from tokenId
+      similarTokenId = new Uint8Array(tokenId.length - 1);
+      similarTokenId.set(tokenId.slice(0, i), 0);
+      if (i + 1 < tokenId.length) {
+        similarTokenId.set(tokenId.slice(i + 1), i);
+      }
+
+      // check if there is a similar name
+      similarName = tokenSimilarity.get(similarTokenId);
+      if (similarName) {
+        System.exit(
+          1,
+          StringBytes.stringToBytes(
+            `@${name} is similar to the existing name @${similarName.value!}`
+          )
+        );
+      }
+
+      if (i + 1 < tokenId.length) {
+        // remove 2 letters from tokenId
+        similarTokenId = new Uint8Array(tokenId.length - 2);
+        similarTokenId.set(tokenId.slice(0, i), 0);
+        if (i + 2 < tokenId.length) {
+          similarTokenId.set(tokenId.slice(i + 2), i);
+        }
+
+        // check if there is a similar name
+        similarName = tokenSimilarity.get(similarTokenId);
+        if (similarName) {
+          System.exit(
+            1,
+            StringBytes.stringToBytes(
+              `@${name} is similar to the existing name @${similarName.value!}`
+            )
+          );
+        }
       }
     }
   }
@@ -134,6 +221,7 @@ export class Nicknames extends Nft {
     // of KAP Domains (.koin)
     System.require(!name.endsWith(".koin"), "the name cannot end with .koin");
 
+    // verify naming rules
     const words = name.split(".");
     for (let i = 0; i < words.length; i += 1) {
       const word = words[i];
@@ -167,25 +255,15 @@ export class Nicknames extends Nft {
         }
       }
     }
+
+    // verify it is a new name
     const s = this.tokenOwners.get(tokenId)!;
     System.require(!s.account, `@${name} already exists`);
 
-    const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> = new Storage.Map(
-      this.contractId,
-      TOKEN_SIMILARITY_START_SPACE_ID - 1,
-      common.str.decode,
-      common.str.encode
-    );
-    const s2 = tokenSimilarityBase.get(tokenId);
-    if (s2) {
-      System.exit(1, StringBytes.stringToBytes(`@${name} is similar to the existing name @${s2.value!}`));
-    }
+    // verify it is not similar to existing names
+    this.verifyNotSimilar(name, tokenId);
 
-    for (let i = 0; i < tokenId.length; i += 1) {
-      this.verifyNotSimilar(name, tokenId, i);
-    }
-
-    // this.verifyNameInKapDomains(name, readMode);*/
+    // this.verifyNameInKapDomains(name, readMode);
   }
 
   /**
@@ -204,35 +282,41 @@ export class Nicknames extends Nft {
    * @external
    * @event collections.mint_event nft.mint_args
    */
-  mint(args: nft.mint_args): void {//System.log("minting");
+  mint(args: nft.mint_args): void {
     this.verifyValidName(args.token_id!, false);
     const isAuthorized = System2.check_authority(args.to!);
     System.require(isAuthorized, "not authorized by 'to'");
-    
-    const name = StringBytes.bytesToString(args.token_id!);
+
+    // add patterns for similar names
+    const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> =
+      new Storage.Map(
+        this.contractId,
+        TOKEN_SIMILARITY_START_SPACE_ID - 1,
+        common.str.decode,
+        common.str.encode
+      );
+
     let similarTokenId = new Uint8Array(args.token_id!.length - 1);
-
-    const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> = new Storage.Map(
-      this.contractId,
-      TOKEN_SIMILARITY_START_SPACE_ID - 1,
-      common.str.decode,
-      common.str.encode
-    );
-
+    const name = StringBytes.bytesToString(args.token_id!);
+    const similarName = new common.str(name);
     for (let i = 0; i < args.token_id!.length; i += 1) {
+      const tokenSimilarity: Storage.Map<Uint8Array, common.str> =
+        new Storage.Map(
+          this.contractId,
+          TOKEN_SIMILARITY_START_SPACE_ID + i,
+          common.str.decode,
+          common.str.encode
+        );
+
+      // remove 1 letter from tokenId
+      // (see comments in verifyNotSimilar function)
       similarTokenId.set(args.token_id!.slice(0, i), 0);
       if (i + 1 < args.token_id!.length) {
         similarTokenId.set(args.token_id!.slice(i + 1), i);
       }
 
-      const tokenSimilarity: Storage.Map<Uint8Array, common.str> = new Storage.Map(
-        this.contractId,
-        TOKEN_SIMILARITY_START_SPACE_ID + i,
-        common.str.decode,
-        common.str.encode
-      );
-      tokenSimilarity.put(similarTokenId, new common.str(name));
-      tokenSimilarityBase.put(similarTokenId, new common.str(name));
+      tokenSimilarityBase.put(similarTokenId, similarName);
+      tokenSimilarity.put(similarTokenId, similarName);
     }
 
     // mint the token
@@ -264,18 +348,33 @@ export class Nicknames extends Nft {
       System.require(isAuthorized, "burn not authorized");
     }
 
+    // remove patters for similar names
+    const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> =
+      new Storage.Map(
+        this.contractId,
+        TOKEN_SIMILARITY_START_SPACE_ID - 1,
+        common.str.decode,
+        common.str.encode
+      );
+
     let similarTokenId = new Uint8Array(args.token_id!.length - 1);
     for (let i = 0; i < args.token_id!.length; i += 1) {
+      const tokenSimilarity: Storage.Map<Uint8Array, common.str> =
+        new Storage.Map(
+          this.contractId,
+          TOKEN_SIMILARITY_START_SPACE_ID + i,
+          common.str.decode,
+          common.str.encode
+        );
+
+      // remove 1 letter from tokenId
+      // (see comments in verifyNotSimilar function)
       similarTokenId.set(args.token_id!.slice(0, i), 0);
       if (i + 1 < args.token_id!.length) {
         similarTokenId.set(args.token_id!.slice(i + 1), i);
       }
-      const tokenSimilarity: Storage.Map<Uint8Array, common.str> = new Storage.Map(
-        this.contractId,
-        TOKEN_SIMILARITY_START_SPACE_ID + i,
-        common.str.decode,
-        common.str.encode
-      );
+
+      tokenSimilarityBase.remove(similarTokenId);
       tokenSimilarity.remove(similarTokenId);
     }
 

@@ -1,4 +1,5 @@
 build
 /assembly
 /koinosbox-proto
+/local
 snapshot.json

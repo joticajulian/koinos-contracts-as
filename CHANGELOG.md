@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v1.2.0](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.2.0) (2023-10-18)
+
+### 🚀 Features
+
+- Nicknames v2.0.0: Complete refactor of the logic to detect similar names. Now it saves unique patterns instead of using the levenshtein distance. The previous version was not working correctly because it was not comparing the new candidates with the correct names, ordering them alphabetically is not enough. The patterns approach solves this problem.
+- Some useful scripts for nicknames
+- Configure API in nicknames
+- Script to inspect contract uploads
+
 ## [v1.1.2](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.1.2) (2023-10-03)
 
 ### 🚀 Features

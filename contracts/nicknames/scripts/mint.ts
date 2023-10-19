@@ -79,7 +79,7 @@ const networkName = inputNetworkName || "harbinger";
           },
           {
             name: "nicknames",
-            address: "1AuJQxqqyBZXqqugTQZzXRVRmEYJtsMYQ8",
+            address: "1KXsC2bSnKAMAZ51gq3xxKBo74a7cDJjkR",
           },
         ];
 

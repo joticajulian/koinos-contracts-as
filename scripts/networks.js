@@ -34,6 +34,9 @@ module.exports = {
       manaSharer: keysHarbinger(process.env.HARBINGER_MANA_SHARER),
       token: keysHarbinger(process.env.HARBINGER_TOKEN),
       nicknames: keysHarbinger(process.env.HARBINGER_NICKNAMES),
+      getContractMetadata: keysHarbinger(
+        process.env.HARGINGER_GET_CONTRACT_METADATA
+      ),
     },
   },
   mainnet: {
@@ -43,6 +46,7 @@ module.exports = {
         id: process.env.MAINNET_FREE_MANA_ID,
       },
       nicknames: keysMainnet(process.env.MAINNET_NICKNAMES),
+      // getContractMetadata: keysMainnet(process.env.MAINNET_GET_CONTRACT_METADATA),
     },
   },
 };

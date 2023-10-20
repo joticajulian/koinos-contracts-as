@@ -29,6 +29,13 @@ import networks from "./networks.js";
  *
  * // You can also target a different contract
  * getContract("token/testThirdParty");
+ *
+ * // or a contract in a different path
+ * getContract("", {
+ *   account: "myContract", // identifier in networks.js
+ *   pathWasm: "/home/.../myContract.wasm",
+ *   pathAbi: "/home/.../myContract-abi.json",
+ * });
  * ```
  */
 export function getContract(
@@ -38,12 +45,16 @@ export function getContract(
     skipPrivateKey?: boolean;
     skipBytecode?: boolean;
     skipAbi?: boolean;
+    account?: string;
+    pathWasm?: string;
+    pathAbi?: string;
   }
 ) {
   const networkName = options?.networkName || "harbinger";
   const skipPrivateKey = options && options.skipPrivateKey;
   const skipBytecode = options && options.skipBytecode;
   const skipAbi = options && options.skipAbi;
+  const account = options?.account || pathContract;
 
   const network = networks[networkName];
   if (!network) throw new Error(`network ${networkName} not found`);
@@ -56,33 +67,34 @@ export function getContract(
   let [projectName, contractName] = pathContract.split("/");
   if (!contractName) contractName = projectName;
   if (skipPrivateKey) {
-    contractId = network.accounts[pathContract].id;
+    contractId = network.accounts[account].id;
   } else {
-    contractAccount = Signer.fromWif(network.accounts[pathContract].privateKey);
+    contractAccount = Signer.fromWif(network.accounts[account].privateKey);
     contractAccount.provider = provider;
   }
 
   if (!skipBytecode) {
-    bytecode = fs.readFileSync(
+    const pathWasm =
+      options?.pathWasm ||
       path.join(
         __dirname,
         "../contracts",
         projectName,
         `build/release/${contractName}.wasm`
-      )
-    );
+      );
+    bytecode = fs.readFileSync(pathWasm);
   }
 
   if (!skipAbi) {
-    abiString = fs.readFileSync(
+    const pathAbi =
+      options?.pathAbi ||
       path.join(
         __dirname,
         "../contracts",
         projectName,
         `build/${contractName}-abi.json`
-      ),
-      "utf8"
-    );
+      );
+    abiString = fs.readFileSync(pathAbi, "utf8");
   }
 
   return new Contract({

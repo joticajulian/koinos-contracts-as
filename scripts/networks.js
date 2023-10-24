@@ -30,13 +30,17 @@ module.exports = {
       "https://testnet.koinosblocks.com",
     ],
     accounts: {
+      proposer: keysHarbinger(process.env.HARBINGER_PROPOSER),
       freeMana: keysHarbinger(process.env.HARBINGER_FREE_MANA),
       manaSharer: keysHarbinger(process.env.HARBINGER_MANA_SHARER),
       token: keysHarbinger(process.env.HARBINGER_TOKEN),
       nicknames: keysHarbinger(process.env.HARBINGER_NICKNAMES),
       getContractMetadata: keysHarbinger(
-        process.env.HARGINGER_GET_CONTRACT_METADATA
+        process.env.HARBINGER_GET_CONTRACT_METADATA
       ),
+      "testgetcontractmetadata/testcontract": keysHarbinger(process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_CONTRACT),
+      "testgetcontractmetadata/testthirdparty": keysHarbinger(process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_THIRD_PARTY),
+      "testgetcontractmetadata/testwallet": keysHarbinger(process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_WALLET),
     },
   },
   mainnet: {

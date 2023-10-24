@@ -1104,10 +1104,8 @@
     chalk "4.1.2"
     commander "^9.0.0"
 
-"@koinos/sdk-as@npm:@koinosbox/sdk-as@^1.0.4-alpha.1":
-  version "1.0.4-alpha.1"
-  resolved "https://registry.yarnpkg.com/@koinosbox/sdk-as/-/sdk-as-1.0.4-alpha.1.tgz#4a1efef5cdc6d010feef238046605475c2ccf0b0"
-  integrity sha512-FKt9/MAMkTvoJ2/ko8NUR14vIQA4K2OOkp28ngFs1gN8IR9xIEgCxJsewvbRjXPCOysG4Fz1MW5VGA/CbYPrig==
+"@koinos/sdk-as@file:../koinos-sdk-as":
+  version "1.0.4-alpha.4"
   dependencies:
     "@as-covers/core" "^0.2.1"
     "@as-pect/cli" "^6.2.4"
@@ -1122,10 +1120,10 @@
     as-proto "npm:@koinos/as-proto@1.0.0"
     assemblyscript "^0.19.22"
 
-"@koinosbox/contracts@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-1.2.0.tgz#e1c29ddf788431096603589b3e36dbceb0ea7152"
-  integrity sha512-iPcQU4Mh5cdweFLVne+ejEWX8CF31oq+0Wv8neQzDqORkvGjSbfKZWwXqW3diJWhik+JmJhKG4eL6ld2cLXusw==
+"@koinosbox/contracts@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-1.2.1.tgz#2dfac7b9911fd8c3d144916385c8eb58edab9d7c"
+  integrity sha512-YFRZobkScgIv24OH/sVMfRujKIiRWS8hg1q6RvenG6bmo+9+WXqJ9ozbtakq4TTWW67eoFbwJ9HqFu1LJ7yrrA==
   dependencies:
     koilib "^5.5.4"
     koinos-precompiler-as "^1.2.0"

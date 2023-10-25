@@ -21,6 +21,8 @@ const COMMUNITY_NAMES_SPACE_ID = 11;
 
 const NAMES_IN_DISPUTE_SPACE_ID = 12;
 
+const MAIN_TOKEN_SPACE_ID = 13;
+
 /**
  * List of spaces going from ID=19 to ID=51
  * Each space is used to store a patterns for names
@@ -48,6 +50,13 @@ export class Nicknames extends Nft {
     COMMUNITY_NAMES_SPACE_ID,
     common.boole.decode,
     common.boole.encode
+  );
+
+  mainToken: Storage.Map<Uint8Array, nft.token> = new Storage.Map(
+    this.contractId,
+    MAIN_TOKEN_SPACE_ID,
+    nft.token.decode,
+    nft.token.encode
   );
 
   namesInDispute: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
@@ -278,6 +287,44 @@ export class Nicknames extends Nft {
   }
 
   /**
+   * Get community tokens
+   * @external
+   * @readonly
+   */
+  get_community_tokens(args: nft.get_tokens_args): nft.token_ids {
+    const direction =
+      args.direction == common.direction.ascending
+        ? Storage.Direction.Ascending
+        : Storage.Direction.Descending;
+    const tokenIds = this.communityNames.getManyKeys(
+      args.start ? args.start! : new Uint8Array(0),
+      args.limit,
+      direction
+    );
+    return new nft.token_ids(tokenIds);
+  }
+
+  /**
+   * Get TABI
+   * @external
+   * @readonly
+   */
+  get_tabi(args: nft.token): nicknames.tabi {
+    return this.tabis.get(args.token_id!)!;
+  }
+
+  /**
+   * Get main token of an account
+   * @external
+   * @readonly
+   */
+  get_main_token(args: common.address): nft.token {
+    const mainToken = this.mainToken.get(args.account!);
+    if (!mainToken) return new nft.token();
+    return mainToken;
+  }
+
+  /**
    * Create new name
    * @external
    * @event collections.mint_event nft.mint_args
@@ -319,6 +366,12 @@ export class Nicknames extends Nft {
       tokenSimilarity.put(similarTokenId, similarName);
     }
 
+    // set main token
+    const mainToken = this.mainToken.get(args.to!);
+    if (!mainToken) {
+      this.mainToken.put(args.to!, new nft.token(args.token_id!));
+    }
+
     // mint the token
     this._mint(args);
   }
@@ -334,6 +387,7 @@ export class Nicknames extends Nft {
     System.require(!nameInDispute, "name in dispute");
 
     const isCommunityName = this.communityNames.get(args.token_id!);
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
       System.require(
@@ -342,7 +396,6 @@ export class Nicknames extends Nft {
         "burn not authorized by the community"
       );
     } else {
-      const tokenOwner = this.tokenOwners.get(args.token_id!)!;
       System.require(tokenOwner.account, "token does not exist");
       const isAuthorized = System2.check_authority(tokenOwner.account!);
       System.require(isAuthorized, "burn not authorized");
@@ -380,6 +433,19 @@ export class Nicknames extends Nft {
 
     // burn the token
     this._burn(args);
+
+    // update main token
+    const mainToken = this.mainToken.get(tokenOwner.account!);
+    if (mainToken && Arrays.equal(mainToken.token_id!, args.token_id!)) {
+      const tokens = this.get_tokens_by_owner(new nft.get_tokens_by_owner_args(
+        tokenOwner.account!, new Uint8Array(0), 1
+      ));
+      if (tokens.token_ids.length > 0) {
+        this.mainToken.put(tokenOwner.account!, new nft.token(tokens.token_ids[0]));
+      } else {
+        this.mainToken.remove(tokenOwner.account!);
+      }
+    }
   }
 
   /**
@@ -412,6 +478,12 @@ export class Nicknames extends Nft {
     }
 
     this._transfer(args);
+
+    // set main token
+    const mainToken = this.mainToken.get(args.to!);
+    if (!mainToken) {
+      this.mainToken.put(args.to!, new nft.token(args.token_id!));
+    }
 
     // remove it from community names if that is the case.
     // For instance, when the community transfer a community

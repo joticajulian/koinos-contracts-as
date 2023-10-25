@@ -1104,8 +1104,10 @@
     chalk "4.1.2"
     commander "^9.0.0"
 
-"@koinos/sdk-as@file:../koinos-sdk-as":
-  version "1.0.4-alpha.4"
+"@koinos/sdk-as@npm:@koinosbox/sdk-as@1.0.4-alpha.1":
+  version "1.0.4-alpha.1"
+  resolved "https://registry.yarnpkg.com/@koinosbox/sdk-as/-/sdk-as-1.0.4-alpha.1.tgz#4a1efef5cdc6d010feef238046605475c2ccf0b0"
+  integrity sha512-FKt9/MAMkTvoJ2/ko8NUR14vIQA4K2OOkp28ngFs1gN8IR9xIEgCxJsewvbRjXPCOysG4Fz1MW5VGA/CbYPrig==
   dependencies:
     "@as-covers/core" "^0.2.1"
     "@as-pect/cli" "^6.2.4"

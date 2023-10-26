@@ -330,6 +330,7 @@ export class Nicknames extends Nft {
    * @event collections.mint_event nft.mint_args
    */
   mint(args: nft.mint_args): void {
+    System.exit(1, StringBytes.stringToBytes("contract in maintenance"));
     this.verifyValidName(args.token_id!, false);
     const isAuthorized = System2.check_authority(args.to!);
     System.require(isAuthorized, "not authorized by 'to'");
@@ -382,6 +383,7 @@ export class Nicknames extends Nft {
    * @event collections.burn_event nft.burn_args
    */
   burn(args: nft.burn_args): void {
+    System.exit(1, StringBytes.stringToBytes("contract in maintenance"));
     // check if it's a name in dispute
     const nameInDispute = this.namesInDispute.get(args.token_id!);
     System.require(!nameInDispute, "name in dispute");
@@ -454,6 +456,7 @@ export class Nicknames extends Nft {
    * @event collections.transfer_event nft.transfer_args
    */
   transfer(args: nft.transfer_args): void {
+    System.exit(1, StringBytes.stringToBytes("contract in maintenance"));
     // check if it's a name in dispute
     const nameInDispute = this.namesInDispute.get(args.token_id!);
     System.require(!nameInDispute, "name in dispute");
@@ -574,5 +577,47 @@ export class Nicknames extends Nft {
       "not authorized by the community"
     );
     this.namesInDispute.put(args.token_id!, new common.boole(true));
+  }
+
+  /**
+   * Patch
+   * @external
+   */
+  patch(): void {
+    const tokenStartStorage = new Storage.Obj<common.address>(
+      this.contractId,
+      1000,
+      common.address.decode,
+      common.address.encode,
+      () => new common.address(new Uint8Array(0))
+    );
+    const tokenStart = tokenStartStorage.get()!;
+
+    const results = this.tokenOwners.getMany(
+      tokenStart.account!,
+      50,
+      Storage.Direction.Ascending
+    );
+    for (let i = 0; i < results.length; i += 1) {
+      const owner = results[i].value.account!;
+      const mainToken = this.mainToken.get(owner);
+      if (!mainToken) {
+        this.mainToken.put(owner, new nft.token(results[i].key));
+      }
+    }
+
+    if (results.length > 0) {
+      tokenStart.account = results[results.length - 1].key;
+      System.log(
+        `main token in progress. Next name: ${StringBytes.bytesToString(
+          tokenStart.account
+        )}`
+      );
+      tokenStartStorage.put(tokenStart);
+    } else {
+      tokenStart.account = new Uint8Array(0);
+      System.log("main token finished");
+      tokenStartStorage.remove();
+    }
   }
 }

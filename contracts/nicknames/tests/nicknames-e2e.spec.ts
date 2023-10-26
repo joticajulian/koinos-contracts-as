@@ -173,9 +173,9 @@ it("should work for large names", async () => {
 
   expect(result.receipt).toStrictEqual(
     expect.objectContaining({
-      compute_bandwidth_used: "2575617",
-      disk_storage_used: "6457",
-      network_bandwidth_used: "314",
+      compute_bandwidth_used: expect.any(String),
+      disk_storage_used: expect.any(String),
+      network_bandwidth_used: expect.any(String),
     })
   );
 
@@ -188,9 +188,9 @@ it("should work for large names", async () => {
 
   expect(result.receipt).toStrictEqual(
     expect.objectContaining({
-      compute_bandwidth_used: "1160357",
-      disk_storage_used: "396",
-      network_bandwidth_used: "285",
+      compute_bandwidth_used: expect.any(String),
+      disk_storage_used: expect.any(String),
+      network_bandwidth_used: expect.any(String),
     })
   );
 

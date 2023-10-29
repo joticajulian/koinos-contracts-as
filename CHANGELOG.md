@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v1.2.2](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.2.1) (2023-10-29)
+
+### 🚀 Features
+
+- Nicknames v2.1.0:
+  * Each account now can configure a main token
+  * Update e2e tests
+  * Names in dispute removed
+  * Reservation for KAP names removed
+- Tests for Get Contract Metadata System Call
+- Improvements in the scripts folder: More options to deploy contracts
+
 ## [v1.2.1](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.2.1) (2023-10-19)
 
 ### 🐛 Bug Fixes

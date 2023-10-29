@@ -54,10 +54,10 @@
   },
   {
     "contract": "nicknames",
-    "version": "2.0.0",
-    "size": 65882,
-    "sizeHuman": "64.34 kB",
-    "sha256": "2538db57349e6a5e43a8a1344b0f6a0c208385da518e9f1f36bfd7c921e180f0"
+    "version": "2.1.0",
+    "size": 65655,
+    "sizeHuman": "64.12 kB",
+    "sha256": "67d7de1847561607808f89884c868af1e41748344fdd22713b4b8ab0b5d54d4c"
   },
   {
     "contract": "textparserlib",

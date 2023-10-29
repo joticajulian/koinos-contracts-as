@@ -19,7 +19,7 @@ const TABIS_SPACE_ID = 10;
 
 const COMMUNITY_NAMES_SPACE_ID = 11;
 
-const NAMES_IN_DISPUTE_SPACE_ID = 12;
+// const NAMES_IN_DISPUTE_SPACE_ID = 12;
 
 const MAIN_TOKEN_SPACE_ID = 13;
 
@@ -57,13 +57,6 @@ export class Nicknames extends Nft {
     MAIN_TOKEN_SPACE_ID,
     nft.token.decode,
     nft.token.encode
-  );
-
-  namesInDispute: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
-    this.contractId,
-    NAMES_IN_DISPUTE_SPACE_ID,
-    common.boole.decode,
-    common.boole.encode
   );
 
   verifyNotSimilar(name: string, tokenId: Uint8Array): void {
@@ -182,42 +175,6 @@ export class Nicknames extends Nft {
     }
   }
 
-  /**
-   * Temporary function to reserve the names created
-   * in KAP domains.
-   * This function will be removed in the future
-   */
-  verifyNameInKapDomains(name: string, readMode: boolean): void {
-    const kap = new INft(Base58.decode("13tmzDmfqCsbYT26C4CmKxq86d33senqH3"));
-
-    // check if the name + ".koin" exists in KAP domains
-    // Example: if kap://alice.koin exists then its owner
-    //          is the only one that can create @alice
-    let kapName = `${name}.koin`;
-    let tokenIdKap = StringBytes.stringToBytes(kapName);
-    let tokenOwner = kap.owner_of(new nft.token(tokenIdKap));
-    if (tokenOwner.account) {
-      System.require(
-        !readMode && System2.check_authority(tokenOwner.account!),
-        `@${name} is reserved for the owner of kap://${kapName}`
-      );
-    }
-
-    // check if names ending with .koinos exists in KAP domains
-    // Example: if kap://alice.koin exists then its owner
-    //          is the only one that can create @alice.koinos
-    if (!name.endsWith(".koinos")) return;
-    kapName = name.slice(0, name.length - 2);
-    tokenIdKap = StringBytes.stringToBytes(kapName);
-    tokenOwner = kap.owner_of(new nft.token(tokenIdKap));
-    if (tokenOwner.account) {
-      System.require(
-        !readMode && System2.check_authority(tokenOwner.account!),
-        `@${name} is reserved for the owner of kap://${kapName}`
-      );
-    }
-  }
-
   verifyValidName(tokenId: Uint8Array, readMode: boolean): void {
     const name = StringBytes.bytesToString(tokenId);
     System.require(
@@ -271,8 +228,6 @@ export class Nicknames extends Nft {
 
     // verify it is not similar to existing names
     this.verifyNotSimilar(name, tokenId);
-
-    this.verifyNameInKapDomains(name, readMode);
   }
 
   /**
@@ -382,10 +337,6 @@ export class Nicknames extends Nft {
    * @event collections.burn_event nft.burn_args
    */
   burn(args: nft.burn_args): void {
-    // check if it's a name in dispute
-    const nameInDispute = this.namesInDispute.get(args.token_id!);
-    System.require(!nameInDispute, "name in dispute");
-
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     if (isCommunityName) {
@@ -401,7 +352,7 @@ export class Nicknames extends Nft {
       System.require(isAuthorized, "burn not authorized");
     }
 
-    // remove patters for similar names
+    // remove patterns for similar names
     const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> =
       new Storage.Map(
         this.contractId,
@@ -454,10 +405,6 @@ export class Nicknames extends Nft {
    * @event collections.transfer_event nft.transfer_args
    */
   transfer(args: nft.transfer_args): void {
-    // check if it's a name in dispute
-    const nameInDispute = this.namesInDispute.get(args.token_id!);
-    System.require(!nameInDispute, "name in dispute");
-
     const isCommunityName = this.communityNames.get(args.token_id!);
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
@@ -564,15 +511,34 @@ export class Nicknames extends Nft {
   }
 
   /**
-   * Set name in dispute
+   * Set main token
    * @external
+   *
    */
-  set_name_in_dispute(args: nft.token): void {
-    // TODO: use only gov system after the grace period
-    System.require(
-      System.checkSystemAuthority() || System2.check_authority(this.contractId),
-      "not authorized by the community"
-    );
-    this.namesInDispute.put(args.token_id!, new common.boole(true));
+  set_main_token(args: nft.token): void {
+    const isCommunityName = this.communityNames.get(args.token_id!);
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+    System.require(tokenOwner.account, "token does not exist");
+    if (isCommunityName) {
+      // TODO: use only gov system after the grace period
+      System.require(
+        System.checkSystemAuthority() ||
+          System2.check_authority(this.contractId),
+        "not authorized by the community"
+      );
+    } else {
+      const isAuthorized = System2.check_authority(tokenOwner.account!);
+      System.require(isAuthorized, "not authorized by the owner");
+    }
+
+    const mainToken = this.mainToken.get(tokenOwner.account!);
+    if (mainToken) {
+      const mainTokenIsCommunityName = this.communityNames.get(mainToken.token_id!);
+      if (mainTokenIsCommunityName) {
+        System.require(isCommunityName, `the main token for this account is @${StringBytes.bytesToString(mainToken.token_id!)}, which is governed by the community`);
+      }
+    }
+
+    this.mainToken.put(tokenOwner.account!, args);
   }
 }

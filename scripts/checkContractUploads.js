@@ -4,6 +4,7 @@ const networks = require("./networks.js");
 
 const [contractId, inputeNetworkName] = process.argv.slice(2);
 const networkName = inputeNetworkName || "mainnet";
+const regsPerCall = 100;
 
 (async () => {
   const provider = new Provider(networks[networkName].rpcNodes);
@@ -14,7 +15,7 @@ const networkName = inputeNetworkName || "mainnet";
     const result = await provider.call("account_history.get_account_history", {
       address: contractId,
       ascending: true,
-      limit: 500,
+      limit: regsPerCall,
       seq_num: seqNum,
     });
 
@@ -48,7 +49,7 @@ const networkName = inputeNetworkName || "mainnet";
       }
     }
     const lastSeqNum = Number(result.values[result.values.length - 1].seq_num);
-    seqNum += 500;
+    seqNum += regsPerCall;
     console.log({
       lastSeqNum,
       seqNum,

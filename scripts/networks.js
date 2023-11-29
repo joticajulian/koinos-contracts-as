@@ -38,9 +38,15 @@ module.exports = {
       getContractMetadata: keysHarbinger(
         process.env.HARBINGER_GET_CONTRACT_METADATA
       ),
-      "testgetcontractmetadata/testcontract": keysHarbinger(process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_CONTRACT),
-      "testgetcontractmetadata/testthirdparty": keysHarbinger(process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_THIRD_PARTY),
-      "testgetcontractmetadata/testwallet": keysHarbinger(process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_WALLET),
+      "testgetcontractmetadata/testcontract": keysHarbinger(
+        process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_CONTRACT
+      ),
+      "testgetcontractmetadata/testthirdparty": keysHarbinger(
+        process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_THIRD_PARTY
+      ),
+      "testgetcontractmetadata/testwallet": keysHarbinger(
+        process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_WALLET
+      ),
     },
   },
   mainnet: {

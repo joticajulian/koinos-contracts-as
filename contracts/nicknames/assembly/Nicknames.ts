@@ -388,11 +388,18 @@ export class Nicknames extends Nft {
     // update main token
     const mainToken = this.mainToken.get(tokenOwner.account!);
     if (mainToken && Arrays.equal(mainToken.token_id!, args.token_id!)) {
-      const tokens = this.get_tokens_by_owner(new nft.get_tokens_by_owner_args(
-        tokenOwner.account!, new Uint8Array(0), 1
-      ));
+      const tokens = this.get_tokens_by_owner(
+        new nft.get_tokens_by_owner_args(
+          tokenOwner.account!,
+          new Uint8Array(0),
+          1
+        )
+      );
       if (tokens.token_ids.length > 0) {
-        this.mainToken.put(tokenOwner.account!, new nft.token(tokens.token_ids[0]));
+        this.mainToken.put(
+          tokenOwner.account!,
+          new nft.token(tokens.token_ids[0])
+        );
       } else {
         this.mainToken.remove(tokenOwner.account!);
       }
@@ -533,9 +540,16 @@ export class Nicknames extends Nft {
 
     const mainToken = this.mainToken.get(tokenOwner.account!);
     if (mainToken) {
-      const mainTokenIsCommunityName = this.communityNames.get(mainToken.token_id!);
+      const mainTokenIsCommunityName = this.communityNames.get(
+        mainToken.token_id!
+      );
       if (mainTokenIsCommunityName) {
-        System.require(isCommunityName, `the main token for this account is @${StringBytes.bytesToString(mainToken.token_id!)}, which is governed by the community`);
+        System.require(
+          isCommunityName,
+          `the main token for this account is @${StringBytes.bytesToString(
+            mainToken.token_id!
+          )}, which is governed by the community`
+        );
       }
     }
 

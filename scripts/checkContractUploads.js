@@ -48,7 +48,9 @@ const regsPerCall = 100;
         contractUploads += 1;
       }
     }
-    const lastSeqNum = Number(result.values[result.values.length - 1].seq_num);
+    const lastSeqNum = Number(
+      result.values[result.values.length - 1].seq_num || 0
+    );
     seqNum += regsPerCall;
     console.log({
       lastSeqNum,

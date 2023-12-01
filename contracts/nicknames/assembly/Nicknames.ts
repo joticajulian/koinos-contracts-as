@@ -502,16 +502,22 @@ export class Nicknames extends Nft {
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.account, "token does not exist");
-    if (isCommunityName) {
-      // TODO: use only gov system after the grace period
-      System.require(
-        System.checkSystemAuthority() ||
-          System2.check_authority(this.contractId),
-        "not authorized by the community"
-      );
+
+    if (System2.check_authority(this.contractId)) {
+      // TODO: temporal if while a new set_metadata management
+      // is implemented
     } else {
-      const isAuthorized = System2.check_authority(tokenOwner.account!);
-      System.require(isAuthorized, "not authorized by the owner");
+      if (isCommunityName) {
+        // TODO: use only gov system after the grace period
+        System.require(
+          System.checkSystemAuthority() ||
+            System2.check_authority(this.contractId),
+          "not authorized by the community"
+        );
+      } else {
+        const isAuthorized = System2.check_authority(tokenOwner.account!);
+        System.require(isAuthorized, "not authorized by the owner");
+      }
     }
 
     this._set_metadata(args);

@@ -80,7 +80,7 @@ export class TestWallet {
       common.address.encode
     );
     const callRes = System.call(
-      testContractId!.account!,
+      testContractId!.value!,
       0x3b2d7fde,
       argsBuffer
     );

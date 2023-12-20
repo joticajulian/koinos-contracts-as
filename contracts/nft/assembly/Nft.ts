@@ -286,7 +286,7 @@ export class Nft {
     if (!caller.caller || caller.caller.length == 0) return false;
 
     // check if approved for the token
-    const approvedAddress = this.tokenApprovals.get(token_id)!.account;
+    const approvedAddress = this.tokenApprovals.get(token_id)!.value;
     if (Arrays.equal(approvedAddress, caller.caller)) {
       // clear temporal approval
       this.tokenApprovals.remove(token_id);
@@ -389,7 +389,7 @@ export class Nft {
       `the max token id length is ${MAX_TOKEN_ID_LENGTH}`
     );
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    System.require(!tokenOwner.account, "token already minted");
+    System.require(!tokenOwner.value, "token already minted");
     this.tokenOwners.put(args.token_id!, new common.address(args.to!));
     const key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
     key.set(args.to!, 0);
@@ -417,22 +417,22 @@ export class Nft {
 
   _burn(args: nft.burn_args): void {
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    System.require(tokenOwner.account, "token does not exist");
+    System.require(tokenOwner.value, "token does not exist");
     this.tokenOwners.remove(args.token_id!);
     const key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
-    key.set(tokenOwner.account!, 0);
+    key.set(tokenOwner.value!, 0);
     key[25] = args.token_id!.length;
     key.set(args.token_id!, 26);
     this.tokenOwnerPairs.remove(key);
 
-    const balance = this.balances.get(tokenOwner.account!)!;
+    const balance = this.balances.get(tokenOwner.value!)!;
     const supply = this.supply.get()!;
     balance.value -= 1;
     supply.value -= 1;
-    this.balances.put(tokenOwner.account!, balance);
+    this.balances.put(tokenOwner.value!, balance);
     this.supply.put(supply);
 
-    const impacted = [tokenOwner.account!];
+    const impacted = [tokenOwner.value!];
     System.event(
       "collections.burn_event",
       Protobuf.encode<nft.burn_args>(args, nft.burn_args.encode),
@@ -471,7 +471,7 @@ export class Nft {
   approve(args: nft.approve_args): void {
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(
-      Arrays.equal(tokenOwner.account, args.approver_address!),
+      Arrays.equal(tokenOwner.value, args.approver_address!),
       "approver is not the owner"
     );
 
@@ -504,7 +504,7 @@ export class Nft {
   transfer(args: nft.transfer_args): void {
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(
-      Arrays.equal(tokenOwner.account, args.from!),
+      Arrays.equal(tokenOwner.value, args.from!),
       "from is not the owner"
     );
 

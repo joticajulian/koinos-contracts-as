@@ -14,7 +14,7 @@ export class TestContract {
    * @external
    */
   operate_assets(args: common.address): common.boole {
-    const isAuthorized = System.checkCallContractAuthority(args.account!);
+    const isAuthorized = System.checkCallContractAuthority(args.value!);
     System.require(isAuthorized, "not authorized");
     System.log("authorized to operate with the assets");
     return new common.boole(true);

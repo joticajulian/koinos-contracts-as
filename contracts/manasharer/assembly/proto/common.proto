@@ -21,7 +21,7 @@ message boole {
 }
 
 message address {
-    bytes account = 1 [(koinos.btype) = ADDRESS];
+    bytes value = 1 [(koinos.btype) = ADDRESS];
 }
 
 enum direction {

@@ -224,7 +224,7 @@ export class Nicknames extends Nft {
 
     // verify it is a new name
     const s = this.tokenOwners.get(tokenId)!;
-    System.require(!s.account, `@${name} already exists`);
+    System.require(!s.value, `@${name} already exists`);
 
     // verify it is not similar to existing names
     this.verifyNotSimilar(name, tokenId);
@@ -274,7 +274,7 @@ export class Nicknames extends Nft {
    * @readonly
    */
   get_main_token(args: common.address): nft.token {
-    const mainToken = this.mainToken.get(args.account!);
+    const mainToken = this.mainToken.get(args.value!);
     if (!mainToken) return new nft.token();
     return mainToken;
   }
@@ -347,8 +347,8 @@ export class Nicknames extends Nft {
         "burn not authorized by the community"
       );
     } else {
-      System.require(tokenOwner.account, "token does not exist");
-      const isAuthorized = System2.check_authority(tokenOwner.account!);
+      System.require(tokenOwner.value, "token does not exist");
+      const isAuthorized = System2.check_authority(tokenOwner.value!);
       System.require(isAuthorized, "burn not authorized");
     }
 
@@ -386,22 +386,22 @@ export class Nicknames extends Nft {
     this._burn(args);
 
     // update main token
-    const mainToken = this.mainToken.get(tokenOwner.account!);
+    const mainToken = this.mainToken.get(tokenOwner.value!);
     if (mainToken && Arrays.equal(mainToken.token_id!, args.token_id!)) {
       const tokens = this.get_tokens_by_owner(
         new nft.get_tokens_by_owner_args(
-          tokenOwner.account!,
+          tokenOwner.value!,
           new Uint8Array(0),
           1
         )
       );
       if (tokens.token_ids.length > 0) {
         this.mainToken.put(
-          tokenOwner.account!,
+          tokenOwner.value!,
           new nft.token(tokens.token_ids[0])
         );
       } else {
-        this.mainToken.remove(tokenOwner.account!);
+        this.mainToken.remove(tokenOwner.value!);
       }
     }
   }
@@ -423,7 +423,7 @@ export class Nicknames extends Nft {
     } else {
       const tokenOwner = this.tokenOwners.get(args.token_id!)!;
       System.require(
-        Arrays.equal(tokenOwner.account, args.from!),
+        Arrays.equal(tokenOwner.value, args.from!),
         "from is not the owner"
       );
 
@@ -474,7 +474,7 @@ export class Nicknames extends Nft {
   set_tabi(args: nicknames.set_tabi_args): void {
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    System.require(tokenOwner.account, "token does not exist");
+    System.require(tokenOwner.value, "token does not exist");
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
       System.require(
@@ -483,13 +483,13 @@ export class Nicknames extends Nft {
         "not authorized by the community"
       );
     } else {
-      const isAuthorized = System2.check_authority(tokenOwner.account!);
+      const isAuthorized = System2.check_authority(tokenOwner.value!);
       System.require(isAuthorized, "not authorized by the owner");
     }
 
     this.tabis.put(args.token_id!, args.tabi!);
     System.event("nicknames.set_tabi", this.callArgs!.args, [
-      tokenOwner.account!,
+      tokenOwner.value!,
     ]);
   }
 
@@ -501,7 +501,7 @@ export class Nicknames extends Nft {
   set_metadata(args: nft.metadata_args): void {
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    System.require(tokenOwner.account, "token does not exist");
+    System.require(tokenOwner.value, "token does not exist");
 
     if (System2.check_authority(this.contractId)) {
       // TODO: temporal if while a new set_metadata management
@@ -515,7 +515,7 @@ export class Nicknames extends Nft {
           "not authorized by the community"
         );
       } else {
-        const isAuthorized = System2.check_authority(tokenOwner.account!);
+        const isAuthorized = System2.check_authority(tokenOwner.value!);
         System.require(isAuthorized, "not authorized by the owner");
       }
     }
@@ -531,7 +531,7 @@ export class Nicknames extends Nft {
   set_main_token(args: nft.token): void {
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    System.require(tokenOwner.account, "token does not exist");
+    System.require(tokenOwner.value, "token does not exist");
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
       System.require(
@@ -540,11 +540,11 @@ export class Nicknames extends Nft {
         "not authorized by the community"
       );
     } else {
-      const isAuthorized = System2.check_authority(tokenOwner.account!);
+      const isAuthorized = System2.check_authority(tokenOwner.value!);
       System.require(isAuthorized, "not authorized by the owner");
     }
 
-    const mainToken = this.mainToken.get(tokenOwner.account!);
+    const mainToken = this.mainToken.get(tokenOwner.value!);
     if (mainToken) {
       const mainTokenIsCommunityName = this.communityNames.get(
         mainToken.token_id!
@@ -559,6 +559,6 @@ export class Nicknames extends Nft {
       }
     }
 
-    this.mainToken.put(tokenOwner.account!, args);
+    this.mainToken.put(tokenOwner.value!, args);
   }
 }

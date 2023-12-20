@@ -71,8 +71,8 @@ export class ManaSharer {
    */
   add_manager(args: common.address): void {
     System.require(this.isSignedByOwner(), "not signed by the owner");
-    this.managers.put(args.account!, new common.boole(true));
-    System.event("manager_added", this.callArgs!.args, [args.account!]);
+    this.managers.put(args.value!, new common.boole(true));
+    System.event("manager_added", this.callArgs!.args, [args.value!]);
   }
 
   /**
@@ -82,8 +82,8 @@ export class ManaSharer {
    */
   remove_manager(args: common.address): void {
     System.require(this.isSignedByOwner(), "not signed by the owner");
-    this.managers.remove(args.account!);
-    System.event("manager_removed", this.callArgs!.args, [args.account!]);
+    this.managers.remove(args.value!);
+    System.event("manager_removed", this.callArgs!.args, [args.value!]);
   }
 
   /**

@@ -12,9 +12,10 @@ async function main() {
         .readdirSync(contractsPath, { withFileTypes: true })
         .filter((c) => c.isDirectory());
       contracts.forEach((contract) => {
-        fs.rmdirSync(path.join(contractsPath, contract.name, "build"), {
-          recursive: true,
-        });
+        const buildDir = path.join(contractsPath, contract.name, "build");
+        if (fs.existsSync(buildDir)) {
+          fs.rmdirSync(buildDir, { recursive: true });
+        }
       });
       break;
     }

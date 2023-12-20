@@ -52,11 +52,12 @@ module.exports = {
   mainnet: {
     rpcNodes: ["https://api.koinos.io", "https://api.koinosblocks.com"],
     accounts: {
+      proposer: keysMainnet(process.env.MAINNET_PROPOSER),
       freeMana: {
         id: process.env.MAINNET_FREE_MANA_ID,
       },
       nicknames: keysMainnet(process.env.MAINNET_NICKNAMES),
-      // getContractMetadata: keysMainnet(process.env.MAINNET_GET_CONTRACT_METADATA),
+      getContractMetadata: keysMainnet(process.env.MAINNET_GET_CONTRACT_METADATA),
     },
   },
 };

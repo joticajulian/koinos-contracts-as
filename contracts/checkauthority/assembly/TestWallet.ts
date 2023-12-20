@@ -79,11 +79,7 @@ export class TestWallet {
       new common.address(this.contractId),
       common.address.encode
     );
-    const callRes = System.call(
-      testContractId!.value!,
-      0x3b2d7fde,
-      argsBuffer
-    );
+    const callRes = System.call(testContractId!.value!, 0x3b2d7fde, argsBuffer);
     if (callRes.code != 0) {
       const errorMessage = `failed to call 'TestContract.operate_assets': ${
         callRes.res.error && callRes.res.error!.message

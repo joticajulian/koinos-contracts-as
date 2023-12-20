@@ -1,28 +1,28 @@
 [
   {
     "contract": "burnkoinhelper",
-    "version": "1.0.1",
-    "size": 25063,
-    "sizeHuman": "24.48 kB",
-    "sha256": "ed2a2766b2d785094a3772ecf868d678d31b72c60d3d64e5229987a46ae59079"
+    "version": "1.0.2",
+    "size": 25081,
+    "sizeHuman": "24.49 kB",
+    "sha256": "c5295d85926311f965c8b0d47d5c273111a12bc115ca23159a8c8e059a4ee093"
   },
   {
     "contract": "checkauthority/testcontract",
-    "size": 18602,
-    "sizeHuman": "18.17 kB",
-    "sha256": "4b885040e7ecbbfbc33f52fc54de74a3f494c3eeabc130b67e4982ab6ae91103"
+    "size": 18620,
+    "sizeHuman": "18.18 kB",
+    "sha256": "e667bdba62b81b4e2b819dc29c2db26c5f90c8f52c82d509b04ba73868acbb78"
   },
   {
     "contract": "checkauthority/testthirdparty",
-    "size": 21720,
-    "sizeHuman": "21.21 kB",
-    "sha256": "ad3b2dc36e188417130f2c4292a2844337f1919a365bb054a6ecbb12df6e1acc"
+    "size": 21742,
+    "sizeHuman": "21.23 kB",
+    "sha256": "8fdef7f194446282e9634b8f0eefde9acc6c156a85602581eb10053a459aacb8"
   },
   {
     "contract": "checkauthority/testwallet",
-    "size": 28301,
-    "sizeHuman": "27.64 kB",
-    "sha256": "07dea5cb810ccdd05c9f9ffc7879a9d1139c1df2af3b2bfdbd20e5f0918b0b99"
+    "size": 28323,
+    "sizeHuman": "27.66 kB",
+    "sha256": "5c4ba1574aa03438a2e3a3c7bc97182c7d1458c8a8b57d5b6cc5d0c9092a20a2"
   },
   {
     "contract": "checkauthority",
@@ -40,24 +40,24 @@
   },
   {
     "contract": "manasharer",
-    "version": "1.0.0",
-    "size": 33328,
-    "sizeHuman": "32.55 kB",
-    "sha256": "4cf2523cd089fe4973c3c1fd3281dffd14273a028229fa7f68de8069cd0b930a"
+    "version": "1.0.1",
+    "size": 33358,
+    "sizeHuman": "32.58 kB",
+    "sha256": "a3b85c7885b09e61f09186b5ba657a2099ec1c26e673fcd47229724cbec3a9ae"
   },
   {
     "contract": "nft",
-    "version": "1.0.4",
-    "size": 52129,
-    "sizeHuman": "50.91 kB",
-    "sha256": "37cd2117a8a736de5215ad02361cb27a90384fa357c6cd597bdea5a6e510505e"
+    "version": "1.0.5",
+    "size": 52219,
+    "sizeHuman": "51.00 kB",
+    "sha256": "2cdd2fd0e7886a474a02a62891d5c8f910ba267c785d6d1df592775e83b293b4"
   },
   {
     "contract": "nicknames",
-    "version": "2.1.0",
-    "size": 65655,
-    "sizeHuman": "64.12 kB",
-    "sha256": "67d7de1847561607808f89884c868af1e41748344fdd22713b4b8ab0b5d54d4c"
+    "version": "2.2.0",
+    "size": 65675,
+    "sizeHuman": "64.14 kB",
+    "sha256": "b519a6f023394b0057fb5d181b885f56037ddc73f04098801046d725e142f64f"
   },
   {
     "contract": "textparserlib",
@@ -68,9 +68,9 @@
   },
   {
     "contract": "token",
-    "version": "0.1.2",
-    "size": 38464,
-    "sizeHuman": "37.56 kB",
-    "sha256": "e0aaaf5d9d9596b486720f33ebcaf147b7228c60c495a061b751322d1ecdd4b3"
+    "version": "0.1.3",
+    "size": 38514,
+    "sizeHuman": "37.61 kB",
+    "sha256": "5ca9d52f9f15bf30f40f435c35b0384c462fea034c23f782afc0e551b92baaeb"
   }
 ]

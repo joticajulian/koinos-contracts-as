@@ -3,7 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "ManaSharer",
-  version: "1.0.0",
+  version: "1.0.1",
   proto: ["./proto/common.proto"],
   files: ["./ManaSharer.ts"],
   sourceDir: "./assembly",

@@ -57,7 +57,9 @@ module.exports = {
         id: process.env.MAINNET_FREE_MANA_ID,
       },
       nicknames: keysMainnet(process.env.MAINNET_NICKNAMES),
-      getContractMetadata: keysMainnet(process.env.MAINNET_GET_CONTRACT_METADATA),
+      getContractMetadata: keysMainnet(
+        process.env.MAINNET_GET_CONTRACT_METADATA
+      ),
     },
   },
 };

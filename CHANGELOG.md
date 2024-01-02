@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v1.2.4](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.2.4) (2024-01-02)
+
+### 🚀 Features
+
+- NFT contract: Now it has a collection owner and can be updated using the transfer_ownership function. This owner can update the metadata, royalties or mint more NFTs.
+
+## [v1.2.3](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.2.3) (2023-12-20)
+
+### 🚀 Features
+
+- Update the protobuffer "common.address": Now it uses the field value instead of account. This is to align the owner_of function for NFTs with other NFTs implementations.
+- Update network and configurations
+- Nicknames: temp set_metadata function with extended authority
+- Improvements in the script for check contract uploads
+
 ## [v1.2.2](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.2.1) (2023-10-29)
 
 ### 🚀 Features

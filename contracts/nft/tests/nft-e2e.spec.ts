@@ -59,6 +59,27 @@ afterAll(() => {
   localKoinos.stopNode();
 });
 
+it("should transfer ownership", async () => {
+  let tx = new Transaction({
+    signer: nftAccount,
+    provider: localKoinos.getProvider(),
+  });
+
+  await tx.pushOperation(nft["transfer_ownership"], {
+    value: nftAccount.address,
+  });
+
+  const receipt = await tx.send();
+  expect(receipt).toBeDefined();
+
+  await tx.wait();
+
+  const { result } = await nft["owner"]();
+  expect(result).toStrictEqual({
+    value: nftAccount.address,
+  });
+});
+
 it("should work", async () => {
   // mint tokens
   let tx = new Transaction({

@@ -14,6 +14,7 @@ const TOKENS_BY_OWNER_SPACE_ID = 4;
 const TOKEN_METADATA_SPACE_ID = 5;
 const TOKEN_APPROVALS_SPACE_ID = 6;
 const TOKEN_OPERATOR_APPROVALS_SPACE_ID = 7;
+const COLLECTION_OWNER_SPACE_ID = 8;
 
 const MAX_TOKEN_ID_LENGTH = 32;
 
@@ -92,6 +93,14 @@ export class Nft {
     () => new common.boole(false)
   );
 
+  collectionOwner: Storage.Obj<common.address> = new Storage.Obj(
+    this.contractId,
+    COLLECTION_OWNER_SPACE_ID,
+    common.address.decode,
+    common.address.encode,
+    () => new common.address(this.contractId)
+  );
+
   /**
    * Get name of the NFT
    * @external
@@ -126,6 +135,15 @@ export class Nft {
    */
   get_info(): nft.info {
     return new nft.info(this._name, this._symbol, this._uri);
+  }
+
+  /**
+   * Get the owner of the collection
+   * @external
+   * @readonly
+   */
+  owner(): common.address {
+    return this.collectionOwner.get()!;
   }
 
   /**
@@ -302,6 +320,16 @@ export class Nft {
     return false;
   }
 
+  _transfer_ownership(args: common.address): void {
+    const owner = this.collectionOwner.get()!;
+    this.collectionOwner.put(args);
+    System.event(
+      "collections.owner_event",
+      Protobuf.encode<common.address>(args, common.address.encode),
+      [owner.value, args.value]
+    );
+  }
+
   _set_royalties(args: nft.royalties): void {
     const impacted: Uint8Array[] = [];
     let totalPercentage: u64 = 0;
@@ -441,12 +469,25 @@ export class Nft {
   }
 
   /**
+   * Transfer ownership of the collection
+   * @external
+   * @event collections.owner_event common.address
+   */
+  transfer_ownership(args: common.address): void {
+    const owner = this.collectionOwner.get()!;
+    const isAuthorized = System2.check_authority(owner.value);
+    System.require(isAuthorized, "not authorized by the owner");
+    this._transfer_ownership(args);
+  }
+
+  /**
    * Set royalties
    * @external
    * @event collections.royalties_event nft.royalties
    */
   set_royalties(args: nft.royalties): void {
-    const isAuthorized = System2.check_authority(this.contractId);
+    const owner = this.collectionOwner.get()!;
+    const isAuthorized = System2.check_authority(owner.value);
     System.require(isAuthorized, "not authorized by the owner");
     this._set_royalties(args);
   }
@@ -457,7 +498,8 @@ export class Nft {
    * @event collections.set_metadata_event nft.metadata_args
    */
   set_metadata(args: nft.metadata_args): void {
-    const isAuthorized = System2.check_authority(this.contractId);
+    const owner = this.collectionOwner.get()!;
+    const isAuthorized = System2.check_authority(owner.value);
     System.require(isAuthorized, "not authorized by the owner");
     this._set_metadata(args);
   }
@@ -520,7 +562,8 @@ export class Nft {
    * @event collections.mint_event nft.mint_args
    */
   mint(args: nft.mint_args): void {
-    const isAuthorized = System2.check_authority(this.contractId);
+    const owner = this.collectionOwner.get()!;
+    const isAuthorized = System2.check_authority(owner.value);
     System.require(isAuthorized, "not authorized by the owner");
     this._mint(args);
   }

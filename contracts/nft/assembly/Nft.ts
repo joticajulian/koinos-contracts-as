@@ -97,8 +97,7 @@ export class Nft {
     this.contractId,
     COLLECTION_OWNER_SPACE_ID,
     common.address.decode,
-    common.address.encode,
-    () => new common.address(this.contractId)
+    common.address.encode
   );
 
   /**
@@ -143,7 +142,9 @@ export class Nft {
    * @readonly
    */
   owner(): common.address {
-    return this.collectionOwner.get()!;
+    const owner = this.collectionOwner.get();
+    if (!owner) return new common.address(this.contractId);
+    return owner;
   }
 
   /**
@@ -321,12 +322,11 @@ export class Nft {
   }
 
   _transfer_ownership(args: common.address): void {
-    const owner = this.collectionOwner.get()!;
     this.collectionOwner.put(args);
     System.event(
       "collections.owner_event",
       Protobuf.encode<common.address>(args, common.address.encode),
-      [owner.value, args.value]
+      [this.owner().value!, args.value!]
     );
   }
 
@@ -474,8 +474,7 @@ export class Nft {
    * @event collections.owner_event common.address
    */
   transfer_ownership(args: common.address): void {
-    const owner = this.collectionOwner.get()!;
-    const isAuthorized = System2.check_authority(owner.value);
+    const isAuthorized = System2.check_authority(this.owner().value!);
     System.require(isAuthorized, "not authorized by the owner");
     this._transfer_ownership(args);
   }
@@ -486,8 +485,7 @@ export class Nft {
    * @event collections.royalties_event nft.royalties
    */
   set_royalties(args: nft.royalties): void {
-    const owner = this.collectionOwner.get()!;
-    const isAuthorized = System2.check_authority(owner.value);
+    const isAuthorized = System2.check_authority(this.owner().value!);
     System.require(isAuthorized, "not authorized by the owner");
     this._set_royalties(args);
   }
@@ -498,8 +496,7 @@ export class Nft {
    * @event collections.set_metadata_event nft.metadata_args
    */
   set_metadata(args: nft.metadata_args): void {
-    const owner = this.collectionOwner.get()!;
-    const isAuthorized = System2.check_authority(owner.value);
+    const isAuthorized = System2.check_authority(this.owner().value!);
     System.require(isAuthorized, "not authorized by the owner");
     this._set_metadata(args);
   }
@@ -562,8 +559,7 @@ export class Nft {
    * @event collections.mint_event nft.mint_args
    */
   mint(args: nft.mint_args): void {
-    const owner = this.collectionOwner.get()!;
-    const isAuthorized = System2.check_authority(owner.value);
+    const isAuthorized = System2.check_authority(this.owner().value!);
     System.require(isAuthorized, "not authorized by the owner");
     this._mint(args);
   }

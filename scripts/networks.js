@@ -3,6 +3,7 @@ const HDKoinos = require("../HDKoinos");
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
 function keys(mnemonic, accIndex) {
+  if (!mnemonic) return { privateKey: "", id: "" };
   const hdKoinos = new HDKoinos(mnemonic);
   const acc = hdKoinos.deriveKeyAccount(accIndex);
   return {
@@ -12,15 +13,11 @@ function keys(mnemonic, accIndex) {
 }
 
 function keysHarbinger(accIndex) {
-  const mnemonic = process.env.HARBINGER_MNEMONIC;
-  if (!mnemonic) return { privateKey: "", id: "" };
-  return keys(mnemonic, Number(accIndex));
+  return keys(process.env.HARBINGER_MNEMONIC, Number(accIndex));
 }
 
 function keysMainnet(accIndex) {
-  const mnemonic = process.env.MAINNET_MNEMONIC;
-  if (!mnemonic) return { privateKey: "", id: "" };
-  return keys(mnemonic, Number(accIndex));
+  return keys(process.env.MAINNET_MNEMONIC, Number(accIndex));
 }
 
 module.exports = {

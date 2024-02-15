@@ -3,7 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { System } from "@koinos/sdk-as";
-import { common } from "@koinosbox/contracts";
+import { common } from "./proto/common";
 
 export class TestContract {
   callArgs: System.getArgumentsReturn | null;

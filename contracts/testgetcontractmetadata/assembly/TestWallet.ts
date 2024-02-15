@@ -11,7 +11,7 @@ import {
   Protobuf,
   StringBytes,
 } from "@koinos/sdk-as";
-import { common } from "@koinosbox/contracts";
+import { common } from "./proto/common";
 
 export class TestWallet {
   callArgs: System.getArgumentsReturn | null;

@@ -5,7 +5,7 @@ import path from "path";
 
 export async function asyncSpawn(command: string) {
   const [c, ...args] = command.split(" ");
-  const child = spawn(c, args);
+  const child = spawn(c, args, {shell: process.platform === "win32"});
 
   if (child.stdout) {
     child.stdout.on("data", (data: Buffer) => {
@@ -52,13 +52,13 @@ export async function asbuild(projectName: string, contractName: string) {
       {
         targets: {
           debug: {
-            binaryFile: `./build/debug/${contractName}.wasm`,
+            outFile: `./build/debug/${contractName}.wasm`,
             textFile: `./build/debug/${contractName}.wat`,
             sourceMap: true,
             debug: true,
           },
           release: {
-            binaryFile: `./build/release/${contractName}.wasm`,
+            outFile: `./build/release/${contractName}.wasm`,
             textFile: `./build/release/${contractName}.wat`,
             sourceMap: true,
             optimizeLevel: 3,
@@ -67,7 +67,19 @@ export async function asbuild(projectName: string, contractName: string) {
             noAssert: false,
           },
         },
-        options: {},
+        options: {
+          "exportStart": "_start",
+          "disable": [
+            "sign-extension", 
+            "bulk-memory"
+          ],
+          "disableWarning": "235",
+          "lib": [
+          ],
+          "use": [
+            "abort="
+          ]
+        },
       },
       null,
       2

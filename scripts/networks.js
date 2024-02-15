@@ -57,6 +57,15 @@ module.exports = {
       getContractMetadata: keysMainnet(
         process.env.MAINNET_GET_CONTRACT_METADATA
       ),
+      "testgetcontractmetadata/testcontract": keysMainnet(
+        process.env.MAINNET_GET_CONTRACT_METADATA_TEST_CONTRACT
+      ),
+      "testgetcontractmetadata/testthirdparty": keysMainnet(
+        process.env.MAINNET_GET_CONTRACT_METADATA_TEST_THIRD_PARTY
+      ),
+      "testgetcontractmetadata/testwallet": keysMainnet(
+        process.env.MAINNET_GET_CONTRACT_METADATA_TEST_WALLET
+      ),
     },
   },
 };

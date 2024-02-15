@@ -3,7 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "TestWallet",
-  proto: ["./proto/getcontractmetadata.proto"],
+  proto: ["./proto/getcontractmetadata.proto", "./proto/common.proto"],
   files: ["./TestWallet.ts"],
   sourceDir: "./assembly",
   buildDir: "./build",
@@ -11,6 +11,7 @@ module.exports = {
     {
       name: "@koinosbox/contracts",
       path: "../../koinosbox-proto",
+      path: "../../node_modules/@koinosbox/contracts/koinosbox-proto",
     },
     {
       name: "@koinos/sdk-as",

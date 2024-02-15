@@ -20,6 +20,7 @@ module.exports = {
     {
       name: "@koinosbox/contracts",
       path: "../../koinosbox-proto",
+      path: "../../node_modules/@koinosbox/contracts/koinosbox-proto",
       exclude: ["nicknames"],
     },
     {

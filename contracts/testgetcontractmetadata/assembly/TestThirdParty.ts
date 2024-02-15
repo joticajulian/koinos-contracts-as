@@ -3,7 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { Protobuf, StringBytes, System, Storage } from "@koinos/sdk-as";
-import { common } from "@koinosbox/contracts";
+import { common } from "./proto/common";
 
 export class TestThirdParty {
   callArgs: System.getArgumentsReturn | null;

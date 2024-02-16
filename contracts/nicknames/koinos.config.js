@@ -19,8 +19,9 @@ module.exports = {
   protoImport: [
     {
       name: "@koinosbox/contracts",
-      path: "../../koinosbox-proto",
-      path: "../../node_modules/@koinosbox/contracts/koinosbox-proto",
+      path: process.env.IMPORT_KOINOSBOX_PROTO_FROM_NODE_MODULES
+        ? "../../node_modules/@koinosbox/contracts/koinosbox-proto"
+        : "../../koinosbox-proto",
       exclude: ["nicknames"],
     },
     {

@@ -5,7 +5,7 @@ import path from "path";
 
 export async function asyncSpawn(command: string) {
   const [c, ...args] = command.split(" ");
-  const child = spawn(c, args, {shell: process.platform === "win32"});
+  const child = spawn(c, args, { shell: process.platform === "win32" });
 
   if (child.stdout) {
     child.stdout.on("data", (data: Buffer) => {
@@ -68,17 +68,11 @@ export async function asbuild(projectName: string, contractName: string) {
           },
         },
         options: {
-          "exportStart": "_start",
-          "disable": [
-            "sign-extension", 
-            "bulk-memory"
-          ],
-          "disableWarning": "235",
-          "lib": [
-          ],
-          "use": [
-            "abort="
-          ]
+          exportStart: "_start",
+          disable: ["sign-extension", "bulk-memory"],
+          disableWarning: "235",
+          lib: [],
+          use: ["abort="],
         },
       },
       null,

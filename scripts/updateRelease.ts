@@ -24,8 +24,7 @@ contracts.forEach((contract) => {
   if (["testgetcontractmetadata"].includes(contract.name)) return;
   const src = path.join(__dirname, "../contracts", contract.name, "./build");
   const dest = path.join(__dirname, "../assembly", contract.name);
-  if (fs.existsSync(dest))
-    fs.rmdirSync(dest, { recursive: true /*force: true*/ });
+  if (fs.existsSync(dest)) fs.rmSync(dest, { recursive: true /*force: true*/ });
   fse.copySync(src, dest, {
     filter: (s: string) => {
       const base = path.parse(s).base.toLowerCase();
@@ -34,7 +33,7 @@ contracts.forEach((contract) => {
   });
 
   if (fs.existsSync(path.join(dest, "__tests__"))) {
-    fs.rmdirSync(path.join(dest, "__tests__"), {
+    fs.rmSync(path.join(dest, "__tests__"), {
       recursive: true,
       //force: true,
     });
@@ -49,15 +48,15 @@ contracts.forEach((contract) => {
   }
 
   if (fs.existsSync(path.join(dest, "proto"))) {
-    fs.rmdirSync(path.join(dest, "proto/google"), {
+    fs.rmSync(path.join(dest, "proto/google"), {
       recursive: true,
       //force: true,
     });
-    fs.rmdirSync(path.join(dest, "proto/koinos"), {
+    fs.rmSync(path.join(dest, "proto/koinos"), {
       recursive: true,
       //force: true,
     });
-    fs.rmdirSync(path.join(dest, "proto/koinosbox-proto"), {
+    fs.rmSync(path.join(dest, "proto/koinosbox-proto"), {
       recursive: true,
       //force: true,
     });

@@ -10,7 +10,8 @@
   "files": [
     "assembly",
     "koinosbox-proto",
-    "snapshot.json"
+    "snapshot.json",
+    "index.ts"
   ],
   "devDependencies": {
     "@as-covers/core": "^0.4.2",

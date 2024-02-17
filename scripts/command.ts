@@ -14,7 +14,7 @@ async function main() {
       contracts.forEach((contract) => {
         const buildDir = path.join(contractsPath, contract.name, "build");
         if (fs.existsSync(buildDir)) {
-          fs.rmdirSync(buildDir, { recursive: true });
+          fs.rmSync(buildDir, { recursive: true });
         }
       });
       break;

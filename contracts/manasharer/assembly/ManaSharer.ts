@@ -10,20 +10,15 @@ import { common } from "./proto/common";
 export class ManaSharer {
   callArgs: System.getArgumentsReturn | null;
 
-  contractId: Uint8Array;
+  contractId: Uint8Array = System.getContractId();
 
-  managers: Storage.Map<Uint8Array, common.boole>;
-
-  constructor() {
-    this.contractId = System.getContractId();
-    this.managers = new Storage.Map(
-      this.contractId,
-      1,
-      common.boole.decode,
-      common.boole.encode,
-      () => new common.boole(false)
-    );
-  }
+  managers: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
+    this.contractId,
+    1,
+    common.boole.decode,
+    common.boole.encode,
+    () => new common.boole(false)
+  );
 
   /**
    * Authorize function

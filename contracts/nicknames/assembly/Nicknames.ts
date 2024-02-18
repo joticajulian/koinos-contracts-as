@@ -429,6 +429,8 @@ export class Nicknames extends Nft {
       // TODO: use only gov system after the grace period
       System.require(
         System.checkSystemAuthority() ||
+          // TODO: update next line but do not call check authority
+          // intead of that check signers to avoid infinite loop
           System2.check_authority(this.contractId),
         "transfer not authorized by the community"
       );
@@ -491,6 +493,8 @@ export class Nicknames extends Nft {
       // TODO: use only gov system after the grace period
       System.require(
         System.checkSystemAuthority() ||
+          // TODO: update next line but do not call check authority
+          // intead of that check signers to avoid infinite loop
           System2.check_authority(this.contractId),
         "not authorized by the community"
       );
@@ -520,6 +524,7 @@ export class Nicknames extends Nft {
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.value, "token does not exist");
 
+    // TODO: get signers
     if (System2.check_authority(this.contractId)) {
       // TODO: temporal if while a new set_metadata management
       // is implemented
@@ -528,6 +533,8 @@ export class Nicknames extends Nft {
         // TODO: use only gov system after the grace period
         System.require(
           System.checkSystemAuthority() ||
+            // TODO: update next line but do not call check authority
+            // intead of that check signers to avoid infinite loop
             System2.check_authority(this.contractId),
           "not authorized by the community"
         );
@@ -558,6 +565,8 @@ export class Nicknames extends Nft {
       // TODO: use only gov system after the grace period
       System.require(
         System.checkSystemAuthority() ||
+          // TODO: update next line but do not call check authority
+          // intead of that check signers to avoid infinite loop
           System2.check_authority(this.contractId),
         "not authorized by the community"
       );

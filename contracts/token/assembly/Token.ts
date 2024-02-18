@@ -248,7 +248,7 @@ export class Token {
    * @external
    */
   approve(args: token.approve_args): void {
-    const isAuthorized = System2.check_authority(args.owner!);
+    const isAuthorized = System.checkAuthority(args.owner!);
     System.require(isAuthorized, "approve operation not authorized");
     this._approve(args);
   }
@@ -268,7 +268,8 @@ export class Token {
    * @external
    */
   mint(args: token.mint_args): void {
-    const isAuthorized = System2.check_authority(this.contractId);
+    // TODO: get signers
+    const isAuthorized = System.checkAuthority(this.contractId);
     System.require(isAuthorized, "owner has not authorized mint");
     this._mint(args);
   }

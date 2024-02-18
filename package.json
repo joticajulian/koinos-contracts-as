@@ -18,7 +18,7 @@
     "@as-pect/cli": "^8.0.1",
     "@jest/globals": "^29.6.4",
     "@koinos/mock-vm": "1.0.0",
-    "@koinos/sdk-as": "npm:@koinosbox/sdk-as@1.1.0-alpha.2",
+    "@koinos/sdk-as": "npm:@koinosbox/sdk-as@1.1.0-alpha.3",
     "@koinosbox/contracts": "^1.2.4",
     "@roamin/local-koinos": "^0.4.12",
     "@roamin/protoc": "^2.4.0",

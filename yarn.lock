@@ -1142,10 +1142,10 @@
   resolved "https://registry.npmjs.org/@koinos/proto-js/-/proto-js-1.1.0.tgz"
   integrity sha512-M7DR4HaSTmUouCv54M7AhTdN2JAFnjiCzU+UF7zD6zmUO3IcHtkpXw9FY30/g48/anZQZeVLG+ydkSTr/W4T/A==
 
-"@koinos/sdk-as@npm:@koinosbox/sdk-as@1.1.0-alpha.2":
-  version "1.1.0-alpha.2"
-  resolved "https://registry.yarnpkg.com/@koinosbox/sdk-as/-/sdk-as-1.1.0-alpha.2.tgz#a0d4e2bfe1bfcef3d5908c9fdf7b415d7baab6e7"
-  integrity sha512-3JDoUQY89oBM50M7AiG8fVJ2cqRGrg+RT5owVyLvIM6/aas74FSmmUPboU2wfir1fE/3zqMcNcghuYokwD6ftQ==
+"@koinos/sdk-as@npm:@koinosbox/sdk-as@1.1.0-alpha.3":
+  version "1.1.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/@koinosbox/sdk-as/-/sdk-as-1.1.0-alpha.3.tgz#399f17c28df5e650cc52e2415f0b32bfbf9995a9"
+  integrity sha512-OWlwzL9oW/xnrihd3zXDg+FurpTYHMUloUeswSxlpF1JhHUEzQaeyUHept3yAuHHsNi5my6hwARwFbtXIQBGrQ==
   dependencies:
     "@as-covers/core" "^0.4.2"
     "@as-pect/cli" "^8.0.1"

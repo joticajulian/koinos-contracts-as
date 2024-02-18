@@ -286,7 +286,12 @@ export class Nicknames extends Nft {
    */
   mint(args: nft.mint_args): void {
     this.verifyValidName(args.token_id!, false);
-    const isAuthorized = System2.check_authority(args.to!);
+    const isAuthorized = System.checkAuthority(
+      args.to!,
+      null,
+      this.callArgs.args,
+      null
+    );
     System.require(isAuthorized, "not authorized by 'to'");
 
     // add patterns for similar names
@@ -343,12 +348,19 @@ export class Nicknames extends Nft {
       // TODO: use only gov system after the grace period
       System.require(
         System.checkSystemAuthority() ||
+          // TODO: update next line but do not call check authority
+          // intead of that check signers to avoid infinite loop
           System2.check_authority(this.contractId),
         "burn not authorized by the community"
       );
     } else {
       System.require(tokenOwner.value, "token does not exist");
-      const isAuthorized = System2.check_authority(tokenOwner.value!);
+      const isAuthorized = System.checkAuthority(
+        tokenOwner.value!,
+        null,
+        this.callArgs.args,
+        null
+      );
       System.require(isAuthorized, "burn not authorized");
     }
 
@@ -483,7 +495,12 @@ export class Nicknames extends Nft {
         "not authorized by the community"
       );
     } else {
-      const isAuthorized = System2.check_authority(tokenOwner.value!);
+      const isAuthorized = System.checkAuthority(
+        tokenOwner.value!,
+        null,
+        this.callArgs.args,
+        null
+      );
       System.require(isAuthorized, "not authorized by the owner");
     }
 
@@ -515,7 +532,12 @@ export class Nicknames extends Nft {
           "not authorized by the community"
         );
       } else {
-        const isAuthorized = System2.check_authority(tokenOwner.value!);
+        const isAuthorized = System.checkAuthority(
+          tokenOwner.value!,
+          null,
+          this.callArgs.args,
+          null
+        );
         System.require(isAuthorized, "not authorized by the owner");
       }
     }
@@ -540,7 +562,12 @@ export class Nicknames extends Nft {
         "not authorized by the community"
       );
     } else {
-      const isAuthorized = System2.check_authority(tokenOwner.value!);
+      const isAuthorized = System.checkAuthority(
+        tokenOwner.value!,
+        null,
+        this.callArgs.args,
+        null
+      );
       System.require(isAuthorized, "not authorized by the owner");
     }
 

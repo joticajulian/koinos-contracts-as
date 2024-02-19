@@ -13,9 +13,10 @@ export class FreeManaSharer {
    */
   authorize(args: authority.authorize_arguments): authority.authorize_result {
     if (args.type == authority.authorization_type.transaction_application) {
-      System.log("authorization must be for transaction_application");
       return new authority.authorize_result(true);
     }
+
+    System.log("authorization must be for transaction_application");
     return new authority.authorize_result(false);
   }
 }

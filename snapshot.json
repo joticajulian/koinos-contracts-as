@@ -1,51 +1,51 @@
 [
   {
     "contract": "burnkoinhelper",
-    "version": "2.0.0",
-    "size": 33583,
-    "sizeHuman": "32.80 kB",
-    "sha256": "6a638c56ea6be70d703b575d65c65a7c2c8cc99b70049e133757096d45a7cc5c"
+    "version": "2.0.1",
+    "size": 33561,
+    "sizeHuman": "32.77 kB",
+    "sha256": "73d88ed3f642c08bcc639772eff154254dad2744d5841aab2121d3dc37e75d44"
   },
   {
     "contract": "freemanasharer",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "size": 21377,
     "sizeHuman": "20.88 kB",
     "sha256": "e605fb15b95f09d447ee3f5d4dbf771844c2b1ec5c39cd98880f0abb73bb2b82"
   },
   {
     "contract": "manasharer",
-    "version": "2.0.0",
-    "size": 48645,
-    "sizeHuman": "47.50 kB",
-    "sha256": "6bf9c781eddb914cc3873789151e1d8f7abdcd4d3c05efd34cc12e47f6b4c68f"
+    "version": "2.0.1",
+    "size": 48623,
+    "sizeHuman": "47.48 kB",
+    "sha256": "15439ef80b677000efe4c416c6a865ef2f96cb9f477940431415ada4f6555a38"
   },
   {
     "contract": "nft",
-    "version": "2.0.0",
-    "size": 68314,
-    "sizeHuman": "66.71 kB",
-    "sha256": "eace594799fca2c5e110c5625f661b7a95349fc599aa089e0d022f62eee851a9"
+    "version": "2.0.1",
+    "size": 68292,
+    "sizeHuman": "66.69 kB",
+    "sha256": "11149ca086336491b6ed7fc0015b31f725374aa986a1b2159e0f17f1427d6ea9"
   },
   {
     "contract": "nicknames",
-    "version": "3.0.0",
-    "size": 95156,
-    "sizeHuman": "92.93 kB",
-    "sha256": "c249ef503147ecfa5b611fd956d5880c3bbe528475834f690a71da9fff60a090"
+    "version": "3.0.1",
+    "size": 95534,
+    "sizeHuman": "93.29 kB",
+    "sha256": "26a6d222a5401f0ab004726a44ccd01bfbb6b793ea024ca74c2a400e23f9fbd6"
   },
   {
     "contract": "textparserlib",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "size": 19093,
     "sizeHuman": "18.65 kB",
     "sha256": "ca6f354cb4633f606eccbb4e220e44bd585efb60e4f58fdf405e79c07f72f108"
   },
   {
     "contract": "token",
-    "version": "1.0.0",
-    "size": 58471,
-    "sizeHuman": "57.10 kB",
-    "sha256": "304e8f6d530c1bb056781534efe057600e312f3c2be6f75e47d35b0ca650a6aa"
+    "version": "1.0.1",
+    "size": 58449,
+    "sizeHuman": "57.08 kB",
+    "sha256": "5cdeb48173b4ee61e3c297073f6e2f18014dcc608279279f0b298260af449636"
   }
 ]

@@ -3,7 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "TextParserLib",
-  version: "1.0.0",
+  version: "1.0.1",
   proto: ["./proto/testmessage.proto"],
   files: ["./TextParserLib.ts"],
   sourceDir: "./assembly",

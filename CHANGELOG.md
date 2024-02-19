@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v2.0.1](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.0.1) (2024-02-20)
+
+Bump version, recalculation of checksums
+
 ## [v2.0.0](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.0.0) (2024-02-19)
 
 ### 🚀 Features

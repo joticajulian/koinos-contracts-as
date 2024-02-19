@@ -255,7 +255,11 @@ export class Token {
    * @external
    */
   approve(args: token.approve_args): void {
-    const isAuthorized = System.checkAuthority(args.owner!);
+    const isAuthorized = System.checkAuthority(
+      args.owner!,
+      authority.authorization_type.contract_call,
+      this.callArgs!.args
+    );
     System.require(isAuthorized, "approve operation not authorized");
     this._approve(args);
   }

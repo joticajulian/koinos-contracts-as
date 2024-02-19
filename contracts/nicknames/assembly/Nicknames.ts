@@ -289,8 +289,7 @@ export class Nicknames extends Nft {
     const isAuthorized = System.checkAuthority(
       args.to!,
       authority.authorization_type.contract_call,
-      this.callArgs!.args,
-      null
+      this.callArgs!.args
     );
     System.require(isAuthorized, "not authorized by 'to'");
 
@@ -355,8 +354,7 @@ export class Nicknames extends Nft {
       const isAuthorized = System.checkAuthority(
         tokenOwner.value!,
         authority.authorization_type.contract_call,
-        this.callArgs!.args,
-        null
+        this.callArgs!.args
       );
       System.require(isAuthorized, "burn not authorized");
     }
@@ -493,8 +491,7 @@ export class Nicknames extends Nft {
       const isAuthorized = System.checkAuthority(
         tokenOwner.value!,
         authority.authorization_type.contract_call,
-        this.callArgs!.args,
-        null
+        this.callArgs!.args
       );
       System.require(isAuthorized, "not authorized by the owner");
     }
@@ -529,8 +526,7 @@ export class Nicknames extends Nft {
         const isAuthorized = System.checkAuthority(
           tokenOwner.value!,
           authority.authorization_type.contract_call,
-          this.callArgs!.args,
-          null
+          this.callArgs!.args
         );
         System.require(isAuthorized, "not authorized by the owner");
       }
@@ -558,8 +554,7 @@ export class Nicknames extends Nft {
       const isAuthorized = System.checkAuthority(
         tokenOwner.value!,
         authority.authorization_type.contract_call,
-        this.callArgs!.args,
-        null
+        this.callArgs!.args
       );
       System.require(isAuthorized, "not authorized by the owner");
     }

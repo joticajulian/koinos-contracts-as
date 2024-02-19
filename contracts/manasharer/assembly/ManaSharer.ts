@@ -52,11 +52,7 @@ export class ManaSharer {
    * the private key of the contract
    */
   isSignedByOwner(): boolean {
-    const signers = System2.getSigners();
-    for (let i = 0; i < signers.length; i += 1) {
-      if (Arrays.equal(signers[i], this.contractId)) return true;
-    }
-    return false;
+    return System2.isSignedBy(this.contractId);
   }
 
   /**

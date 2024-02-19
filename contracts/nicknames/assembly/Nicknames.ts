@@ -347,10 +347,7 @@ export class Nicknames extends Nft {
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
       System.require(
-        System.checkSystemAuthority() ||
-          // TODO: update next line but do not call check authority
-          // intead of that check signers to avoid infinite loop
-          System2.check_authority(this.contractId),
+        System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
         "burn not authorized by the community"
       );
     } else {
@@ -428,10 +425,7 @@ export class Nicknames extends Nft {
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
       System.require(
-        System.checkSystemAuthority() ||
-          // TODO: update next line but do not call check authority
-          // intead of that check signers to avoid infinite loop
-          System2.check_authority(this.contractId),
+        System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
         "transfer not authorized by the community"
       );
     } else {
@@ -492,10 +486,7 @@ export class Nicknames extends Nft {
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
       System.require(
-        System.checkSystemAuthority() ||
-          // TODO: update next line but do not call check authority
-          // intead of that check signers to avoid infinite loop
-          System2.check_authority(this.contractId),
+        System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
         "not authorized by the community"
       );
     } else {
@@ -524,18 +515,14 @@ export class Nicknames extends Nft {
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.value, "token does not exist");
 
-    // TODO: get signers
-    if (System2.check_authority(this.contractId)) {
+    if (System2.isSignedBy(this.contractId)) {
       // TODO: temporal if while a new set_metadata management
       // is implemented
     } else {
       if (isCommunityName) {
         // TODO: use only gov system after the grace period
         System.require(
-          System.checkSystemAuthority() ||
-            // TODO: update next line but do not call check authority
-            // intead of that check signers to avoid infinite loop
-            System2.check_authority(this.contractId),
+          System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
           "not authorized by the community"
         );
       } else {
@@ -564,10 +551,7 @@ export class Nicknames extends Nft {
     if (isCommunityName) {
       // TODO: use only gov system after the grace period
       System.require(
-        System.checkSystemAuthority() ||
-          // TODO: update next line but do not call check authority
-          // intead of that check signers to avoid infinite loop
-          System2.check_authority(this.contractId),
+        System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
         "not authorized by the community"
       );
     } else {

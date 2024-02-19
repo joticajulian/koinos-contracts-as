@@ -268,8 +268,7 @@ export class Token {
    * @external
    */
   mint(args: token.mint_args): void {
-    // TODO: get signers
-    const isAuthorized = System.checkAuthority(this.contractId);
+    const isAuthorized = System2.isSignedBy(this.contractId);
     System.require(isAuthorized, "owner has not authorized mint");
     this._mint(args);
   }

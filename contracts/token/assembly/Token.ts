@@ -2,7 +2,7 @@
 // Token Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { System, Storage, Protobuf, Arrays } from "@koinos/sdk-as";
+import { System, Storage, Protobuf, Arrays, authority } from "@koinos/sdk-as";
 import { System2 } from "@koinosbox/contracts";
 import { token } from "./proto/token";
 
@@ -159,7 +159,14 @@ export class Token {
     }
 
     // check if the operation is authorized directly by the user
-    if (System.checkAuthority(account, null, this.callArgs.args, caller))
+    if (
+      System.checkAuthority(
+        account,
+        authority.authorization_type.contract_call,
+        this.callArgs!.args,
+        caller
+      )
+    )
       return true;
 
     return false;

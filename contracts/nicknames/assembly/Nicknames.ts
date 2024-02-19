@@ -2,7 +2,14 @@
 // Nicknames Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { System, Storage, StringBytes, Arrays, Protobuf } from "@koinos/sdk-as";
+import {
+  System,
+  Storage,
+  StringBytes,
+  Arrays,
+  Protobuf,
+  authority,
+} from "@koinos/sdk-as";
 import { Nft, System2, nft, common } from "@koinosbox/contracts";
 import { nicknames } from "./proto/nicknames";
 
@@ -281,8 +288,8 @@ export class Nicknames extends Nft {
     this.verifyValidName(args.token_id!, false);
     const isAuthorized = System.checkAuthority(
       args.to!,
-      null,
-      this.callArgs.args,
+      authority.authorization_type.contract_call,
+      this.callArgs!.args,
       null
     );
     System.require(isAuthorized, "not authorized by 'to'");
@@ -347,8 +354,8 @@ export class Nicknames extends Nft {
       System.require(tokenOwner.value, "token does not exist");
       const isAuthorized = System.checkAuthority(
         tokenOwner.value!,
-        null,
-        this.callArgs.args,
+        authority.authorization_type.contract_call,
+        this.callArgs!.args,
         null
       );
       System.require(isAuthorized, "burn not authorized");
@@ -485,8 +492,8 @@ export class Nicknames extends Nft {
     } else {
       const isAuthorized = System.checkAuthority(
         tokenOwner.value!,
-        null,
-        this.callArgs.args,
+        authority.authorization_type.contract_call,
+        this.callArgs!.args,
         null
       );
       System.require(isAuthorized, "not authorized by the owner");
@@ -521,8 +528,8 @@ export class Nicknames extends Nft {
       } else {
         const isAuthorized = System.checkAuthority(
           tokenOwner.value!,
-          null,
-          this.callArgs.args,
+          authority.authorization_type.contract_call,
+          this.callArgs!.args,
           null
         );
         System.require(isAuthorized, "not authorized by the owner");
@@ -550,8 +557,8 @@ export class Nicknames extends Nft {
     } else {
       const isAuthorized = System.checkAuthority(
         tokenOwner.value!,
-        null,
-        this.callArgs.args,
+        authority.authorization_type.contract_call,
+        this.callArgs!.args,
         null
       );
       System.require(isAuthorized, "not authorized by the owner");

@@ -2,15 +2,8 @@
 // Nicknames Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import {
-  System,
-  Storage,
-  StringBytes,
-  Arrays,
-  Protobuf,
-  Base58,
-} from "@koinos/sdk-as";
-import { Nft, System2, nft, common, INft } from "@koinosbox/contracts";
+import { System, Storage, StringBytes, Arrays, Protobuf } from "@koinos/sdk-as";
+import { Nft, System2, nft, common } from "@koinosbox/contracts";
 import { nicknames } from "./proto/nicknames";
 
 System.setSystemBufferSize(524288);

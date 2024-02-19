@@ -2,15 +2,7 @@
 // Test wallet
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import {
-  System,
-  authority,
-  Storage,
-  Base58,
-  Base64,
-  Protobuf,
-  StringBytes,
-} from "@koinos/sdk-as";
+import { System, authority, Storage, Base58, Base64 } from "@koinos/sdk-as";
 import { common } from "./proto/common";
 
 export class TestWallet {

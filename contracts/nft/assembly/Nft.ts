@@ -3,7 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { Arrays, System, Storage, Protobuf } from "@koinos/sdk-as";
-import { System2, common } from "@koinosbox/contracts";
+import { common } from "@koinosbox/contracts";
 import { nft } from "./proto/nft";
 
 const SUPPLY_SPACE_ID = 0;

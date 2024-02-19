@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v2.0.0](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.0.0) (2024-02-19)
+
+### 🚀 Features
+
+- All contracts have been upgraded from AssemblyScript 0.19 to AssemblyScript 0.27
+- All contracts upgraded to use the new getContractMetadata system call. With this upgrade we reintroduce again the call to the authorize function of smart wallet (which was removed in the previous token contract due to security reasons). For more info read: [https://peakd.com/koinos/@jga/gov-proposal-get-contract-metadata](Gov proposal get contract metadata).
+- New function: `System2.isSignedBy`. To check if a transaction is signed by a particular address.
+- Now Tokens, NFT, and Nicknames support memos in transfers.
+- getcontractmetadata.wasm available for e2e tests.
+
+### 🐛 Bug Fixes
+
+- Free mana sharer: Error message fixed
+
 ## [v1.2.4](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v1.2.4) (2024-01-02)
 
 ### 🚀 Features

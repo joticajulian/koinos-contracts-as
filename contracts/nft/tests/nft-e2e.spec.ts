@@ -46,6 +46,24 @@ beforeAll(async () => {
   await localKoinos.startNode();
   await localKoinos.startBlockProduction();
 
+  // deploy get contract metadata
+  const getContractMetadataAccount = new Signer({
+    privateKey: randomBytes(32).toString("hex"),
+    provider: localKoinos.getProvider()
+  });
+  await localKoinos.deployContract(
+    getContractMetadataAccount.getPrivateKey("wif"),
+    path.join(__dirname, "../../testgetcontractmetadata/getcontractmetadata.wasm"),
+    {} as Abi
+  );
+  // set get_contract_metadata as system contract and system call
+  await localKoinos.setSystemContract(getContractMetadataAccount.address, true);
+  await localKoinos.setSystemCall(
+    112,
+    getContractMetadataAccount.address,
+    0x784faa08
+  );
+
   // deploy contracts
   await localKoinos.deployContract(
     nftAccount.getPrivateKey("wif"),
@@ -122,7 +140,7 @@ it("should work", async () => {
     token_id: "0x02fa",
   });
   expect(resultOwnerOf).toStrictEqual({
-    account: account2.address,
+    value: account2.address,
   });
 
   // get list of tokens
@@ -199,7 +217,7 @@ it("should work", async () => {
     token_id: "0x0102",
   });
   expect(resultNewOwnerOf).toStrictEqual({
-    account: account2.address,
+    value: account2.address,
   });
 
   // get new tokens of account 1

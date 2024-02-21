@@ -4,7 +4,7 @@
   "license": "MIT",
   "dependencies": {
     "koilib": "^5.5.4",
-    "koinos-precompiler-as": "^1.3.0"
+    "koinos-precompiler-as": "^1.3.4"
   },
   "main": "assembly/index.ts",
   "files": [
@@ -20,7 +20,7 @@
     "@koinos/mock-vm": "1.0.0",
     "@koinos/sdk-as": "npm:@koinosbox/sdk-as@1.1.0-alpha.3",
     "@koinosbox/contracts": "^2.0.1",
-    "@roamin/local-koinos": "^0.4.12",
+    "@roamin/local-koinos": "^0.4.15",
     "@roamin/protoc": "^2.4.0",
     "@tsconfig/node16": "^1.0.4",
     "@types/jest": "^29.4.0",

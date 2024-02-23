@@ -160,12 +160,7 @@ export class Token {
 
     // check if the operation is authorized directly by the user
     if (
-      System.checkAuthority(
-        account,
-        authority.authorization_type.contract_call,
-        this.callArgs!.args,
-        caller
-      )
+      System.checkAuthority(authority.authorization_type.contract_call, account)
     )
       return true;
 
@@ -256,9 +251,8 @@ export class Token {
    */
   approve(args: token.approve_args): void {
     const isAuthorized = System.checkAuthority(
-      args.owner!,
       authority.authorization_type.contract_call,
-      this.callArgs!.args
+      args.owner!
     );
     System.require(isAuthorized, "approve operation not authorized");
     this._approve(args);

@@ -49,11 +49,14 @@ beforeAll(async () => {
   // deploy get contract metadata
   const getContractMetadataAccount = new Signer({
     privateKey: randomBytes(32).toString("hex"),
-    provider: localKoinos.getProvider()
+    provider: localKoinos.getProvider(),
   });
   await localKoinos.deployContract(
     getContractMetadataAccount.getPrivateKey("wif"),
-    path.join(__dirname, "../../testgetcontractmetadata/getcontractmetadata.wasm"),
+    path.join(
+      __dirname,
+      "../../testgetcontractmetadata/getcontractmetadata.wasm"
+    ),
     {} as Abi
   );
   // set get_contract_metadata as system contract and system call

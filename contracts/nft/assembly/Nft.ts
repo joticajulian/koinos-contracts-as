@@ -317,12 +317,7 @@ export class Nft {
 
     // check if the operation is authorized directly by the user
     if (
-      System.checkAuthority(
-        account,
-        authority.authorization_type.contract_call,
-        this.callArgs!.args,
-        caller
-      )
+      System.checkAuthority(authority.authorization_type.contract_call, account)
     )
       return true;
 
@@ -483,9 +478,8 @@ export class Nft {
    */
   transfer_ownership(args: common.address): void {
     const isAuthorized = System.checkAuthority(
-      this.owner().value!,
       authority.authorization_type.contract_call,
-      this.callArgs!.args
+      this.owner().value!
     );
     System.require(isAuthorized, "not authorized by the owner");
     this._transfer_ownership(args);
@@ -498,9 +492,8 @@ export class Nft {
    */
   set_royalties(args: nft.royalties): void {
     const isAuthorized = System.checkAuthority(
-      this.owner().value!,
       authority.authorization_type.contract_call,
-      this.callArgs!.args
+      this.owner().value!
     );
     System.require(isAuthorized, "not authorized by the owner");
     this._set_royalties(args);
@@ -513,9 +506,8 @@ export class Nft {
    */
   set_metadata(args: nft.metadata_args): void {
     const isAuthorized = System.checkAuthority(
-      this.owner().value!,
       authority.authorization_type.contract_call,
-      this.callArgs!.args
+      this.owner().value!
     );
     System.require(isAuthorized, "not authorized by the owner");
     this._set_metadata(args);
@@ -535,9 +527,8 @@ export class Nft {
     );
 
     const isAuthorized = System.checkAuthority(
-      args.approver_address!,
       authority.authorization_type.contract_call,
-      this.callArgs!.args
+      args.approver_address!
     );
     System.require(isAuthorized, "approval operation not authorized");
 
@@ -552,9 +543,8 @@ export class Nft {
    */
   set_approval_for_all(args: nft.set_approval_for_all_args): void {
     const isAuthorized = System.checkAuthority(
-      args.approver_address!,
       authority.authorization_type.contract_call,
-      this.callArgs!.args
+      args.approver_address!
     );
     System.require(
       isAuthorized,
@@ -588,9 +578,8 @@ export class Nft {
    */
   mint(args: nft.mint_args): void {
     const isAuthorized = System.checkAuthority(
-      this.owner().value!,
       authority.authorization_type.contract_call,
-      this.callArgs!.args
+      this.owner().value!
     );
     System.require(isAuthorized, "not authorized by the owner");
     this._mint(args);

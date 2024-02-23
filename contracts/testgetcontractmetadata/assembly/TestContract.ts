@@ -2,7 +2,7 @@
 // Test contract for check authority
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { System } from "@koinos/sdk-as";
+import { System, authority } from "@koinos/sdk-as";
 import { common } from "./proto/common";
 
 export class TestContract {
@@ -14,7 +14,10 @@ export class TestContract {
    * @external
    */
   operate_assets(args: common.address): common.boole {
-    const isAuthorized = System.checkAuthority(args.value!);
+    const isAuthorized = System.checkAuthority(
+      authority.authorization_type.contract_call,
+      args.value!
+    );
     System.require(isAuthorized, "not authorized");
     System.log("authorized to operate with the assets");
     return new common.boole(true);

@@ -3,6 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "TestThirdParty",
+  supportAbi1: true,
   proto: ["./proto/getcontractmetadata.proto", "./proto/common.proto"],
   files: ["./TestThirdParty.ts"],
   sourceDir: "./assembly",

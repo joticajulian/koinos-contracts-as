@@ -4,6 +4,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 module.exports = {
   class: "FreeManaSharer",
   version: "2.0.1",
+  supportAbi1: true,
   proto: ["./proto/freemanasharer.proto"],
   files: ["./FreeManaSharer.ts"],
   sourceDir: "./assembly",

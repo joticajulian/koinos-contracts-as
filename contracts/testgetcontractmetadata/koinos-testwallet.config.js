@@ -3,6 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "TestWallet",
+  supportAbi1: true,
   proto: ["./proto/getcontractmetadata.proto", "./proto/common.proto"],
   files: ["./TestWallet.ts"],
   sourceDir: "./assembly",

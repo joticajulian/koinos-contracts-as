@@ -6,6 +6,7 @@ dotenv.config({ path: path.join(__dirname, "../../.env") });
 module.exports = {
   class: "Nicknames",
   version: "3.0.1",
+  supportAbi1: true,
   proto: ["./proto/nicknames.proto"],
   files: ["./Nicknames.ts"],
   sourceDir: "./assembly",

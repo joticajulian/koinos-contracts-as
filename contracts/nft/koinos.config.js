@@ -4,6 +4,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 module.exports = {
   class: "Nft",
   version: "2.0.1",
+  supportAbi1: true,
   files: ["./Nft.ts"],
   sourceDir: "./assembly",
   buildDir: "./build",

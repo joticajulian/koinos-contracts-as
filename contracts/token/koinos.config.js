@@ -5,7 +5,7 @@ dotenv.config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "Token",
-  version: "1.0.1",
+  version: "1.0.2",
   supportAbi1: true,
   proto: ["./proto/token.proto"],
   files: ["./Token.ts"],

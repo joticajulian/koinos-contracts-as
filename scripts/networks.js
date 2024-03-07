@@ -3,7 +3,7 @@ const HDKoinos = require("../HDKoinos");
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
 function keys(mnemonic, accIndex) {
-  if (!mnemonic) return { privateKey: "", id: "" };
+  if (!mnemonic || Number.isNaN(accIndex)) return { privateKey: "", id: "" };
   const hdKoinos = new HDKoinos(mnemonic);
   const acc = hdKoinos.deriveKeyAccount(accIndex);
   return {

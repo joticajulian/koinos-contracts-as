@@ -22,6 +22,7 @@ message info {
    string name = 1;
    string symbol = 2;
    string uri = 3;
+   string description = 4;
 }
 
 message balance_of_args {

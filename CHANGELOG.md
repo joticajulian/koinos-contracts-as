@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v2.1.0](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.1.0) (2024-03-16)
+
+### 🚀 Features
+
+- NFT v2.1.0:
+  - update ID of memo field from 100 to 4.
+  - change enum direction to bool descending for paginated lists
+  - new `description` field in the `get_info` function
+- Nicknames v3.1.0:
+  - update ID of memo field from 100 to 4.
+  - change enum direction to bool descending for paginated lists
+  - new `description` field in the `get_info` function
+- Token v1.1.0:
+  - update ID of memo field from 100 to 4.
+  - change enum direction to bool descending for paginated lists
+  - new `description` field in the `get_info` function
+- Vapor 2.0.0:
+  - Vapor token has been migrated from fogata to koinosbox/contracts
+  - Tokenomics update: Lineal conversion from koin to vapor. Possibility to claim koin.
+- Manasharer v2.0.3:
+  - Recalculation of checksum
+- Libs updated
+
 ## [v2.0.2](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.0.2) (2024-02-24)
 
 Bump version, update libraries

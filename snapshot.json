@@ -15,24 +15,24 @@
   },
   {
     "contract": "manasharer",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "size": 48724,
     "sizeHuman": "47.58 kB",
-    "sha256": "9dc0c06b363e9cfd428f7648ebc2ff9d9c0fa9f3dfab31ae7eafdbd07569b089"
+    "sha256": "7caa51a5873a329721dc2b98e3cda2d38b97ee89f6675e9d9fd0491ca74d55b2"
   },
   {
     "contract": "nft",
-    "version": "2.0.2",
-    "size": 68061,
-    "sizeHuman": "66.47 kB",
-    "sha256": "13356bd6b494ed79ed4b42bd308e4c1d3cebbba8a7291b94f4e4b7067136d839"
+    "version": "2.1.0",
+    "size": 68158,
+    "sizeHuman": "66.56 kB",
+    "sha256": "b402fc316dcd779a88d8b00bd143288c141462a2e76a46505fa1708c94fefdf3"
   },
   {
     "contract": "nicknames",
-    "version": "3.0.2",
-    "size": 95154,
-    "sizeHuman": "92.92 kB",
-    "sha256": "d6075f6b7e24b91b1c4d1392f82e85b7ecdd7f1c682303d4ea822b3967fe9053"
+    "version": "3.1.0",
+    "size": 95251,
+    "sizeHuman": "93.02 kB",
+    "sha256": "0b1cb1630aec779930d3ea822858f04284cd2ed4afb41f0f03447b9a19c01e72"
   },
   {
     "contract": "textparserlib",
@@ -43,9 +43,16 @@
   },
   {
     "contract": "token",
-    "version": "1.0.2",
-    "size": 58525,
-    "sizeHuman": "57.15 kB",
-    "sha256": "03084a50d2455626ce725dc61368265cfb04ecb4ac046d55f54873d0f2fe6601"
+    "version": "1.1.0",
+    "size": 58649,
+    "sizeHuman": "57.27 kB",
+    "sha256": "a18815f07598c0c0359125e22f20fe08abe8bb70cfb547f4137f4b0844a7bfa9"
+  },
+  {
+    "contract": "vapor",
+    "version": "2.0.0",
+    "size": 59685,
+    "sizeHuman": "58.29 kB",
+    "sha256": "99cef82da296f49ab78c6ce47ff3ebb1d90342cec301efa30d5d8ee4561e9284"
   }
 ]

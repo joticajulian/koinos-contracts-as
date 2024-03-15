@@ -5128,10 +5128,10 @@ koinos-precompiler-as@^1.4.1:
     protobufjs "^7.0.0"
     protobufjs-cli "^1.0.0"
 
-koinos-precompiler-as@^1.4.2:
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/koinos-precompiler-as/-/koinos-precompiler-as-1.4.2.tgz#0304a0e3ee01713a04b00553d6d7503f861586b0"
-  integrity sha512-DSj8d1zVo3ykpv7Y1y25rj33RvBennYU5bt1HLOFQrHfGBQ0E5pgFswYIFsRdws15QDKPP0ZJ+eEIwnMe+TEBQ==
+koinos-precompiler-as@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/koinos-precompiler-as/-/koinos-precompiler-as-1.5.0.tgz#559ed8c5dbf4151264b4a49efe256a3096294027"
+  integrity sha512-LtpwZTArvvHwvU3T8Ce7PPcyv5lREZqwwAEk7Rc1tOQo7t0X7NkFhEAYmRVMq/HTzr6ENNSzsmUfZKM2bdjvkg==
   dependencies:
     "@protobuf-ts/protoc" "^2.7.0"
     as-proto "npm:@koinos/as-proto@1.0.0"

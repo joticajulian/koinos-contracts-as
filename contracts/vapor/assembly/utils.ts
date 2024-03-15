@@ -1,4 +1,4 @@
-import { u128 } from "as-bignum";
+import { u128 } from "as-bignum/assembly";
 /**
  * result = multiplier1 * multiplier2 / divider1
  *

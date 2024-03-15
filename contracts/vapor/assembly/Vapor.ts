@@ -47,6 +47,7 @@ export class Vapor extends Token {
         args.value,
         totalSupply,
         koinContract.balance_of(new token.balance_of_args(this.contractId))
+          .value
       );
     }
 
@@ -64,16 +65,16 @@ export class Vapor extends Token {
   claim(args: token.burn_args): void {
     // Inverse process to the one computed in contribute:
     // delta_userKoin = delta_userVapor * koin_old / vapor_old
-    
+
     const totalSupply = this.total_supply().value;
     System.require(totalSupply > 0, "there is no vapor in existence");
 
     const koinContract = new IToken(System.getContractAddress("koin"));
     const koinAmount = multiplyAndDivide(
-        args.value,
-        koinContract.balance_of(new token.balance_of_args(this.contractId)),
-        totalSupply,
-      );
+      args.value,
+      koinContract.balance_of(new token.balance_of_args(this.contractId)).value,
+      totalSupply
+    );
 
     this._burn(args);
 

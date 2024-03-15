@@ -24,7 +24,6 @@ module.exports = {
         process.env.IMPORT_KOINOSBOX_PROTO_FROM_NODE_MODULES === "true"
           ? "../../node_modules/@koinosbox/contracts/koinosbox-proto"
           : "../../koinosbox-proto",
-      exclude: ["token"],
     },
     {
       name: "@koinos/sdk-as",

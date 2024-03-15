@@ -23,7 +23,7 @@ export class Burnkoin {
     if (callRes.code != 0) {
       const errorMessage = `failed to call 'Burnkoin.deposit_vhp': ${
         callRes.res.error && callRes.res.error!.message
-          ? callRes.res.error!.message!
+          ? callRes.res.error!.message
           : ""
       }`;
       System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
@@ -37,7 +37,7 @@ export class Burnkoin {
     if (callRes.code != 0) {
       const errorMessage = `failed to call 'Burnkoin.withdraw_koin': ${
         callRes.res.error && callRes.res.error!.message
-          ? callRes.res.error!.message!
+          ? callRes.res.error!.message
           : ""
       }`;
       System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));

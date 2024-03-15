@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package vapor;
+
+import "koinos/options.proto";
+
+message contribute_args {
+   bytes from = 1 [(koinos.btype) = ADDRESS];
+   uint64 value = 2 [jstype = JS_STRING];
+}

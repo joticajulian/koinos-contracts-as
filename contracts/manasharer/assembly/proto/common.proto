@@ -17,11 +17,11 @@ message uint64 {
 }
 
 message boole {
-    bool value = 1;
+   bool value = 1;
 }
 
 message address {
-    bytes value = 1 [(koinos.btype) = ADDRESS];
+   bytes value = 1 [(koinos.btype) = ADDRESS];
 }
 
 enum direction {

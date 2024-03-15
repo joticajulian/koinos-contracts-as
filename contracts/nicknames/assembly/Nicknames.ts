@@ -247,10 +247,9 @@ export class Nicknames extends Nft {
    * @readonly
    */
   get_community_tokens(args: nft.get_tokens_args): nft.token_ids {
-    const direction =
-      args.direction == common.direction.ascending
-        ? Storage.Direction.Ascending
-        : Storage.Direction.Descending;
+    const direction = args.descending
+      ? Storage.Direction.Descending
+      : Storage.Direction.Ascending;
     const tokenIds = this.communityNames.getManyKeys(
       args.start ? args.start! : new Uint8Array(0),
       args.limit,

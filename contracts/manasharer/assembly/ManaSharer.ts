@@ -83,10 +83,9 @@ export class ManaSharer {
    * @readonly
    */
   get_managers(args: common.list_args): common.addresses {
-    const direction =
-      args.direction == common.direction.ascending
-        ? Storage.Direction.Ascending
-        : Storage.Direction.Descending;
+    const direction = args.descending
+      ? Storage.Direction.Descending
+      : Storage.Direction.Ascending;
     const accounts = this.managers.getManyKeys(
       args.start ? args.start! : new Uint8Array(0),
       args.limit,

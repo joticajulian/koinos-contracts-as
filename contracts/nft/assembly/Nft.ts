@@ -198,10 +198,9 @@ export class Nft {
    * @readonly
    */
   get_tokens(args: nft.get_tokens_args): nft.token_ids {
-    const direction =
-      args.direction == common.direction.ascending
-        ? Storage.Direction.Ascending
-        : Storage.Direction.Descending;
+    const direction = args.descending
+      ? Storage.Direction.Descending
+      : Storage.Direction.Ascending;
     const tokenIds = this.tokenOwners.getManyKeys(
       args.start ? args.start! : new Uint8Array(0),
       args.limit,
@@ -224,10 +223,9 @@ export class Nft {
     }
     const result = new nft.token_ids([]);
     for (let i = 0; i < args.limit; i += 1) {
-      const nextTokenOwnerPair =
-        args.direction == nft.direction.ascending
-          ? this.tokenOwnerPairs.getNext(key)
-          : this.tokenOwnerPairs.getPrev(key);
+      const nextTokenOwnerPair = args.descending
+        ? this.tokenOwnerPairs.getPrev(key)
+        : this.tokenOwnerPairs.getNext(key);
       if (
         !nextTokenOwnerPair ||
         !Arrays.equal(args.owner!, nextTokenOwnerPair.key!.slice(0, 25))
@@ -276,10 +274,9 @@ export class Nft {
     key.set(args.start ? args.start! : new Uint8Array(0), 25);
     const result = new nft.get_operators_return(args.owner!, []);
     for (let i = 0; i < args.limit; i += 1) {
-      const nextAllowance =
-        args.direction == nft.direction.ascending
-          ? this.operatorApprovals.getNext(key)
-          : this.operatorApprovals.getPrev(key);
+      const nextAllowance = args.descending
+        ? this.operatorApprovals.getPrev(key)
+        : this.operatorApprovals.getNext(key);
       if (
         !nextAllowance ||
         !Arrays.equal(args.owner!, nextAllowance.key!.slice(0, 25))

@@ -120,10 +120,9 @@ export class Token {
     key.set(args.start ? args.start! : new Uint8Array(0), 25);
     const result = new token.get_allowances_return(args.owner!, []);
     for (let i = 0; i < args.limit; i += 1) {
-      const nextAllowance =
-        args.direction == token.direction.ascending
-          ? this.allowances.getNext(key)
-          : this.allowances.getPrev(key);
+      const nextAllowance = args.descending
+        ? this.allowances.getPrev(key)
+        : this.allowances.getNext(key);
       if (
         !nextAllowance ||
         !Arrays.equal(args.owner!, nextAllowance.key!.slice(0, 25))

@@ -35,7 +35,7 @@ message transfer_args {
    bytes from = 1 [(koinos.btype) = ADDRESS];
    bytes to = 2 [(koinos.btype) = ADDRESS];
    uint64 value = 3 [jstype = JS_STRING];
-   string memo = 100;
+   string memo = 4;
 }
 
 message mint_args {
@@ -59,16 +59,11 @@ message allowance_args {
    bytes spender = 2 [(koinos.btype) = ADDRESS];
 }
 
-enum direction {
-   ascending = 0;
-   descending = 1;
-}
-
 message get_allowances_args {
    bytes owner = 1 [(koinos.btype) = ADDRESS];
    bytes start = 2 [(koinos.btype) = ADDRESS];
    int32 limit = 3;
-   direction direction = 4;
+   bool descending = 4;
 }
 
 message spender_value {

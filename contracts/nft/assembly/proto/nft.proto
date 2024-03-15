@@ -51,7 +51,7 @@ message transfer_args {
    bytes from = 1 [(koinos.btype) = ADDRESS];
    bytes to = 2 [(koinos.btype) = ADDRESS];
    bytes token_id = 3 [(koinos.btype) = HEX];
-   string memo = 100;
+   string memo = 4;
 }
 
 message approve_args {
@@ -66,16 +66,11 @@ message set_approval_for_all_args {
    bool approved = 3;
 }
 
-enum direction {
-   ascending = 0;
-   descending = 1;
-}
-
 message get_operators_args {
    bytes owner = 1 [(koinos.btype) = ADDRESS];
    bytes start = 2 [(koinos.btype) = ADDRESS];
    int32 limit = 3;
-   direction direction = 4;
+   bool descending = 4;
 }
 
 message get_operators_return {
@@ -86,14 +81,14 @@ message get_operators_return {
 message get_tokens_args {
    bytes start = 1 [(koinos.btype) = HEX];
    int32 limit = 2;
-   direction direction = 3;
+   bool descending = 3;
 }
 
 message get_tokens_by_owner_args {
    bytes owner = 1 [(koinos.btype) = ADDRESS];
    bytes start = 2 [(koinos.btype) = HEX];
    int32 limit = 3;
-   direction direction = 4;
+   bool descending = 4;
 }
 
 message token_ids {

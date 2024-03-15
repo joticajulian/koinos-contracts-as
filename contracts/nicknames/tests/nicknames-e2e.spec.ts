@@ -108,7 +108,7 @@ it("should work", async () => {
   const { result: resultListTokens } = await nick["get_tokens"]({
     start: "",
     limit: 20,
-    direction: 0,
+    descending: false,
   });
 
   expect(resultListTokens).toStrictEqual({
@@ -127,7 +127,7 @@ it("should work", async () => {
     owner: account1.address,
     start: "",
     limit: 20,
-    direction: 0,
+    descending: false,
   });
   expect(tokensA1).toStrictEqual({
     token_ids: [

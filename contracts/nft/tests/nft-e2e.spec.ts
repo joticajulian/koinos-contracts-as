@@ -150,7 +150,7 @@ it("should work", async () => {
   const { result: resultListTokens } = await nft["get_tokens"]({
     start: "",
     limit: 20,
-    direction: 0,
+    descending: false,
   });
   expect(resultListTokens).toStrictEqual({
     token_ids: ["0x0101", "0x0102", "0x0103", "0x02fa", "0x0301", "0x0302"],
@@ -161,7 +161,7 @@ it("should work", async () => {
     owner: account1.address,
     start: "",
     limit: 20,
-    direction: 0,
+    descending: false,
   });
   expect(tokensA1).toStrictEqual({
     token_ids: ["0x0101", "0x0102", "0x0103"],
@@ -172,7 +172,7 @@ it("should work", async () => {
     owner: account1.address,
     start: "0x0101",
     limit: 20,
-    direction: 0,
+    descending: false,
   });
   expect(someTokensA1).toStrictEqual({
     token_ids: ["0x0102", "0x0103"],
@@ -183,7 +183,7 @@ it("should work", async () => {
     owner: account2.address,
     start: "",
     limit: 20,
-    direction: 0,
+    descending: false,
   });
   expect(tokensA2).toStrictEqual({
     token_ids: ["0x02fa"],
@@ -194,7 +194,7 @@ it("should work", async () => {
     owner: account3.address,
     start: "",
     limit: 20,
-    direction: 0,
+    descending: false,
   });
   expect(tokensA3).toStrictEqual({
     token_ids: ["0x0301", "0x0302"],
@@ -228,7 +228,7 @@ it("should work", async () => {
     owner: account1.address,
     start: "",
     limit: 20,
-    direction: 0,
+    descending: false,
   });
   expect(newTokensA1).toStrictEqual({
     token_ids: ["0x0101", "0x0103"],
@@ -239,7 +239,7 @@ it("should work", async () => {
     owner: account2.address,
     start: "",
     limit: 20,
-    direction: 0,
+    descending: false,
   });
   expect(newTokensA2).toStrictEqual({
     token_ids: ["0x0102", "0x02fa"],

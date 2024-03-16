@@ -19,7 +19,7 @@
     "@jest/globals": "^29.6.4",
     "@koinos/mock-vm": "1.0.0",
     "@koinos/sdk-as": "npm:@koinosbox/sdk-as@1.1.0-alpha.4",
-    "@koinosbox/contracts": "^2.0.2",
+    "@koinosbox/contracts": "^2.1.1",
     "@roamin/local-koinos": "^0.4.15",
     "@roamin/protoc": "^2.4.0",
     "@tsconfig/node16": "^1.0.4",

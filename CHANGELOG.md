@@ -2,7 +2,6 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
-
 ## [v2.1.2](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.1.2) (2024-03-17)
 
 fix release error

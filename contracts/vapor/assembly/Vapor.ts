@@ -2,7 +2,7 @@
 // Vapor Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { System } from "@koinos/sdk-as";
+import { System, authority } from "@koinos/sdk-as";
 import { IToken, Token, token } from "@koinosbox/contracts";
 import { vapor } from "./proto/vapor";
 import { multiplyAndDivide } from "./utils";
@@ -63,6 +63,12 @@ export class Vapor extends Token {
    * @external
    */
   claim(args: token.burn_args): void {
+    const isAuthorized = System.checkAuthority(
+      authority.authorization_type.contract_call,
+      args.from!
+    );
+    System.require(isAuthorized, "claim operation not authorized");
+
     // Inverse process to the one computed in contribute:
     // delta_userKoin = delta_userVapor * koin_old / vapor_old
 

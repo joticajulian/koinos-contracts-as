@@ -44,6 +44,7 @@ module.exports = {
       "testgetcontractmetadata/testwallet": keysHarbinger(
         process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_WALLET
       ),
+      vapor: keysHarbinger(process.env.HARBINGER_VAPOR),
     },
   },
   mainnet: {
@@ -66,6 +67,7 @@ module.exports = {
       "testgetcontractmetadata/testwallet": keysMainnet(
         process.env.MAINNET_GET_CONTRACT_METADATA_TEST_WALLET
       ),
+      vapor: keysMainnet(process.env.MAINNET_VAPOR),
     },
   },
 };

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v2.1.3](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.1.3) (2024-03-19)
+
+### 🐛 Bug Fixes
+
+- Vapor v2.0.1: Require authority in claim function
+
 ## [v2.1.2](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.1.2) (2024-03-17)
 
 fix release error

@@ -50,9 +50,9 @@
   },
   {
     "contract": "vapor",
-    "version": "2.0.0",
-    "size": 59685,
-    "sizeHuman": "58.29 kB",
-    "sha256": "99cef82da296f49ab78c6ce47ff3ebb1d90342cec301efa30d5d8ee4561e9284"
+    "version": "2.0.1",
+    "size": 59830,
+    "sizeHuman": "58.43 kB",
+    "sha256": "bd3d38a94b35622da3282de8d77087f4e7d092e63c2a270810b74009c7c76023"
   }
 ]

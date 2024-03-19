@@ -5,7 +5,7 @@ dotenv.config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
   class: "Vapor",
-  version: "2.0.0",
+  version: "2.0.1",
   supportAbi1: true,
   proto: ["./proto/vapor.proto"],
   files: ["./Vapor.ts"],

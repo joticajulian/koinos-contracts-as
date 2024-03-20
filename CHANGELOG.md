@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v2.1.4](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.1.4) (2024-03-20)
+
+### 🐛 Bug Fixes
+
+- Vapor v2.1.0: Reentrant locks
+- Nicknames v3.1.1: No reentrant
+
 ## [v2.1.3](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.1.3) (2024-03-19)
 
 ### 🐛 Bug Fixes

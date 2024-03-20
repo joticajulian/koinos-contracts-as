@@ -29,10 +29,10 @@
   },
   {
     "contract": "nicknames",
-    "version": "3.1.0",
+    "version": "3.1.1",
     "size": 95251,
     "sizeHuman": "93.02 kB",
-    "sha256": "0b1cb1630aec779930d3ea822858f04284cd2ed4afb41f0f03447b9a19c01e72"
+    "sha256": "cab4365cebbafcb12603e523c207143242a0faef18995d5809430d92fb9e28d2"
   },
   {
     "contract": "textparserlib",
@@ -50,9 +50,9 @@
   },
   {
     "contract": "vapor",
-    "version": "2.0.1",
-    "size": 59830,
-    "sizeHuman": "58.43 kB",
-    "sha256": "bd3d38a94b35622da3282de8d77087f4e7d092e63c2a270810b74009c7c76023"
+    "version": "2.1.0",
+    "size": 60638,
+    "sizeHuman": "59.22 kB",
+    "sha256": "6d2e5732936fb5aedf8605dba45b2a708a3a87a6cab68358ec00b8262bfa81ac"
   }
 ]

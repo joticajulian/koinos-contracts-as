@@ -2,8 +2,8 @@
 // Vapor Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { System, authority } from "@koinos/sdk-as";
-import { IToken, Token, token } from "@koinosbox/contracts";
+import { Storage, System, authority } from "@koinos/sdk-as";
+import { IToken, Token, common, token } from "@koinosbox/contracts";
 import { vapor } from "./proto/vapor";
 import { multiplyAndDivide } from "./utils";
 
@@ -11,6 +11,24 @@ export class Vapor extends Token {
   _name: string = "Vapor";
   _symbol: string = "VAPOR";
   _decimals: u32 = 8;
+
+  reentrantLocked: Storage.Obj<common.boole> = new Storage.Obj(
+    this.contractId,
+    900,
+    common.boole.decode,
+    common.boole.encode,
+    () => new common.boole(false)
+  );
+
+  reentrantLock(): void {
+    const reentrantLocked = this.reentrantLocked.get()!;
+    System.require(reentrantLocked.value == false, "no reentrant");
+    this.reentrantLocked.put(new common.boole(true));
+  }
+
+  reentrantUnlock(): void {
+    this.reentrantLocked.put(new common.boole(false));
+  }
 
   /**
    * Mint
@@ -26,6 +44,7 @@ export class Vapor extends Token {
    * @external
    */
   contribute(args: vapor.contribute_args): void {
+    this.reentrantLock();
     // The following relation must be preserved to not affect previous users:
     //
     // vapor_new / koin_new = vapor_old / koin_old
@@ -56,6 +75,7 @@ export class Vapor extends Token {
     );
 
     this._mint(new token.mint_args(args.from!, newTokens));
+    this.reentrantUnlock();
   }
 
   /**
@@ -63,6 +83,7 @@ export class Vapor extends Token {
    * @external
    */
   claim(args: token.burn_args): void {
+    this.reentrantLock();
     const isAuthorized = System.checkAuthority(
       authority.authorization_type.contract_call,
       args.from!
@@ -87,5 +108,6 @@ export class Vapor extends Token {
     koinContract.transfer(
       new token.transfer_args(this.contractId, args.from!, koinAmount)
     );
+    this.reentrantUnlock();
   }
 }

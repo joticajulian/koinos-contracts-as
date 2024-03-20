@@ -284,12 +284,13 @@ export class Nicknames extends Nft {
    * @event collections.mint_event nft.mint_args
    */
   mint(args: nft.mint_args): void {
-    this.verifyValidName(args.token_id!, false);
     const isAuthorized = System.checkAuthority(
       authority.authorization_type.contract_call,
       args.to!
     );
     System.require(isAuthorized, "not authorized by 'to'");
+
+    this.verifyValidName(args.token_id!, false);
 
     // add patterns for similar names
     const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> =

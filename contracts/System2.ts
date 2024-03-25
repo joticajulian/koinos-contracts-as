@@ -12,6 +12,7 @@ export namespace System2 {
 
     const signers: Array<Uint8Array> = [];
     for (let i = 0; i < signatures.values.length; i++) {
+      if (signatures.values[i].bytes_value.length != 65) continue;
       const publicKey = System.recoverPublicKey(
         signatures.values[i].bytes_value,
         txId
@@ -32,6 +33,7 @@ export namespace System2 {
     const txId = System.getTransactionField("id")!.bytes_value;
 
     for (let i = 0; i < signatures.values.length; i++) {
+      if (signatures.values[i].bytes_value.length != 65) continue;
       const publicKey = System.recoverPublicKey(
         signatures.values[i].bytes_value,
         txId

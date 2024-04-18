@@ -39,6 +39,16 @@ export class Vapor extends Token {
   }
 
   /**
+   * Transfer tokens
+   * @external
+   * @entrypoint 0x27f576ca
+   */
+  transfer2(args: token.transfer_args): common.boole {
+    super.transfer(args);
+    return new common.boole(true);
+  }
+
+  /**
    * Contribute with koins to the sponsors program, and get back
    * governance tokens
    * @external

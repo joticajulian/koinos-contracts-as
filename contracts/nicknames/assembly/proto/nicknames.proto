@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package nicknames;
 
-import "koinos/options.proto"; 
+import "koinos/options.proto";
 
 message tabi {
    repeated string patterns = 1;
@@ -11,4 +11,10 @@ message tabi {
 message set_tabi_args {
    bytes token_id = 1 [(koinos.btype) = HEX];
    tabi tabi = 2;
+}
+
+message extended_metadata {
+   bytes token_id = 1 [(koinos.btype) = HEX];
+   bytes address = 2 [(koinos.btype) = ADDRESS];
+   bytes other = 10;
 }

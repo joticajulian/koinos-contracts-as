@@ -23,6 +23,8 @@ const COMMUNITY_NAMES_SPACE_ID = 11;
 
 const MAIN_TOKEN_SPACE_ID = 13;
 
+const EXTENDED_METADATA_SPACE_ID = 14;
+
 /**
  * List of spaces going from ID=19 to ID=51
  * Each space is used to store a patterns for names
@@ -58,6 +60,14 @@ export class Nicknames extends Nft {
     nft.token.decode,
     nft.token.encode
   );
+
+  extendedMetadata: Storage.Map<Uint8Array, nicknames.extended_metadata> =
+    new Storage.Map(
+      this.contractId,
+      EXTENDED_METADATA_SPACE_ID,
+      nicknames.extended_metadata.decode,
+      nicknames.extended_metadata.encode
+    );
 
   verifyNotSimilar(name: string, tokenId: Uint8Array): void {
     /**
@@ -278,18 +288,31 @@ export class Nicknames extends Nft {
     return mainToken;
   }
 
+  require_authority(
+    owner: Uint8Array,
+    isCommunityName: common.boole | null
+  ): void {
+    if (isCommunityName) {
+      // TODO: use only gov system after the grace period
+      System.require(
+        System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
+        "not authorized by the community"
+      );
+    } else {
+      const isAuthorized = System.checkAuthority(
+        authority.authorization_type.contract_call,
+        owner
+      );
+      System.require(isAuthorized, "not authorized by the owner");
+    }
+  }
+
   /**
    * Create new name
    * @external
    * @event collections.mint_event nft.mint_args
    */
   mint(args: nft.mint_args): void {
-    const isAuthorized = System.checkAuthority(
-      authority.authorization_type.contract_call,
-      args.to!
-    );
-    System.require(isAuthorized, "not authorized by 'to'");
-
     this.verifyValidName(args.token_id!, false);
 
     // add patterns for similar names
@@ -342,20 +365,11 @@ export class Nicknames extends Nft {
   burn(args: nft.burn_args): void {
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    if (isCommunityName) {
-      // TODO: use only gov system after the grace period
-      System.require(
-        System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
-        "burn not authorized by the community"
-      );
-    } else {
+    const owner =
+      tokenOwner && tokenOwner.value ? tokenOwner.value! : new Uint8Array(0);
+    if (!isCommunityName)
       System.require(tokenOwner.value, "token does not exist");
-      const isAuthorized = System.checkAuthority(
-        authority.authorization_type.contract_call,
-        tokenOwner.value!
-      );
-      System.require(isAuthorized, "burn not authorized");
-    }
+    this.require_authority(owner, isCommunityName);
 
     // remove patterns for similar names
     const tokenSimilarityBase: Storage.Map<Uint8Array, common.str> =
@@ -418,21 +432,26 @@ export class Nicknames extends Nft {
    */
   transfer(args: nft.transfer_args): void {
     const isCommunityName = this.communityNames.get(args.token_id!);
-    if (isCommunityName) {
-      // TODO: use only gov system after the grace period
-      System.require(
-        System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
-        "transfer not authorized by the community"
-      );
+    if (System2.isSignedBy(this.contractId)) {
+      // TODO: temporal if to restore ownership of nicknames.
+      // now project owners can use set_extended_metadata
     } else {
-      const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-      System.require(
-        Arrays.equal(tokenOwner.value, args.from!),
-        "from is not the owner"
-      );
+      if (isCommunityName) {
+        // TODO: use only gov system after the grace period
+        System.require(
+          System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
+          "transfer not authorized by the community"
+        );
+      } else {
+        const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+        System.require(
+          Arrays.equal(tokenOwner.value, args.from!),
+          "from is not the owner"
+        );
 
-      const isAuthorized = this.check_authority(args.from!, args.token_id!);
-      System.require(isAuthorized, "transfer not authorized");
+        const isAuthorized = this.check_authority(args.from!, args.token_id!);
+        System.require(isAuthorized, "transfer not authorized");
+      }
     }
 
     this._transfer(args);
@@ -479,19 +498,7 @@ export class Nicknames extends Nft {
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.value, "token does not exist");
-    if (isCommunityName) {
-      // TODO: use only gov system after the grace period
-      System.require(
-        System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
-        "not authorized by the community"
-      );
-    } else {
-      const isAuthorized = System.checkAuthority(
-        authority.authorization_type.contract_call,
-        tokenOwner.value!
-      );
-      System.require(isAuthorized, "not authorized by the owner");
-    }
+    this.require_authority(tokenOwner.value!, isCommunityName);
 
     this.tabis.put(args.token_id!, args.tabi!);
     System.event("nicknames.set_tabi", this.callArgs!.args, [
@@ -513,19 +520,7 @@ export class Nicknames extends Nft {
       // TODO: temporal if while a new set_metadata management
       // is implemented
     } else {
-      if (isCommunityName) {
-        // TODO: use only gov system after the grace period
-        System.require(
-          System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
-          "not authorized by the community"
-        );
-      } else {
-        const isAuthorized = System.checkAuthority(
-          authority.authorization_type.contract_call,
-          tokenOwner.value!
-        );
-        System.require(isAuthorized, "not authorized by the owner");
-      }
+      this.require_authority(tokenOwner.value!, isCommunityName);
     }
 
     this._set_metadata(args);
@@ -534,41 +529,69 @@ export class Nicknames extends Nft {
   /**
    * Set main token
    * @external
-   *
+   * @evetn set_main_token nft.token
    */
   set_main_token(args: nft.token): void {
     const isCommunityName = this.communityNames.get(args.token_id!);
+    const address = this.get_address_by_token_id(args).value!;
+    this.require_authority(address, isCommunityName);
+    this.mainToken.put(address, args);
+    System.event("set_main_token", this.callArgs!.args, [address]);
+  }
+
+  /**
+   * Set extended metadata (including the address to which the name resolves)
+   * @external
+   * @event extended_metadata nicknames.extended_metadata
+   */
+  set_extended_metadata(args: nicknames.extended_metadata): void {
+    const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.value, "token does not exist");
-    if (isCommunityName) {
-      // TODO: use only gov system after the grace period
-      System.require(
-        System.checkSystemAuthority() || System2.isSignedBy(this.contractId),
-        "not authorized by the community"
-      );
+    this.require_authority(tokenOwner.value!, isCommunityName);
+
+    this.extendedMetadata.put(args.token_id!, args);
+    const impacted = [tokenOwner.value!];
+    if (args.address) impacted.push(args.address!);
+    System.event("extended_metadata", this.callArgs!.args, impacted);
+  }
+
+  /**
+   * Get extended metadata
+   * @external
+   * @readonly
+   */
+  get_extended_metadata(args: nft.token): nicknames.extended_metadata {
+    const extendedMetadata = this.extendedMetadata.get(args.token_id!);
+    if (!extendedMetadata) return new nicknames.extended_metadata();
+    return extendedMetadata;
+  }
+
+  /**
+   * Resolve the address of a nickname by providing the token id
+   * @external
+   * @readonly
+   */
+  get_address_by_token_id(args: nft.token): common.address {
+    const extendedMetadata = this.extendedMetadata.get(args.token_id!);
+    let address: Uint8Array;
+    if (extendedMetadata && extendedMetadata.address) {
+      address = extendedMetadata.address!;
     } else {
-      const isAuthorized = System.checkAuthority(
-        authority.authorization_type.contract_call,
-        tokenOwner.value!
-      );
-      System.require(isAuthorized, "not authorized by the owner");
+      const owner = this.tokenOwners.get(args.token_id!);
+      if (!owner) System.fail("nickname does not exist");
+      address = owner!.value!;
     }
+    return new common.address(address);
+  }
 
-    const mainToken = this.mainToken.get(tokenOwner.value!);
-    if (mainToken) {
-      const mainTokenIsCommunityName = this.communityNames.get(
-        mainToken.token_id!
-      );
-      if (mainTokenIsCommunityName) {
-        System.require(
-          isCommunityName,
-          `the main token for this account is @${StringBytes.bytesToString(
-            mainToken.token_id!
-          )}, which is governed by the community`
-        );
-      }
-    }
-
-    this.mainToken.put(tokenOwner.value!, args);
+  /**
+   * Resolve the address of a nickname
+   * @external
+   * @readonly
+   */
+  get_address(args: common.str): common.address {
+    const tokenId = StringBytes.stringToBytes(args.value!);
+    return this.get_address_by_token_id(new nft.token(tokenId));
   }
 }

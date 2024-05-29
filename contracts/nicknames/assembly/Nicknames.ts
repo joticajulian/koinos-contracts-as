@@ -14,16 +14,14 @@ import { Nft, System2, nft, common } from "@koinosbox/contracts";
 import { nicknames } from "./proto/nicknames";
 
 System.setSystemBufferSize(524288);
+const MAX_TOKEN_ID_LENGTH = 32;
 
 const TABIS_SPACE_ID = 10;
-
 const COMMUNITY_NAMES_SPACE_ID = 11;
-
 // const NAMES_IN_DISPUTE_SPACE_ID = 12;
-
 const MAIN_TOKEN_SPACE_ID = 13;
-
 const EXTENDED_METADATA_SPACE_ID = 14;
+const TOKENS_BY_ADDRESS_SPACE_ID = 15;
 
 /**
  * List of spaces going from ID=19 to ID=51
@@ -68,6 +66,14 @@ export class Nicknames extends Nft {
       nicknames.extended_metadata.decode,
       nicknames.extended_metadata.encode
     );
+
+  tokenAddressPairs: Storage.Map<Uint8Array, common.boole> = new Storage.Map(
+    this.contractId,
+    TOKENS_BY_ADDRESS_SPACE_ID,
+    common.boole.decode,
+    common.boole.encode,
+    () => new common.boole(false)
+  );
 
   verifyNotSimilar(name: string, tokenId: Uint8Array): void {
     /**
@@ -288,6 +294,71 @@ export class Nicknames extends Nft {
     return mainToken;
   }
 
+  /**
+   * Get extended metadata
+   * @external
+   * @readonly
+   */
+  get_extended_metadata(args: nft.token): nicknames.extended_metadata {
+    const extendedMetadata = this.extendedMetadata.get(args.token_id!);
+    if (!extendedMetadata) return new nicknames.extended_metadata();
+    return extendedMetadata;
+  }
+
+  /**
+   * Resolve the address of a nickname by providing the token id
+   * @external
+   * @readonly
+   */
+  get_address_by_token_id(args: nft.token): common.address {
+    const extendedMetadata = this.extendedMetadata.get(args.token_id!);
+    if (!extendedMetadata || !extendedMetadata.address)
+      System.fail("nickname does not exist");
+    return new common.address(extendedMetadata.address);
+  }
+
+  /**
+   * Resolve the address of a nickname
+   * @external
+   * @readonly
+   */
+  get_address(args: common.str): common.address {
+    const tokenId = StringBytes.stringToBytes(args.value!);
+    return this.get_address_by_token_id(new nft.token(tokenId));
+  }
+
+  /**
+   * Get tokens owned by an address
+   * @external
+   * @readonly
+   */
+  get_tokens_by_address(
+    args: nicknames.get_tokens_by_address_args
+  ): nft.token_ids {
+    let key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
+    key.set(args.address!, 0);
+    if (args.start) {
+      key[25] = args.start!.length;
+      key.set(args.start!, 26);
+    }
+    const result = new nft.token_ids([]);
+    for (let i = 0; i < args.limit; i += 1) {
+      const nextTokenAddressPair = args.descending
+        ? this.tokenAddressPairs.getPrev(key)
+        : this.tokenAddressPairs.getNext(key);
+      if (
+        !nextTokenAddressPair ||
+        !Arrays.equal(args.address!, nextTokenAddressPair.key!.slice(0, 25))
+      )
+        break;
+      const tokenIdLength = nextTokenAddressPair.key![25];
+      const tokenId = nextTokenAddressPair.key!.slice(26, 26 + tokenIdLength);
+      result.token_ids.push(tokenId);
+      key = nextTokenAddressPair.key!;
+    }
+    return result;
+  }
+
   require_authority(
     owner: Uint8Array,
     isCommunityName: common.boole | null
@@ -353,6 +424,13 @@ export class Nicknames extends Nft {
       this.mainToken.put(args.to!, new nft.token(args.token_id!));
     }
 
+    // set token address pair
+    const key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
+    key.set(args.to!, 0);
+    key[25] = args.token_id!.length;
+    key.set(args.token_id!, 26);
+    this.tokenAddressPairs.put(key, new common.boole(true));
+
     // mint the token
     this._mint(args);
   }
@@ -401,28 +479,20 @@ export class Nicknames extends Nft {
       tokenSimilarity.remove(similarTokenId);
     }
 
+    // remove token address pair
+    const address = this.get_address_by_token_id(new nft.token(args.token_id!))
+      .value!;
+    const key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
+    key.set(address, 0);
+    key[25] = args.token_id!.length;
+    key.set(args.token_id!, 26);
+    this.tokenAddressPairs.remove(key);
+
     // burn the token
     this._burn(args);
 
     // update main token
-    const mainToken = this.mainToken.get(tokenOwner.value!);
-    if (mainToken && Arrays.equal(mainToken.token_id!, args.token_id!)) {
-      const tokens = this.get_tokens_by_owner(
-        new nft.get_tokens_by_owner_args(
-          tokenOwner.value!,
-          new Uint8Array(0),
-          1
-        )
-      );
-      if (tokens.token_ids.length > 0) {
-        this.mainToken.put(
-          tokenOwner.value!,
-          new nft.token(tokens.token_ids[0])
-        );
-      } else {
-        this.mainToken.remove(tokenOwner.value!);
-      }
-    }
+    this.breakLinkMainToken(address, args.token_id!);
   }
 
   /**
@@ -455,12 +525,6 @@ export class Nicknames extends Nft {
     }
 
     this._transfer(args);
-
-    // set main token
-    const mainToken = this.mainToken.get(args.to!);
-    if (!mainToken) {
-      this.mainToken.put(args.to!, new nft.token(args.token_id!));
-    }
 
     // remove it from community names if that is the case.
     // For instance, when the community transfer a community
@@ -540,58 +604,63 @@ export class Nicknames extends Nft {
   }
 
   /**
+   * Assign a different nickname to an address in mainToken because
+   * the nickname has changed (deleted or extended metadata updated)
+   */
+  breakLinkMainToken(address: Uint8Array, tokenId: Uint8Array): void {
+    const mainToken = this.mainToken.get(address);
+    if (mainToken && Arrays.equal(mainToken.token_id!, tokenId)) {
+      const tokens = this.get_tokens_by_address(
+        new nicknames.get_tokens_by_address_args(address, new Uint8Array(0), 1)
+      );
+      if (tokens.token_ids.length > 0) {
+        this.mainToken.put(address, new nft.token(tokens.token_ids[0]));
+      } else {
+        this.mainToken.remove(address);
+      }
+    }
+  }
+
+  /**
    * Set extended metadata (including the address to which the name resolves)
    * @external
-   * @event extended_metadata nicknames.extended_metadata
+   * @event extended_metadata_updated nicknames.extended_metadata
    */
   set_extended_metadata(args: nicknames.extended_metadata): void {
+    System.require(args.address, "address must be defined");
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.value, "token does not exist");
     this.require_authority(tokenOwner.value!, isCommunityName);
 
-    this.extendedMetadata.put(args.token_id!, args);
+    const address = this.get_address_by_token_id(new nft.token(args.token_id!))
+      .value!;
     const impacted = [tokenOwner.value!];
-    if (args.address) impacted.push(args.address!);
-    System.event("extended_metadata", this.callArgs!.args, impacted);
-  }
+    if (!Arrays.equal(address, args.address!)) {
+      // update token address pair
+      let key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
+      key.set(address, 0);
+      key[25] = args.token_id!.length;
+      key.set(args.token_id!, 26);
+      this.tokenAddressPairs.remove(key);
+      key.set(args.address!, 0);
+      this.tokenAddressPairs.put(key, new common.boole(true));
 
-  /**
-   * Get extended metadata
-   * @external
-   * @readonly
-   */
-  get_extended_metadata(args: nft.token): nicknames.extended_metadata {
-    const extendedMetadata = this.extendedMetadata.get(args.token_id!);
-    if (!extendedMetadata) return new nicknames.extended_metadata();
-    return extendedMetadata;
-  }
+      // update main token
+      const mainToken = this.mainToken.get(args.address!);
+      if (!mainToken) {
+        this.mainToken.put(args.address!, new nft.token(args.token_id!));
+      }
+      this.breakLinkMainToken(address, args.token_id!);
 
-  /**
-   * Resolve the address of a nickname by providing the token id
-   * @external
-   * @readonly
-   */
-  get_address_by_token_id(args: nft.token): common.address {
-    const extendedMetadata = this.extendedMetadata.get(args.token_id!);
-    let address: Uint8Array;
-    if (extendedMetadata && extendedMetadata.address) {
-      address = extendedMetadata.address!;
-    } else {
-      const owner = this.tokenOwners.get(args.token_id!);
-      if (!owner) System.fail("nickname does not exist");
-      address = owner!.value!;
+      // include addresses in impacted
+      impacted.push(args.address!);
+      impacted.push(address);
     }
-    return new common.address(address);
-  }
 
-  /**
-   * Resolve the address of a nickname
-   * @external
-   * @readonly
-   */
-  get_address(args: common.str): common.address {
-    const tokenId = StringBytes.stringToBytes(args.value!);
-    return this.get_address_by_token_id(new nft.token(tokenId));
+    // update extended metadata
+    this.extendedMetadata.put(args.token_id!, args);
+    if (args.address) impacted.push(args.address!);
+    System.event("extended_metadata_updated", this.callArgs!.args, impacted);
   }
 }

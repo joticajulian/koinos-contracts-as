@@ -314,7 +314,7 @@ export class Nicknames extends Nft {
     const extendedMetadata = this.extendedMetadata.get(args.token_id!);
     if (!extendedMetadata || !extendedMetadata.address)
       System.fail("nickname does not exist");
-    return new common.address(extendedMetadata.address);
+    return new common.address(extendedMetadata!.address);
   }
 
   /**

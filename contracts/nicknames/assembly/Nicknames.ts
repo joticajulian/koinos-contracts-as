@@ -496,6 +496,47 @@ export class Nicknames extends Nft {
   }
 
   /**
+   * patch
+   * @external
+   */
+  patch(args: common.uint32): void {
+    const patchDataStorage: Storage.Obj<nft.token> = new Storage.Obj(
+      this.contractId,
+      999,
+      nft.token.decode,
+      nft.token.encode,
+      () => new nft.token()
+    );
+    const start = patchDataStorage.get()!.token_id;
+    const tokenIds = this.get_tokens(
+      new nft.get_tokens_args(start, args.value)
+    ).token_ids;
+    System.require(tokenIds.length > 0, "migration finished");
+    let tokenId = tokenIds[0];
+    for (let i = 0; i < tokenIds.length; i += 1) {
+      tokenId = tokenIds[i];
+      const address = this.owner_of(new nft.token(tokenId)).value!;
+
+      // set token address pair
+      const key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
+      key.set(address, 0);
+      key[25] = tokenId.length;
+      key.set(tokenId, 26);
+      this.tokenAddressPairs.put(key, new common.boole(true));
+      this.extendedMetadata.put(
+        tokenId,
+        new nicknames.extended_metadata(tokenId, address)
+      );
+    }
+    const name = StringBytes.bytesToString(tokenId);
+    System.log(`token address pair updated until @${name}`);
+    patchDataStorage.put(new nft.token(tokenId));
+
+    // TODO: delete patchDataStorage
+    //patchDataStorage.remove();
+  }
+
+  /**
    * Transfer Name
    * @external
    * @event collections.transfer_event nft.transfer_args

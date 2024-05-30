@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v2.1.5](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.1.5) (2024-05-30)
+
+### 🚀 Features
+
+- Nicknames v3.2.0:
+  - Separation of NFT ownership and pointing address: The nickname can point to a
+    different address. It is not required to point to the owner. This feature is useful
+    for token contracts where the creator wants to make updates in the metadata.
+  - New functions for extended metadata: set_extended_metadata, get_extended_metadata.
+    This metadata contains the pointing address and there is also a space reserved
+    for other type of metadata in byte format.
+  - New functions: get_address_by_token_id, get_address, get_tokens_by_address
+
+### 🐛 Bug Fixes
+
+- check signature length in getSigners and isSignedBy
+- Vapor v2.2.0: Return boolean in transfer to be compliant with fogata
+- Koilib and koinos-precompiler-as have been moved from dependencies. Now they are in devDependencies
+
 ## [v2.1.4](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.1.4) (2024-03-20)
 
 ### 🐛 Bug Fixes

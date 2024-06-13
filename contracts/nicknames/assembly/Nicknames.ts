@@ -660,7 +660,6 @@ export class Nicknames extends Nft {
 
     // update extended metadata
     this.extendedMetadata.put(args.token_id!, args);
-    if (args.address) impacted.push(args.address!);
     System.event("extended_metadata_updated", this.callArgs!.args, impacted);
   }
 }

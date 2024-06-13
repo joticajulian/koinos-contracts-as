@@ -4,6 +4,15 @@ import path from "path";
 import { getInfo } from "./info";
 import { getDeployableContracts } from "./compiler";
 
+const CONTRACTS_TO_EXPORT = [
+  "freemanasharer",
+  "manasharer",
+  "nft",
+  "nicknames",
+  "textparserlib",
+  "token",
+];
+
 if (!fs.existsSync("./assembly")) {
   fs.mkdirSync("assembly");
 }
@@ -21,7 +30,7 @@ const contracts = fs.readdirSync(contractsPath, { withFileTypes: true });
 const insertedContractFiles: string[] = [];
 contracts.forEach((contract) => {
   if (!contract.isDirectory()) return;
-  if (["testgetcontractmetadata"].includes(contract.name)) return;
+  if (!CONTRACTS_TO_EXPORT.includes(contract.name)) return;
   const src = path.join(__dirname, "../contracts", contract.name, "./build");
   const dest = path.join(__dirname, "../assembly", contract.name);
   if (fs.existsSync(dest)) fs.rmSync(dest, { recursive: true /*force: true*/ });

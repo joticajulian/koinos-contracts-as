@@ -1,12 +1,5 @@
 [
   {
-    "contract": "burnkoinhelper",
-    "version": "2.0.2",
-    "size": 33661,
-    "sizeHuman": "32.87 kB",
-    "sha256": "f1b4f2583d731a3aec756d08a6335d91a659011daef415e52add19aa3ac9fe83"
-  },
-  {
     "contract": "freemanasharer",
     "version": "2.0.2",
     "size": 21473,
@@ -47,12 +40,5 @@
     "size": 58649,
     "sizeHuman": "57.27 kB",
     "sha256": "a18815f07598c0c0359125e22f20fe08abe8bb70cfb547f4137f4b0844a7bfa9"
-  },
-  {
-    "contract": "vapor",
-    "version": "2.2.0",
-    "size": 60717,
-    "sizeHuman": "59.29 kB",
-    "sha256": "4af54e1b517a3cc20e2405abe1f7c7dc385091479b0b3adf85d2dfd81e5b4a03"
   }
 ]

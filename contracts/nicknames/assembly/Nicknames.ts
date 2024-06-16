@@ -443,6 +443,8 @@ export class Nicknames extends Nft {
     key.set(args.token_id!, 26);
     this.tokenAddressPairs.put(key, new common.boole(true));
 
+    this.addresses.put(args.token_id!, new common.address(args.to));
+
     // mint the token
     this._mint(args);
   }
@@ -453,10 +455,17 @@ export class Nicknames extends Nft {
    * @event collections.burn_event nft.burn_args
    */
   burn(args: nft.burn_args): void {
+    const address = this.get_address_by_token_id(new nft.token(args.token_id!));
+    System.require(!address.permanent_address, "nickname address is permanent");
+    System.require(!address.address_modifiable_only_by_governance,
+      "nickname address modifiable only by governance"
+    );
+
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     const owner =
       tokenOwner && tokenOwner.value ? tokenOwner.value! : new Uint8Array(0);
+
     if (!isCommunityName)
       System.require(tokenOwner.value, "token does not exist");
     this.require_authority(owner, isCommunityName);
@@ -492,19 +501,19 @@ export class Nicknames extends Nft {
     }
 
     // remove token address pair
-    const address = this.get_address_by_token_id(new nft.token(args.token_id!))
-      .value!;
     const key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
-    key.set(address, 0);
+    key.set(address.value!, 0);
     key[25] = args.token_id!.length;
     key.set(args.token_id!, 26);
     this.tokenAddressPairs.remove(key);
+
+    this.addresses.remove(args.token_id!);
 
     // burn the token
     this._burn(args);
 
     // update main token
-    this.breakLinkMainToken(address, args.token_id!);
+    this.breakLinkMainToken(address.value!, args.token_id!);
   }
 
   /**

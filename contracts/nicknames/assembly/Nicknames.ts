@@ -22,6 +22,7 @@ const COMMUNITY_NAMES_SPACE_ID = 11;
 const MAIN_TOKEN_SPACE_ID = 13;
 const EXTENDED_METADATA_SPACE_ID = 14;
 const TOKENS_BY_ADDRESS_SPACE_ID = 15;
+const ADRESSES_SPACE_ID = 16;
 
 /**
  * List of spaces going from ID=19 to ID=51
@@ -73,6 +74,13 @@ export class Nicknames extends Nft {
     common.boole.decode,
     common.boole.encode,
     () => new common.boole(false)
+  );
+
+  addresses: Storage.Map<Uint8Array, common.address> = new Storage.Map(
+    this.contractId,
+    ADRESSES_SPACE_ID,
+    common.address.decode,
+    common.address.encode
   );
 
   verifyNotSimilar(name: string, tokenId: Uint8Array): void {
@@ -310,11 +318,15 @@ export class Nicknames extends Nft {
    * @external
    * @readonly
    */
-  get_address_by_token_id(args: nft.token): common.address {
-    const extendedMetadata = this.extendedMetadata.get(args.token_id!);
-    if (!extendedMetadata || !extendedMetadata.address)
-      System.fail("nickname does not exist");
-    return new common.address(extendedMetadata!.address);
+  get_address_by_token_id(args: nft.token): nicknames.address_data {
+    const address = this.addresses.get(args.token_id!);
+    if (!address || !address.value) System.fail("nickname does not exist");
+    const extendedMetadata = this.extendedMetadata.get(args.token_id!)!;
+    return new nicknames.address_data(
+      address!.value,
+      extendedMetadata.permanent_address,
+      extendedMetadata.address_modifiable_only_by_governance
+    );
   }
 
   /**
@@ -322,7 +334,7 @@ export class Nicknames extends Nft {
    * @external
    * @readonly
    */
-  get_address(args: common.str): common.address {
+  get_address(args: common.str): nicknames.address_data {
     const tokenId = StringBytes.stringToBytes(args.value!);
     return this.get_address_by_token_id(new nft.token(tokenId));
   }
@@ -622,44 +634,112 @@ export class Nicknames extends Nft {
   }
 
   /**
+   * Set address
+   * @external
+   * @event address_updated nicknames.set_address_args
+   */
+  set_address(args: nicknames.set_address_args): void {
+    const address = this.get_address_by_token_id(new nft.token(args.token_id!));
+    if (args.gov_proposal_update) {
+      System.require(
+        System.checkSystemAuthority(),
+        "not authorized by governance"
+      );
+      if (!address.address_modifiable_only_by_governance) {
+        System.log("nickname address not modifiable by governance");
+        return;
+      }
+      if (address.permanent_address) {
+        System.log("nickname address permanent");
+        return;
+      }
+    } else {
+      const isCommunityName = this.communityNames.get(args.token_id!);
+      const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+      System.require(tokenOwner.value, "token does not exist");
+      this.require_authority(tokenOwner.value!, isCommunityName);
+    }
+
+    if (!args.address || Arrays.equal(args.address!, address.value!)) {
+      return;
+    }
+
+    System.require(!address.permanent_address, "address is permanent");
+    System.require(
+      args.gov_proposal_update ||
+        !address.address_modifiable_only_by_governance,
+      "address modifiable only by governance"
+    );
+
+    // update token address pair
+    let key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
+    key.set(address.value!, 0);
+    key[25] = args.token_id!.length;
+    key.set(args.token_id!, 26);
+    this.tokenAddressPairs.remove(key);
+    key.set(args.address!, 0);
+    this.tokenAddressPairs.put(key, new common.boole(true));
+
+    // update main token
+    const mainToken = this.mainToken.get(args.address!);
+    if (!mainToken || args.gov_proposal_update) {
+      this.mainToken.put(args.address!, new nft.token(args.token_id!));
+    }
+    this.breakLinkMainToken(address.value!, args.token_id!);
+
+    // update address
+    this.addresses.put(args.token_id!, new common.address(args.address));
+    System.event("address_updated", this.callArgs!.args, [
+      args.address!,
+      address.value!,
+    ]);
+  }
+
+  /**
    * Set extended metadata (including the address to which the name resolves)
    * @external
    * @event extended_metadata_updated nicknames.extended_metadata
    */
-  set_extended_metadata(args: nicknames.extended_metadata): void {
-    System.require(args.address, "address must be defined");
+  set_extended_metadata(args: nicknames.set_extended_metadata_args): void {
     const isCommunityName = this.communityNames.get(args.token_id!);
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.value, "token does not exist");
     this.require_authority(tokenOwner.value!, isCommunityName);
 
-    const address = this.get_address_by_token_id(new nft.token(args.token_id!))
-      .value!;
-    const impacted = [tokenOwner.value!];
-    if (!Arrays.equal(address, args.address!)) {
-      // update token address pair
-      let key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
-      key.set(address, 0);
-      key[25] = args.token_id!.length;
-      key.set(args.token_id!, 26);
-      this.tokenAddressPairs.remove(key);
-      key.set(args.address!, 0);
-      this.tokenAddressPairs.put(key, new common.boole(true));
+    let extendedMetadata = this.extendedMetadata.get(args.token_id!);
+    if (!extendedMetadata)
+      extendedMetadata = new nicknames.extended_metadata(
+        args.token_id!,
+        null,
+        false,
+        false,
+        args.other
+      );
+    if (
+      args.address_modifiable_only_by_governance &&
+      !extendedMetadata.permanent_address &&
+      !extendedMetadata.address_modifiable_only_by_governance
+    ) {
+      extendedMetadata.address_modifiable_only_by_governance = true;
+    }
 
-      // update main token
-      const mainToken = this.mainToken.get(args.address!);
-      if (!mainToken) {
-        this.mainToken.put(args.address!, new nft.token(args.token_id!));
-      }
-      this.breakLinkMainToken(address, args.token_id!);
-
-      // include addresses in impacted
-      impacted.push(args.address!);
-      impacted.push(address);
+    if (
+      args.permanent_address &&
+      !extendedMetadata.permanent_address &&
+      !extendedMetadata.address_modifiable_only_by_governance
+    ) {
+      extendedMetadata.permanent_address = true;
     }
 
     // update extended metadata
-    this.extendedMetadata.put(args.token_id!, args);
-    System.event("extended_metadata_updated", this.callArgs!.args, impacted);
+    this.extendedMetadata.put(args.token_id!, extendedMetadata);
+    System.event(
+      "extended_metadata_updated",
+      Protobuf.encode<nicknames.extended_metadata>(
+        extendedMetadata,
+        nicknames.extended_metadata.encode
+      ),
+      [tokenOwner.value!]
+    );
   }
 }

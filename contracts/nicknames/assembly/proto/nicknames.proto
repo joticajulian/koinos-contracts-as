@@ -13,10 +13,32 @@ message set_tabi_args {
    tabi tabi = 2;
 }
 
+message set_address_args {
+   bytes token_id = 1 [(koinos.btype) = HEX];
+   bytes address = 2 [(koinos.btype) = ADDRESS];
+   bool gov_proposal_update = 3;
+}
+
+message set_extended_metadata_args {
+   bytes token_id = 1 [(koinos.btype) = HEX];
+   // bytes address = 2 [(koinos.btype) = ADDRESS]; // for address see set_address
+   bool permanent_address = 3;
+   bool address_modifiable_only_by_governance = 4;
+   bytes other = 10;
+}
+
 message extended_metadata {
    bytes token_id = 1 [(koinos.btype) = HEX];
    bytes address = 2 [(koinos.btype) = ADDRESS];
+   bool permanent_address = 3;
+   bool address_modifiable_only_by_governance = 4;
    bytes other = 10;
+}
+
+message address_data {
+   bytes value = 1 [(koinos.btype) = ADDRESS];
+   bool permanent_address = 2;
+   bool address_modifiable_only_by_governance = 3;
 }
 
 message get_tokens_by_address_args {

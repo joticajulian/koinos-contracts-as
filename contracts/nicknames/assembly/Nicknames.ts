@@ -321,11 +321,11 @@ export class Nicknames extends Nft {
   get_address_by_token_id(args: nft.token): nicknames.address_data {
     const address = this.addresses.get(args.token_id!);
     if (!address || !address.value) System.fail("nickname does not exist");
-    const extendedMetadata = this.extendedMetadata.get(args.token_id!)!;
+    const extendedMetadata = this.extendedMetadata.get(args.token_id!);
     return new nicknames.address_data(
       address!.value,
-      extendedMetadata.permanent_address,
-      extendedMetadata.address_modifiable_only_by_governance
+      extendedMetadata ? extendedMetadata.permanent_address : false,
+      extendedMetadata ? extendedMetadata.address_modifiable_only_by_governance : false
     );
   }
 
@@ -508,6 +508,8 @@ export class Nicknames extends Nft {
     this.tokenAddressPairs.remove(key);
 
     this.addresses.remove(args.token_id!);
+    this.extendedMetadata.remove(args.token_id!);
+    this.tabis.remove(args.token_id!);
 
     // burn the token
     this._burn(args);

@@ -384,7 +384,6 @@ export class Nicknames extends Nft {
    * @event collections.mint_event nft.mint_args
    */
   mint(args: nft.mint_args): void {
-    System.fail("contract in maintenance");
     this.verifyValidName(args.token_id!, false);
 
     // add patterns for similar names
@@ -598,7 +597,6 @@ export class Nicknames extends Nft {
    * @event address_updated nicknames.set_address_args
    */
   set_address(args: nicknames.set_address_args): void {
-    System.fail("contract in maintenance");
     const address = this.get_address_by_token_id(new nft.token(args.token_id!));
 
     if (System2.isSignedBy(this.contractId)) {
@@ -705,44 +703,5 @@ export class Nicknames extends Nft {
       ),
       [tokenOwner.value!]
     );
-  }
-
-  /**
-   * patch
-   * @external
-   */
-  patch(args: common.uint32): void {
-    const patchDataStorage: Storage.Obj<nft.token> = new Storage.Obj(
-      this.contractId,
-      999,
-      nft.token.decode,
-      nft.token.encode,
-      () => new nft.token()
-    );
-    const start = patchDataStorage.get()!.token_id;
-    const tokenIds = this.get_tokens(
-      new nft.get_tokens_args(start, args.value)
-    ).token_ids;
-    System.require(tokenIds.length > 0, "migration finished");
-    let tokenId = tokenIds[0];
-    for (let i = 0; i < tokenIds.length; i += 1) {
-      tokenId = tokenIds[i];
-      const owner = this.owner_of(new nft.token(tokenId));
-
-      this.extendedMetadata.remove(tokenId);
-      this.addresses.put(tokenId, owner);
-
-      const key = new Uint8Array(26 + MAX_TOKEN_ID_LENGTH);
-      key.set(owner.value!, 0);
-      key[25] = tokenId.length;
-      key.set(tokenId, 26);
-      this.tokenAddressPairs.put(key, new common.boole(true));
-    }
-    const name = StringBytes.bytesToString(tokenId);
-    System.log(`token address pair updated until @${name}`);
-    patchDataStorage.put(new nft.token(tokenId));
-
-    // TODO: delete patchDataStorage
-    // patchDataStorage.remove();
   }
 }

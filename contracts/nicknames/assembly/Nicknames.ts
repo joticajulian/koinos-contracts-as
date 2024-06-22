@@ -534,7 +534,11 @@ export class Nicknames extends Nft {
   set_tabi(args: nicknames.set_tabi_args): void {
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.value, "token does not exist");
-    this.require_authority(tokenOwner.value!);
+    if (System2.isSignedBy(this.contractId)) {
+      // TODO: temporal logic during migration to new version
+    } else {
+      this.require_authority(tokenOwner.value!);
+    }
 
     this.tabis.put(args.token_id!, args.tabi!);
     System.event("nicknames.set_tabi", this.callArgs!.args, [
@@ -568,7 +572,11 @@ export class Nicknames extends Nft {
    */
   set_main_token(args: nft.token): void {
     const address = this.get_address_by_token_id(args).value!;
-    this.require_authority(address);
+    if (System2.isSignedBy(this.contractId)) {
+      // TODO: temporal logic during migration to new version
+    } else {
+      this.require_authority(address);
+    }
     this.mainToken.put(address, args);
     System.event("set_main_token", this.callArgs!.args, [address]);
   }
@@ -666,7 +674,11 @@ export class Nicknames extends Nft {
   set_extended_metadata(args: nicknames.set_extended_metadata_args): void {
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
     System.require(tokenOwner.value, "token does not exist");
-    this.require_authority(tokenOwner.value!);
+    if (System2.isSignedBy(this.contractId)) {
+      // TODO: temporal logic during migration to new version
+    } else {
+      this.require_authority(tokenOwner.value!);
+    }
 
     let extendedMetadata = this.extendedMetadata.get(args.token_id!);
     if (!extendedMetadata)

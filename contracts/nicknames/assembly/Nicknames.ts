@@ -684,7 +684,6 @@ export class Nicknames extends Nft {
     if (!extendedMetadata)
       extendedMetadata = new nicknames.extended_metadata(
         args.token_id!,
-        null,
         false,
         false,
         args.other

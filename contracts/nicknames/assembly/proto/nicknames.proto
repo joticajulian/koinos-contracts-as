@@ -29,7 +29,7 @@ message set_extended_metadata_args {
 
 message extended_metadata {
    bytes token_id = 1 [(koinos.btype) = HEX];
-   bytes address = 2 [(koinos.btype) = ADDRESS];
+   // bytes address = 2 [(koinos.btype) = ADDRESS]; // see set_address
    bool permanent_address = 3;
    bool address_modifiable_only_by_governance = 4;
    bytes other = 10;

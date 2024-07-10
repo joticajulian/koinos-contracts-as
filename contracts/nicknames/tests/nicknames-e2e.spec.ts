@@ -101,7 +101,7 @@ it("should work", async () => {
     token_id: encodeHex("outside"),
   });
   expect(resultOwnerOf).toStrictEqual({
-    account: account1.address,
+    value: account1.address,
   });
 
   // get list of tokens

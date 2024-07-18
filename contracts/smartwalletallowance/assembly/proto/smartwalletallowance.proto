@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package smartwalletallowance;
+
+import "koinos/options.proto";
+
+enum allowance_type {
+   undefined = 0;
+   transfer_token = 1;
+   transfer_nft = 2;
+   mint_token = 3;
+   burn_token = 4;
+   other = 100;
+}
+
+message allowance {
+   allowance_type type = 1;
+   bytes contract_id = 2 [(koinos.btype) = ADDRESS];
+   uint32 entry_point = 3;
+   bytes caller = 4 [(koinos.btype) = ADDRESS];
+   bytes data = 5;
+}
+
+message allowances {
+   bytes transaction_id = 1 [(koinos.btype) = HEX];
+   repeated allowance allowances = 2;
+}

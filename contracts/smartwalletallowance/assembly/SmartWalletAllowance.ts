@@ -12,8 +12,12 @@ import {
   Base64,
 } from "@koinos/sdk-as";
 import { System2, nft, token } from "@koinosbox/contracts";
-
 import { smartwalletallowance } from "./proto/smartwalletallowance";
+
+function logAndFail(error: string): void {
+  System.log(error);
+  System.fail(error);
+}
 
 export class SmartWalletAllowance {
   callArgs: System.getArgumentsReturn | null;
@@ -60,7 +64,7 @@ export class SmartWalletAllowance {
     if (args.type != authority.authorization_type.contract_call) {
       const isAuthorized = System2.isSignedBy(this.contractId);
       if (!isAuthorized) {
-        System.fail(
+        logAndFail(
           `${
             args.type == authority.authorization_type.contract_upload
               ? "contract upload"
@@ -76,13 +80,27 @@ export class SmartWalletAllowance {
       return new authority.authorize_result(true);
     }
 
+    if (!args.call!.caller || args.call!.caller.length == 0) {
+      // request does not come from another contract but from the operations
+      // of the transaction, then there is no need to check the allowances
+      // because the user was able to see the operation. Just check the
+      // signature
+      const isAuthorized = System2.isSignedBy(this.contractId);
+      if (!isAuthorized) {
+        System.fail(
+          `not signed by the wallet ${Base58.encode(this.contractId)}`
+        );
+      }
+      return new authority.authorize_result(true);
+    }
+
     const txId = System.getTransactionField("id")!.bytes_value;
     const allowances = this.allowances.get()!;
     if (
       !Arrays.equal(txId, allowances.transaction_id) ||
       allowances.allowances.length == 0
     ) {
-      System.fail(
+      logAndFail(
         `there are no allowances in the wallet ${Base58.encode(
           this.contractId
         )}`
@@ -99,7 +117,7 @@ export class SmartWalletAllowance {
           allowance.caller &&
           !Arrays.equal(allowance.caller, args.call!.caller)
         ) {
-          System.fail(
+          logAndFail(
             `invalid caller to wallet ${Base58.encode(this.contractId)}`
           );
         }
@@ -112,7 +130,7 @@ export class SmartWalletAllowance {
         }
 
         if (!args.call!.data || args.call!.data.length == 0) {
-          System.fail(
+          logAndFail(
             `the wallet ${Base58.encode(
               this.contractId
             )} expects some data from the caller ${Base58.encode(
@@ -143,7 +161,7 @@ export class SmartWalletAllowance {
               allowanceArgs.from &&
               !Arrays.equal(allowanceArgs.from, transferArgs.from)
             ) {
-              System.fail(
+              logAndFail(
                 `the wallet ${Base58.encode(
                   this.contractId
                 )} expects a different "from" for token transfer`
@@ -153,14 +171,14 @@ export class SmartWalletAllowance {
               allowanceArgs.to &&
               !Arrays.equal(allowanceArgs.to, transferArgs.to)
             ) {
-              System.fail(
+              logAndFail(
                 `the wallet ${Base58.encode(
                   this.contractId
                 )} expects a different "to" for token transfer`
               );
             }
             if (allowanceArgs.value < transferArgs.value) {
-              System.fail(
+              logAndFail(
                 `insufficient value to transfer. The allowance accepts up to ${allowanceArgs.value} but the request was ${transferArgs.value}`
               );
             }
@@ -200,7 +218,7 @@ export class SmartWalletAllowance {
               allowanceArgs.from &&
               !Arrays.equal(allowanceArgs.from, transferArgs.from)
             ) {
-              System.fail(
+              logAndFail(
                 `the wallet ${Base58.encode(
                   this.contractId
                 )} expects a different "from" for nft transfer`
@@ -210,14 +228,14 @@ export class SmartWalletAllowance {
               allowanceArgs.to &&
               !Arrays.equal(allowanceArgs.to, transferArgs.to)
             ) {
-              System.fail(
+              logAndFail(
                 `the wallet ${Base58.encode(
                   this.contractId
                 )} expects a different "to" for nft transfer`
               );
             }
             if (!Arrays.equal(allowanceArgs.token_id, transferArgs.token_id)) {
-              System.fail(
+              logAndFail(
                 `the wallet ${Base58.encode(
                   this.contractId
                 )} expects a different nft to transfer`
@@ -250,14 +268,14 @@ export class SmartWalletAllowance {
               allowanceArgs.to &&
               !Arrays.equal(allowanceArgs.to, mintArgs.to)
             ) {
-              System.fail(
+              logAndFail(
                 `the wallet ${Base58.encode(
                   this.contractId
                 )} expects a different "to" for token mint`
               );
             }
             if (allowanceArgs.value < mintArgs.value) {
-              System.fail(
+              logAndFail(
                 `insufficient value to mint. The allowance accepts up to ${allowanceArgs.value} but the request was ${mintArgs.value}`
               );
             }
@@ -297,14 +315,14 @@ export class SmartWalletAllowance {
               allowanceArgs.from &&
               !Arrays.equal(allowanceArgs.from, burnArgs.from)
             ) {
-              System.fail(
+              logAndFail(
                 `the wallet ${Base58.encode(
                   this.contractId
                 )} expects a different "from" for token burn`
               );
             }
             if (allowanceArgs.value < burnArgs.value) {
-              System.fail(
+              logAndFail(
                 `insufficient value to burn. The allowance accepts up to ${allowanceArgs.value} but the request was ${burnArgs.value}`
               );
             }
@@ -327,7 +345,7 @@ export class SmartWalletAllowance {
           // Other
           case smartwalletallowance.allowance_type.other: {
             if (!Arrays.equal(allowance.data!, args.call!.data)) {
-              System.fail(
+              logAndFail(
                 `error wallet ${Base58.encode(
                   this.contractId
                 )}: Allowance data ${Base64.encode(
@@ -346,7 +364,7 @@ export class SmartWalletAllowance {
       }
     }
 
-    System.fail(
+    logAndFail(
       `no allowance set in wallet ${Base58.encode(
         this.contractId
       )} for contract ${Base58.encode(

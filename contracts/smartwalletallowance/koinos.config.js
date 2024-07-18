@@ -28,29 +28,8 @@ module.exports = {
     },
   ],
   deployOptions: {
-    authorizesTransactionApplication: true,
-  },
-  networks: {
-    harbinger: {
-      rpcNodes: [
-        "https://harbinger-api.koinos.io",
-        "https://testnet.koinosblocks.com",
-      ],
-      accounts: {
-        manaSharer: {
-          privateKey: process.env.HARBINGER_MANA_SHARER_PRIVATE_KEY,
-          managers: process.env.HARBINGER_MANAGERS,
-        },
-      },
-    },
-    mainnet: {
-      rpcNodes: ["https://api.koinosblocks.com", "https://api.koinos.io"],
-      accounts: {
-        manaSharer: {
-          privateKey: process.env.MAINNET_MANA_SHARER_PRIVATE_KEY,
-          managers: process.env.MAINNET_MANAGERS,
-        },
-      },
-    },
+    authorizesCallContract: true,
+    authorizesTransactionApplication: false,
+    authorizesUploadContract: false,
   },
 };

@@ -54,6 +54,7 @@ export class SmartWalletAllowance {
       allowances.allowances = [];
     }
     allowances.allowances.push(args);
+    this.allowances.put(allowances);
   }
 
   /**

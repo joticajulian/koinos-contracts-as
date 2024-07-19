@@ -1159,13 +1159,10 @@
     as-proto "npm:@koinos/as-proto@1.0.1"
     assemblyscript "^0.27.1"
 
-"@koinosbox/contracts@^2.1.3":
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-2.1.3.tgz#c558cbe2b414c2d1a788b601d750286ef8749141"
-  integrity sha512-oUwBCYPnMESZdBwJ7LZuSsWEOTv3DpEjhpct0iTivojh3flvjQnReMOkTv/JfnXUi1lymG90paj0tini4ILLiw==
-  dependencies:
-    koilib "^5.6.1"
-    koinos-precompiler-as "^1.5.0"
+"@koinosbox/contracts@^2.1.5":
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/@koinosbox/contracts/-/contracts-2.1.5.tgz#cf4588401c1b73173a599cdf2d890232aa573090"
+  integrity sha512-Y125wY2CiifolQU/GXg8wHD0YNxMLdkBYJS/Zl0uc4gqZC3To7Y+ajkmpKC+GoMVu/IqHvIYi4q9TXPxz3wkkw==
 
 "@multiformats/base-x@^4.0.1":
   version "4.0.1"
@@ -5094,6 +5091,18 @@ koilib@^5.6.1:
   version "5.6.1"
   resolved "https://registry.yarnpkg.com/koilib/-/koilib-5.6.1.tgz#72f61455959ce00c23ec19d99467cb75e999985b"
   integrity sha512-Ulon6gOYIVf11XzQ18BwY/p6VHdQ3JyIgqgZ/RsATg/VuUUvWoZ8w4nPNBBMohPhXh5lmu/O1E/wQ8BGxfpEvg==
+  dependencies:
+    "@noble/hashes" "^1.3.1"
+    "@noble/secp256k1" "^1.7.1"
+    "@roamin/koinos-pb-to-proto" "^0.0.3"
+    cross-fetch "^3.1.5"
+    multibase "^4.0.6"
+    protobufjs "^7.2.4"
+
+koilib@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/koilib/-/koilib-8.0.0.tgz#1bd4d20bc44a314d4c9cbddad525b662cd78f6c0"
+  integrity sha512-hw2rLDbOlWEt7dhXbo/3MRPvZr4yQbPfe5STxBLLrIp99l5f+JMBRd/9jZD5sKU+1G2wQ5ZSKuKgTzSJ5g1VOQ==
   dependencies:
     "@noble/hashes" "^1.3.1"
     "@noble/secp256k1" "^1.7.1"

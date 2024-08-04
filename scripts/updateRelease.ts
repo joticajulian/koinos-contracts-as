@@ -9,6 +9,7 @@ const CONTRACTS_TO_EXPORT = [
   "manasharer",
   "nft",
   "nicknames",
+  "smartwalletallowance",
   "textparserlib",
   "token",
 ];

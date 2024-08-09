@@ -11,7 +11,7 @@
   ],
   "devDependencies": {
     "@as-covers/core": "^0.4.2",
-    "@as-pect/cli": "^8.0.1",
+    "@as-pect/cli": "^8.1.0",
     "@jest/globals": "^29.6.4",
     "@koinos/mock-vm": "1.0.0",
     "@koinos/sdk-as": "npm:@koinosbox/sdk-as@1.1.0-alpha.4",
@@ -24,7 +24,7 @@
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
     "as-proto": "npm:@koinos/as-proto@1.0.1",
-    "assemblyscript": "^0.27.1",
+    "assemblyscript": "^0.27.29",
     "copyfiles": "^2.4.1",
     "dotenv": "^16.0.3",
     "eslint": "^8.25.0",

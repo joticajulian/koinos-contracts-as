@@ -92,9 +92,50 @@ export async function asbuild(projectName: string, contractName: string) {
 }
 
 export async function test(projectName: string) {
-  await asyncSpawn(
-    `yarn asp --verbose --config contracts/${projectName}/as-pect.config.js`
+  const projectPath = path.join(__dirname, "../contracts", projectName);
+  const tempAsConfigFile = path.join(
+    projectPath,
+    `asconfig-temp-${crypto.randomBytes(5).toString("hex")}.json`
   );
+  fs.writeFileSync(
+    tempAsConfigFile,
+    JSON.stringify(
+      {
+        targets: {
+          coverage: {
+            lib: ["./node_modules/@as-covers/assembly/index.ts"],
+            transform: ["@as-covers/transform", "@as-pect/transform"],
+          },
+          noCoverage: {
+            transform: ["@as-pect/transform"],
+          },
+        },
+        options: {
+          exportMemory: true,
+          outFile: "output.wasm",
+          textFile: "output.wat",
+          bindings: "raw",
+          exportStart: "_start",
+          exportRuntime: true,
+          use: ["RTRACE=1"],
+          debug: true,
+          exportTable: true,
+        },
+        entries: ["./node_modules/@as-pect/assembly/assembly/index.ts"],
+      },
+      null,
+      2
+    )
+  );
+  try {
+    await asyncSpawn(
+      `yarn asp --verbose --config contracts/${projectName}/as-pect.config.js --as-config ${tempAsConfigFile}`
+    );
+    fs.unlinkSync(tempAsConfigFile);
+  } catch (error) {
+    fs.unlinkSync(tempAsConfigFile);
+    throw error;
+  }
 }
 
 export async function testE2E(projectName: string) {

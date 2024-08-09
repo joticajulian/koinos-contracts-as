@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+package ethaddress;
+
+import "koinos/options.proto";

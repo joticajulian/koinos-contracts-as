@@ -5,11 +5,11 @@ module.exports = {
   /**
    * A set of globs passed to the glob package that qualify typescript files for testing.
    */
-  entries: ["./contracts/textparserlib/assembly/__tests__/**/*.spec.ts"],
+  include: ["./contracts/ethaddress/assembly/__tests__/**/*.spec.ts"],
   /**
    * A set of globs passed to the glob package that quality files to be added to each test.
    */
-  include: ["./contracts/textparserlib/assembly/__tests__/**/*.include.ts"],
+  add: ["./contracts/ethaddress/assembly/__tests__/**/*.include.ts"],
   /**
    * All the compiler flags needed for this test suite. Make sure that a binary file is output.
    */
@@ -26,7 +26,7 @@ module.exports = {
   /**
    * Add your required AssemblyScript imports here.
    */
-  async instantiate(memory, createImports, instantiate, binary) {
+  imports(memory, createImports, instantiateSync, binary) {
     let instance; // Imports can reference this
     const mockVM = new MockVM();
 
@@ -40,7 +40,7 @@ module.exports = {
         ...mockVM.getImports(),
       },
     };
-    instance = instantiate(binary, createImports(myImports));
+    instance = instantiateSync(binary, createImports(myImports));
     instance.exports.memory.grow(512);
     mockVM.setInstance(instance);
     return instance;

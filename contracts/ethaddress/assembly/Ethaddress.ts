@@ -12,9 +12,19 @@ import {
   authority,
   value,
   chain,
+  Base58,
 } from "@koinos/sdk-as";
 import { Nft, System2, nft, common } from "@koinosbox/contracts";
 import { ethaddress } from "./proto/ethaddress";
+
+function hexString(buffer: Uint8Array): string {
+  let hex = "0x";
+  for (let i = 0; i < buffer.length; i += 1) {
+    if (buffer[i] < 0x10) hex += "0";
+    hex += buffer[i].toString(16);
+  }
+  return hex;
+}
 
 export class Ethaddress extends Nft {
   callArgs: System.getArgumentsReturn | null;
@@ -60,16 +70,62 @@ export class Ethaddress extends Nft {
   }
 
   /**
+   * Register an ethereum address on koinos blockchain
    * @external
    */
   mint(args: nft.mint_args): void {
-    const message = `link eth address ${4}`;
+    const message = `link eth address ${hexString(
+      args.token_id!
+    )} with koinos address ${Base58.encode(args.to!)}`;
     const authorized = this.checkMessageSignedByEthAddress(
-      "TODO",
-      args.token_id
+      message,
+      args.token_id!
     );
     if (!authorized) {
       System.fail("not signed by the ethereum address");
     }
+    this._mint(args);
+  }
+
+  /**
+   * Link an ethereum address to a different koinos address
+   * @external
+   */
+  transfer(args: nft.transfer_args): void {
+    const message = `change link of eth address ${hexString(
+      args.token_id!
+    )} to koinos address ${Base58.encode(args.to!)}`;
+    const authorized = this.checkMessageSignedByEthAddress(
+      message,
+      args.token_id!
+    );
+    if (!authorized) {
+      System.fail("not signed by the ethereum address");
+    }
+    this._transfer(args);
+  }
+
+  /**
+   * Deprecated - set metadata
+   * @external
+   */
+  set_metadata(args: nft.metadata_args): void {
+    System.fail("set_metadata is deprecated");
+  }
+
+  /**
+   * Deprecated - approve
+   * @external
+   */
+  approve(args: nft.approve_args): void {
+    System.fail("approve is deprecated");
+  }
+
+  /**
+   * Deprecated - set_approval_for_all
+   * @external
+   */
+  set_approval_for_all(args: nft.set_approval_for_all_args): void {
+    System.fail("set_approval_for_all is deprecated");
   }
 }

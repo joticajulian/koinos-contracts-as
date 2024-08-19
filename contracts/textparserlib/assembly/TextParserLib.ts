@@ -3,6 +3,7 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { Base58, Base64, System } from "@koinos/sdk-as";
+import { INicknames } from "@koinosbox/contracts";
 import { WireType, Writer } from "as-proto";
 
 export class resultWords {

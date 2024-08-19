@@ -45,6 +45,9 @@ module.exports = {
         process.env.HARBINGER_GET_CONTRACT_METADATA_TEST_WALLET
       ),
       vapor: keysHarbinger(process.env.HARBINGER_VAPOR),
+      smartwalletallowance: {
+        privateKey: process.env.HARBINGER_SMART_WALLET_ALLOWANCE_PRIVATE_KEY,
+      },
     },
   },
   mainnet: {
@@ -68,6 +71,9 @@ module.exports = {
         process.env.MAINNET_GET_CONTRACT_METADATA_TEST_WALLET
       ),
       vapor: keysMainnet(process.env.MAINNET_VAPOR),
+      smartwalletallowance: {
+        privateKey: process.env.MAINNET_SMART_WALLET_ALLOWANCE_PRIVATE_KEY,
+      },
     },
   },
 };

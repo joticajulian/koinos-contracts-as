@@ -607,23 +607,24 @@ export class Nicknames extends Nft {
   set_address(args: nicknames.set_address_args): void {
     const address = this.get_address_by_token_id(new nft.token(args.token_id!));
 
-    if (System2.isSignedBy(this.contractId)) {
-      // TODO: temporal if while a new set_metadata management
-      // is implemented
+    let isAdminUpdate = false;
+    if (args.gov_proposal_update) {
+      System.require(
+        System.checkSystemAuthority(),
+        "not authorized by governance"
+      );
+      if (!address.address_modifiable_only_by_governance) {
+        System.log("nickname address not modifiable by governance");
+        return;
+      }
+      if (address.permanent_address) {
+        System.log("nickname address permanent");
+        return;
+      }
     } else {
-      if (args.gov_proposal_update) {
-        System.require(
-          System.checkSystemAuthority(),
-          "not authorized by governance"
-        );
-        if (!address.address_modifiable_only_by_governance) {
-          System.log("nickname address not modifiable by governance");
-          return;
-        }
-        if (address.permanent_address) {
-          System.log("nickname address permanent");
-          return;
-        }
+      if (System2.isSignedBy(this.contractId)) {
+        // TODO: temporal if
+        isAdminUpdate = true;
       } else {
         const tokenOwner = this.tokenOwners.get(args.token_id!)!;
         System.require(tokenOwner.value, "token does not exist");
@@ -637,7 +638,8 @@ export class Nicknames extends Nft {
 
     System.require(!address.permanent_address, "address is permanent");
     System.require(
-      args.gov_proposal_update ||
+      isAdminUpdate ||
+        args.gov_proposal_update ||
         !address.address_modifiable_only_by_governance,
       "address modifiable only by governance"
     );

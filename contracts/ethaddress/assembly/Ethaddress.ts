@@ -5,17 +5,14 @@
 import {
   System,
   Crypto,
-  Storage,
   StringBytes,
   Arrays,
   Protobuf,
-  authority,
   value,
   chain,
   Base58,
 } from "@koinos/sdk-as";
-import { Nft, System2, nft, common } from "@koinosbox/contracts";
-import { ethaddress } from "./proto/ethaddress";
+import { Nft, nft } from "@koinosbox/contracts";
 
 function hexString(buffer: Uint8Array): string {
   let hex = "0x";

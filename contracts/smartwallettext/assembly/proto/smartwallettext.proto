@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package smartwallettext;
+
+import "koinos/options.proto";
+
+message authorities {
+   bool koin_address_authority = 1;
+   bool eth_address_authority = 2;
+   bytes eth_address = 3 [(koinos.btype) = HEX];
+}

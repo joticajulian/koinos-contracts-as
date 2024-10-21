@@ -33,20 +33,11 @@ export class SmartWalletAllowance {
     System.fail(error);
   }
 
-  /**
-   * Set an allowance in user's contract
-   * @external
-   */
-  set_allowance(args: smartwalletallowance.allowance): void {
+  _set_allowance(args: smartwalletallowance.allowance): void {
     System.require(
       args.type != smartwalletallowance.allowance_type.undefined,
       "allowance type cannot be undefined"
     );
-    const isAuthorized = System2.isSignedBy(this.contractId);
-    if (!isAuthorized)
-      System.fail(
-        `not authorized by the wallet ${Base58.encode(this.contractId)}`
-      );
 
     const txId = System.getTransactionField("id")!.bytes_value;
     const allowances = this.allowances.get()!;
@@ -56,6 +47,19 @@ export class SmartWalletAllowance {
     }
     allowances.allowances.push(args);
     this.allowances.put(allowances);
+  }
+
+  /**
+   * Set an allowance in user's contract
+   * @external
+   */
+  set_allowance(args: smartwalletallowance.allowance): void {
+    const isAuthorized = System2.isSignedBy(this.contractId);
+    if (!isAuthorized)
+      System.fail(
+        `not authorized by the wallet ${Base58.encode(this.contractId)}`
+      );
+    this._set_allowance(args);
   }
 
   /**

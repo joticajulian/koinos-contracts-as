@@ -2,11 +2,11 @@ const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
-  class: "SmartWalletAllowance",
+  class: "SmartWalletText",
   version: "1.0.0",
   supportAbi1: true,
   proto: ["./proto/smartwalletallowance.proto"],
-  files: ["./SmartWalletAllowance.ts"],
+  files: ["./SmartWalletText.ts"],
   sourceDir: "./assembly",
   buildDir: "./build",
   protoImport: [

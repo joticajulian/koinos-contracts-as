@@ -12,17 +12,17 @@ import {
   Base64,
   StringBytes,
 } from "@koinos/sdk-as";
-import { System2, common, nft, token, INicknames } from "@koinosbox/contracts";
+import { System2, common, nft, INicknames, token, IToken } from "@koinosbox/contracts";
 import { smartwalletallowance } from "./proto/smartwalletallowance";
 import { SmartWalletAllowance } from "../../smartwalletallowance/assembly/SmartWalletAllowance";
 import { TextParserLib } from "../../../assembly";
 import { messageField, resultField } from "@koinosbox/contracts/assembly/textparserlib/TextParserLib";
 
-export class SmartWalletEth extends SmartWalletAllowance {
+export class SmartWalletText extends SmartWalletAllowance {
 
   nonce: Storage.Obj<common.uint32> = new Storage.Obj(
     this.contractId,
-    0,
+    1,
     common.uint32.decode,
     common.uint32.encode,
     () => new common.uint32(0)
@@ -51,24 +51,12 @@ export class SmartWalletEth extends SmartWalletAllowance {
    * @external
    */
   set_allowance(args: smartwalletallowance.allowance): void {
-    System.require(
-      args.type != smartwalletallowance.allowance_type.undefined,
-      "allowance type cannot be undefined"
-    );
     const isAuthorized = System2.isSignedBy(this.contractId);
     if (!isAuthorized)
       System.fail(
         `not authorized by the wallet ${Base58.encode(this.contractId)}`
       );
-
-    const txId = System.getTransactionField("id")!.bytes_value;
-    const allowances = this.allowances.get()!;
-    if (!Arrays.equal(txId, allowances.transaction_id)) {
-      allowances.transaction_id = txId;
-      allowances.allowances = [];
-    }
-    allowances.allowances.push(args);
-    this.allowances.put(allowances);
+    this._set_allowance(args);
   }
 
   executeTransaction(example: string): void {
@@ -108,7 +96,7 @@ allow @pob to burn 1000 KOIN
           parsed = lib.parseMessage(commandContent, tabi.patterns[j]);
           if (!parsed.error) {
             args = parsed.field;
-            entryPoint = tabi.entry_points[]
+            entryPoint = tabi.entry_points[j];
           }
         }
 
@@ -120,14 +108,38 @@ allow @pob to burn 1000 KOIN
         const callRes = System.call(tabi.address, entryPoint, argsBuffer);
         if (callRes.code != 0) {
           const errorMessage = `failed to call ${commandHeader} ${callRes.res.error && callRes.res.error!.message ? callRes.res.error!.message : "unknown error"}`;
-        System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
+          System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
+        }
       } else if (commandHeader === "allow") {
         // allowances
-
         // "allow @pob to burn 1000 KOIN"
+        const allowTransfer = lib.parseMessage(commandHeader, "allow %3_address to transfer %2_u64_8 %1_address");
+        if (!allowTransfer.error) {
+          const tokenAddress = allowTransfer.field.nested[0].bytes;
+          const limit = allowTransfer.field.nested[1].uint64;
+          const spender = allowTransfer.field.nested[2].bytes;
+
+          const transferData = Protobuf.encode(
+            new token.transfer_args(
+              this.contractId,
+              null, // allow to transfer to anyone
+              limit
+            ),
+            token.transfer_args.encode
+          );IToken
+
+          // todo: create an internal this._set_allowance without checking signature?
+          this._set_allowance(new smartwalletallowance.allowance(
+            smartwalletallowance.allowance_type.transfer_token,
+            tokenAddress,
+            0x27f576ca, // transfer entry point
+            spender,
+            transferData
+          ));
+          continue;
+        }
       }
     }
-
 
     this.reentrantUnlock();
   }

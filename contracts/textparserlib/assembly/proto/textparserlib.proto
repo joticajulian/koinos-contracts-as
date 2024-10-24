@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package textparserlib;
+
+import "koinos/options.proto"; 
+
+message parse_message_args {
+   string message = 1;
+   string pattern = 2;
+};
+
+message parse_message_result {
+   string error = 1;
+   bytes result = 2;
+}

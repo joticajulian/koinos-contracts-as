@@ -2,9 +2,11 @@
 // Text Parser Library {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { Base58, Base64, System } from "@koinos/sdk-as";
+import { Base58, Base64, System, Protobuf } from "@koinos/sdk-as";
 import { INicknames } from "@koinosbox/contracts";
 import { WireType, Writer } from "as-proto";
+import { textparserlib } from "./proto/textparserlib";
+
 
 export class resultWords {
   error: string | null;
@@ -20,20 +22,20 @@ export class resultWords {
 export class resultNumber {
   error: string | null;
 
-  uint64: u64 | null;
+  uint64: u64;
 
-  uint32: u32 | null;
+  uint32: u32;
 
-  int64: i64 | null;
+  int64: i64;
 
-  int32: i32 | null;
+  int32: i32;
 
   constructor(
     error: string | null = null,
-    uint64: u64 | null = 0,
-    uint32: u32 | null = 0,
-    int64: i64 | null = 0,
-    int32: i32 | null = 0
+    uint64: u64 = 0,
+    uint32: u32 = 0,
+    int64: i64 = 0,
+    int32: i32 = 0
   ) {
     this.error = error;
     this.uint64 = uint64;
@@ -560,5 +562,19 @@ export class TextParserLib {
       }
     }
     return message;
+  }
+
+  /**
+   * Enconde a plain text message
+   * @external
+   * @readonly
+   */
+  parse_message(args: textparserlib.parse_message_args): textparserlib.parse_message_result {
+    const parsed = this.parseMessage(args.message!, args.pattern!);
+    if (parsed.error) {
+      return new textparserlib.parse_message_result(parsed.error);
+    }
+    const data = Protobuf.encode(parsed.field, messageField.encode);
+    return new textparserlib.parse_message_result(null, data);
   }
 }

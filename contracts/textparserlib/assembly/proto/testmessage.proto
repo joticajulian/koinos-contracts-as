@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package textparserlib;
+package testmessage;
 
 import "koinos/options.proto"; 
 

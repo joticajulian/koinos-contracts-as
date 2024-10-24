@@ -2,6 +2,10 @@ import fs from "fs";
 import path from "path";
 import { asbuild, getDeployableContracts, precompile } from "./compiler";
 
+const buildAllSkip = [
+  "smartwallettext",
+];
+
 const [command] = process.argv.slice(2);
 
 async function main() {
@@ -26,6 +30,7 @@ async function main() {
         .filter((c) => c.isDirectory());
       for (let i = 0; i < contracts.length; i += 1) {
         const projectName = contracts[i].name;
+        if (buildAllSkip.includes(projectName)) continue;
         const deployableContracts = getDeployableContracts(projectName);
         for (let j = 0; j < deployableContracts.length; j += 1) {
           const contractName = deployableContracts[j];

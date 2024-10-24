@@ -54,38 +54,38 @@ export class SmartWalletAllowance {
    * @external
    */
   set_allowance(args: smartwalletallowance.allowance): void {
+    const caller = System.getCaller().caller;
+    if (caller && caller.length > 0) {
+      System.fail("set allowance must be called from the transaction operations");
+    }
     const isAuthorized = System2.isSignedBy(this.contractId);
-    if (!isAuthorized)
+    if (!isAuthorized) {
       System.fail(
         `not authorized by the wallet ${Base58.encode(this.contractId)}`
       );
+    }
     this._set_allowance(args);
   }
 
-  /**
-   * Authorize function
-   * @external
-   */
-  authorize(args: authority.authorize_arguments): authority.authorize_result {
-    if (args.type != authority.authorization_type.contract_call) {
-      const isAuthorized = System2.isSignedBy(this.contractId);
-      if (!isAuthorized) {
-        System.fail(
-          `${
-            args.type == authority.authorization_type.contract_upload
-              ? "contract upload"
-              : "transaction application"
-          } not authorized by the wallet ${Base58.encode(this.contractId)}`
-        );
+  _authorizeWithSignature(args: authority.authorize_arguments): authority.authorize_result {
+    const isAuthorized = System2.isSignedBy(this.contractId);
+    if (!isAuthorized) {
+      let type = "";
+      if (args.type == authority.authorization_type.contract_call) {
+        type = "contract call";
+      } else if (args.type == authority.authorization_type.contract_upload) {
+        type = "contract upload";
+      } else {
+        type = "transaction application";
       }
-      // In Koinos there are no contract factories, then the upload contract comes
-      // always from an operation and it is safe to return true if the signature
-      // is present in the transaction. The same for transaction application.
-      // Once contract factories are supported in Koinos, the current logic in
-      // the authorize function must be updated.
-      return new authority.authorize_result(true);
+      System.fail(
+        `${type} not authorized by the wallet ${Base58.encode(this.contractId)}`
+      );
     }
+    return new authority.authorize_result(true);
+  }
 
+  _authorizeWithAllowances(args: authority.authorize_arguments): authority.authorize_result {
     if (!args.call!.caller || args.call!.caller.length == 0) {
       // request does not come from another contract but from the operations
       // of the transaction, then there is no need to check the allowances
@@ -379,5 +379,21 @@ export class SmartWalletAllowance {
     );
 
     return new authority.authorize_result(false);
+  }
+
+  /**
+   * Authorize function
+   * @external
+   */
+  authorize(args: authority.authorize_arguments): authority.authorize_result {
+    if (args.type != authority.authorization_type.contract_call) {
+      // In Koinos there are no contract factories, then the upload contract comes
+      // always from an operation and it is safe to return true if the signature
+      // is present in the transaction. The same for transaction application.
+      // Once contract factories are supported in Koinos, the current logic in
+      // the authorize function must be updated.
+      return this._authorizeWithSignature(args);
+    }
+    return this._authorizeWithAllowances(args);
   }
 }

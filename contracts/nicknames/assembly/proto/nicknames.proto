@@ -4,8 +4,18 @@ package nicknames;
 
 import "koinos/options.proto";
 
+message tabi_item {
+   string pattern = 1;
+   uint32 entry_point = 2;
+}
+
 message tabi {
-   repeated string patterns = 1;
+   repeated tabi_item items = 1;
+}
+
+message get_tabi_result {
+   repeated tabi_item items = 1;
+   bytes address = 2 [(koinos.btype) = ADDRESS];
 }
 
 message set_tabi_args {

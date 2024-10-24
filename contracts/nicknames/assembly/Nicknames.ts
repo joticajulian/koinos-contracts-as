@@ -269,8 +269,11 @@ export class Nicknames extends Nft {
    * @external
    * @readonly
    */
-  get_tabi(args: nft.token): nicknames.tabi {
-    return this.tabis.get(args.token_id!)!;
+  get_tabi(args: nft.token): nicknames.get_tabi_result {
+    const tabi = this.tabis.get(args.token_id!)!;
+    const address = this.addresses.get(args.token_id!);
+    if (!address || !address.value) System.fail("nickname does not exist");
+    return new nicknames.get_tabi_result(tabi.items, address!.value);
   }
 
   /**

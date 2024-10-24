@@ -7,28 +7,34 @@ import {
   Storage,
   Arrays,
   authority,
-  Base58,
   Protobuf,
-  Base64,
   value,
   Crypto,
   chain,
   StringBytes,
 } from "@koinos/sdk-as";
-import { System2, common, nft, INicknames, token, IToken } from "@koinosbox/contracts";
+import { System2, common, nft, INicknames, token } from "@koinosbox/contracts";
 import { smartwalletallowance } from "./proto/smartwalletallowance";
 import { SmartWalletAllowance } from "../../smartwalletallowance/assembly/SmartWalletAllowance";
 import { TextParserLib as ITextParserLib } from "../../textparserlib/build/ITextParserLib";
 import { textparserlib } from "../../textparserlib/build/proto/textparserlib";
+import { smartwallettext } from "./proto/smartwallettext";
 
 export class SmartWalletText extends SmartWalletAllowance {
-
   nonce: Storage.Obj<common.uint32> = new Storage.Obj(
     this.contractId,
     1,
     common.uint32.decode,
     common.uint32.encode,
     () => new common.uint32(0)
+  );
+
+  authorities: Storage.Obj<smartwallettext.authorities> = new Storage.Obj(
+    this.contractId,
+    2,
+    smartwallettext.authorities.decode,
+    smartwallettext.authorities.encode,
+    () => new smartwallettext.authorities(true, false)
   );
 
   reentrantLocked: Storage.Obj<common.boole> = new Storage.Obj(
@@ -91,8 +97,9 @@ export class SmartWalletText extends SmartWalletAllowance {
       System.fail("this call must be called from the transaction operations");
     }
 
-    const koin_address_authority = true;
-    if (koin_address_authority) {
+    const authorities = this.authorities.get()!;
+
+    if (authorities.koin_address_authority) {
       // For Koinos signatures the message is the transaction ID
       const isAuthorized = System2.isSignedBy(this.contractId);
       if (isAuthorized) return true;
@@ -102,14 +109,25 @@ export class SmartWalletText extends SmartWalletAllowance {
       System.fail("No signature found from the authorities (koin_address)");
     }
 
-    const eth_address_authority = true;
-    const eth_address = new Uint8Array(0);
-    if (eth_address_authority) {
-      const isAuthorized = this.checkMessageSignedByEthAddress(message, eth_address);
+    if (authorities.eth_address_authority) {
+      const isAuthorized = this.checkMessageSignedByEthAddress(
+        message,
+        authorities.eth_address!
+      );
       if (isAuthorized) return true;
     }
 
     System.fail("No signature found from the authorities");
+  }
+
+  /**
+   * @external
+   */
+  set_authorities(args: smartwallettext.authorities): void {
+    // todo: how to sign with ETH?
+    this.verifySignature();
+    this.authorities.put(args);
+    System.event("smartwallettext.authorities", this.callArgs!.args, []);
   }
 
   /**
@@ -125,28 +143,34 @@ export class SmartWalletText extends SmartWalletAllowance {
    * Execute a text plain transaction
    * @external
    */
-  executeTransaction(args: common.str): void {
+  execute_transaction(args: common.str): void {
     this.reentrantLock();
     this.verifySignature(args.value);
 
     const commands = args.value.split("\n");
     const lib = new ITextParserLib(new Uint8Array(25)); // TODO: set address
-    //let parsed: resultField | null = null;
     let parsed: textparserlib.parse_message_result;
-    parsed = lib.parse_message(new textparserlib.parse_message_args(
-      commands[0].trim(),
-      "Koinos transaction # %1_u32"
-    ));
+    parsed = lib.parse_message(
+      new textparserlib.parse_message_args(
+        commands[0].trim(),
+        "Koinos transaction # %1_u32"
+      )
+    );
     if (parsed.error) {
       System.fail(`invalid nonce: ${parsed.error}`);
     }
     const nonce = this.nonce.get()!;
-    const newNonce = Protobuf.decode<common.uint32>(parsed.result, common.uint32.decode).value;
+    const newNonce = Protobuf.decode<common.uint32>(
+      parsed.result,
+      common.uint32.decode
+    ).value;
     System.log(`nonce: ${newNonce}`);
     if (newNonce != nonce.value + 1) {
-      System.fail(`invalid nonce. Expected ${nonce.value + 1}. Received ${newNonce}`);
+      System.fail(
+        `invalid nonce. Expected ${nonce.value + 1}. Received ${newNonce}`
+      );
     }
-    
+
     for (let i = 1; i < commands.length; i += 1) {
       const command = commands[i].trim();
       if (!command) continue;
@@ -156,16 +180,20 @@ export class SmartWalletText extends SmartWalletAllowance {
       if (commandHeader.startsWith("@")) {
         const contractName = commandHeader.slice(1).replace(":", "");
         const commandContent = command.slice(posDiv);
-        const tabi = nicknames.get_tabi(new nft.token(StringBytes.stringToBytes(contractName)));
+        const tabi = nicknames.get_tabi(
+          new nft.token(StringBytes.stringToBytes(contractName))
+        );
         //let commandArgs: messageField | null = null;
         let entryPoint: u32 = 0;
         let argsBuffer: Uint8Array;
         let parsedOk = false;
         for (let j = 0; j < tabi.patterns.length; j += 1) {
-          parsed = lib.parse_message(new textparserlib.parse_message_args(
-            commandContent,
-            tabi.patterns[j]
-          ));
+          parsed = lib.parse_message(
+            new textparserlib.parse_message_args(
+              commandContent,
+              tabi.patterns[j]
+            )
+          );
 
           if (!parsed.error) {
             argsBuffer = parsed.result;
@@ -181,37 +209,48 @@ export class SmartWalletText extends SmartWalletAllowance {
 
         const callRes = System.call(tabi.address, entryPoint, argsBuffer);
         if (callRes.code != 0) {
-          const errorMessage = `failed to call ${commandHeader} ${callRes.res.error && callRes.res.error!.message ? callRes.res.error!.message : "unknown error"}`;
+          const errorMessage = `failed to call ${commandHeader} ${
+            callRes.res.error && callRes.res.error!.message
+              ? callRes.res.error!.message
+              : "unknown error"
+          }`;
           System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
         }
       } else if (commandHeader === "allow") {
         // allowances
-        // "allow @pob to burn 1000 KOIN"
-        const allowTransfer = lib.parseMessage(commandHeader, "allow %3_address to transfer %2_u64_8 %1_address");
+        const allowTransfer = lib.parse_message(
+          new textparserlib.parse_message_args(
+            command,
+            "allow %3_address to transfer %2_u64_8 %1_address"
+          )
+        );
         if (!allowTransfer.error) {
-          const tokenAddress = allowTransfer.field.nested[0].bytes;
-          const limit = allowTransfer.field.nested[1].uint64;
-          const spender = allowTransfer.field.nested[2].bytes;
-
+          const allow = Protobuf.decode<smartwallettext.allow_token_operation>(
+            allowTransfer.result,
+            smartwallettext.allow_token_operation.decode
+          );
           const transferData = Protobuf.encode(
             new token.transfer_args(
               this.contractId,
               null, // allow to transfer to anyone
-              limit
+              allow.limit
             ),
             token.transfer_args.encode
-          );IToken
+          );
 
-          // todo: create an internal this._set_allowance without checking signature?
-          this._set_allowance(new smartwalletallowance.allowance(
-            smartwalletallowance.allowance_type.transfer_token,
-            tokenAddress,
-            0x27f576ca, // transfer entry point
-            spender,
-            transferData
-          ));
+          this._set_allowance(
+            new smartwalletallowance.allowance(
+              smartwalletallowance.allowance_type.transfer_token,
+              allow.token,
+              0x27f576ca, // transfer entry point
+              allow.spender,
+              transferData
+            )
+          );
           continue;
         }
+
+        System.fail(`allowance command not supported`);
       }
     }
 

@@ -56,7 +56,9 @@ export class SmartWalletAllowance {
   set_allowance(args: smartwalletallowance.allowance): void {
     const caller = System.getCaller().caller;
     if (caller && caller.length > 0) {
-      System.fail("set allowance must be called from the transaction operations");
+      System.fail(
+        "set allowance must be called from the transaction operations"
+      );
     }
     const isAuthorized = System2.isSignedBy(this.contractId);
     if (!isAuthorized) {
@@ -67,7 +69,9 @@ export class SmartWalletAllowance {
     this._set_allowance(args);
   }
 
-  _authorizeWithSignature(args: authority.authorize_arguments): authority.authorize_result {
+  _authorizeWithSignature(
+    args: authority.authorize_arguments
+  ): authority.authorize_result {
     const isAuthorized = System2.isSignedBy(this.contractId);
     if (!isAuthorized) {
       let type = "";
@@ -85,7 +89,9 @@ export class SmartWalletAllowance {
     return new authority.authorize_result(true);
   }
 
-  _authorizeWithAllowances(args: authority.authorize_arguments): authority.authorize_result {
+  _authorizeWithAllowances(
+    args: authority.authorize_arguments
+  ): authority.authorize_result {
     if (!args.call!.caller || args.call!.caller.length == 0) {
       // request does not come from another contract but from the operations
       // of the transaction, then there is no need to check the allowances

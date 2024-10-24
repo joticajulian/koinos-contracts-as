@@ -9,3 +9,15 @@ message authorities {
    bool eth_address_authority = 2;
    bytes eth_address = 3 [(koinos.btype) = HEX];
 }
+
+message allow_token_operation {
+   bytes token = 1 [(koinos.btype) = ADDRESS];
+   uint64 limit = 2;
+   bytes spender = 3 [(koinos.btype) = ADDRESS];
+}
+
+message allow_nft_operation {
+   bytes collection = 1 [(koinos.btype) = ADDRESS];
+   bytes token_id = 2 [(koinos.btype) = HEX];
+   bytes spender = 3 [(koinos.btype) = ADDRESS];
+}

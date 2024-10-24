@@ -7,7 +7,6 @@ import { INicknames } from "@koinosbox/contracts";
 import { WireType, Writer } from "as-proto";
 import { textparserlib } from "./proto/textparserlib";
 
-
 export class resultWords {
   error: string | null;
 
@@ -569,7 +568,9 @@ export class TextParserLib {
    * @external
    * @readonly
    */
-  parse_message(args: textparserlib.parse_message_args): textparserlib.parse_message_result {
+  parse_message(
+    args: textparserlib.parse_message_args
+  ): textparserlib.parse_message_result {
     const parsed = this.parseMessage(args.message!, args.pattern!);
     if (parsed.error) {
       return new textparserlib.parse_message_result(parsed.error);

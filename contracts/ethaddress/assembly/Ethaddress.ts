@@ -2,17 +2,8 @@
 // EthAddress Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import {
-  System,
-  Crypto,
-  StringBytes,
-  Arrays,
-  Protobuf,
-  value,
-  chain,
-  Base58,
-} from "@koinos/sdk-as";
-import { Nft, nft } from "@koinosbox/contracts";
+import { System, Base58 } from "@koinos/sdk-as";
+import { Nft, nft, System2 } from "@koinosbox/contracts";
 
 function hexString(buffer: Uint8Array): string {
   let hex = "0x";
@@ -30,42 +21,6 @@ export class Ethaddress extends Nft {
   _symbol: string = "ETHADDRESS";
   _uri: string = "";
 
-  checkMessageSignedByEthAddress(
-    message: string,
-    ethAddress: Uint8Array
-  ): boolean {
-    const sigBytes =
-      System.getTransactionField("signatures")!.message_value!.value!;
-    const signatures = Protobuf.decode<value.list_type>(
-      sigBytes,
-      value.list_type.decode
-    );
-    const ethMessage = `\x19Ethereum Signed Message:\n${message.length}${message}`;
-    let multihashBytes = System.hash(
-      Crypto.multicodec.keccak_256,
-      StringBytes.stringToBytes(ethMessage)
-    );
-
-    for (let i = 0; i < signatures.values.length; i++) {
-      if (signatures.values[i].bytes_value.length != 65) continue;
-      const publicKey = System.recoverPublicKey(
-        signatures.values[i].bytes_value,
-        multihashBytes!,
-        chain.dsa.ecdsa_secp256k1,
-        false
-      );
-      multihashBytes = System.hash(
-        Crypto.multicodec.keccak_256,
-        publicKey!.subarray(1)
-      );
-      let mh = new Crypto.Multihash();
-      mh.deserialize(multihashBytes!);
-      if (Arrays.equal(mh.digest.subarray(-20), ethAddress)) return true;
-    }
-
-    return false;
-  }
-
   /**
    * Register an ethereum address on koinos blockchain
    * @external
@@ -74,7 +29,7 @@ export class Ethaddress extends Nft {
     const message = `link eth address ${hexString(
       args.token_id!
     )} with koinos address ${Base58.encode(args.to!)}`;
-    const authorized = this.checkMessageSignedByEthAddress(
+    const authorized = System2.checkMessageSignedByEthAddress(
       message,
       args.token_id!
     );
@@ -92,7 +47,7 @@ export class Ethaddress extends Nft {
     const message = `change link of eth address ${hexString(
       args.token_id!
     )} to koinos address ${Base58.encode(args.to!)}`;
-    const authorized = this.checkMessageSignedByEthAddress(
+    const authorized = System2.checkMessageSignedByEthAddress(
       message,
       args.token_id!
     );

@@ -575,10 +575,13 @@ export class Nicknames extends Nft {
    */
   set_main_token(args: nft.token): void {
     const address = this.get_address_by_token_id(args).value!;
-    if (System2.isSignedBy(this.contractId)) {
-      // TODO: temporal logic during migration to new version
-    } else {
-      this.require_authority(address);
+    // governance can update the main token
+    if (!System.checkSystemAuthority()) {
+      if (System2.isSignedBy(this.contractId)) {
+        // TODO: temporal logic during migration to new version
+      } else {
+        this.require_authority(address);
+      }
     }
     this.mainToken.put(address, args);
     System.event("set_main_token", this.callArgs!.args, [address]);

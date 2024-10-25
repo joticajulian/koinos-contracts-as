@@ -40,7 +40,8 @@ export async function precompile(projectName: string, contractName: string) {
   await asyncSpawn(command);
 }
 
-export async function asbuild(projectName: string, contractName: string) {
+export async function asbuild(projectName: string, contractName: string, buildForTesting: boolean) {
+  console.log(`BUILD FOR ${buildForTesting ? "TESTING" : "MAINNET"}`);
   const projectPath = path.join(__dirname, "../contracts", projectName);
   const tempAsConfigFile = path.join(
     projectPath,
@@ -65,6 +66,9 @@ export async function asbuild(projectName: string, contractName: string) {
             shrinkLevel: 0,
             converge: false,
             noAssert: false,
+            use: [
+              `BUILD_FOR_TESTING=${buildForTesting ? "1" : "0"}`
+            ]
           },
         },
         options: {

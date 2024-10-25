@@ -84,7 +84,6 @@ contracts.forEach((contract) => {
   contractFiles.forEach((contractFile) => {
     if (
       contractFile.endsWith(".ts") &&
-      // todo: create a better solution for vapor/utils.ts
       contractFile !== "utils.ts" &&
       contractFile !== "index.ts" &&
       contractFile !== "constants.ts" &&

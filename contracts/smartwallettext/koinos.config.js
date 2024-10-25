@@ -5,10 +5,16 @@ module.exports = {
   class: "SmartWalletText",
   version: "1.0.0",
   supportAbi1: true,
-  proto: ["./proto/smartwalletallowance.proto"],
+  proto: ["./proto/smartwallettext.proto"],
   files: ["./SmartWalletText.ts"],
   sourceDir: "./assembly",
   buildDir: "./build",
+  filesImport: [
+    {
+      dependency: "@koinosbox/contracts",
+      path: "../../node_modules/@koinosbox/contracts/assembly/smartwalletallowance/SmartWalletAllowance.ts",
+    },
+  ],
   protoImport: [
     {
       name: "@koinosbox/contracts",
@@ -16,7 +22,7 @@ module.exports = {
         process.env.IMPORT_KOINOSBOX_PROTO_FROM_NODE_MODULES === "true"
           ? "../../node_modules/@koinosbox/contracts/koinosbox-proto"
           : "../../koinosbox-proto",
-      exclude: ["smartwalletallowance"],
+      exclude: ["smartwallettext"],
     },
     {
       name: "@koinos/sdk-as",

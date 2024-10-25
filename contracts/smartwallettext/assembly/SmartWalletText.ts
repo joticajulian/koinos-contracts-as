@@ -5,20 +5,30 @@
 import {
   System,
   Storage,
-  Arrays,
   authority,
   Protobuf,
-  value,
-  Crypto,
-  chain,
   StringBytes,
 } from "@koinos/sdk-as";
-import { System2, common, nft, INicknames, token } from "@koinosbox/contracts";
-import { smartwalletallowance } from "./proto/smartwalletallowance";
-import { SmartWalletAllowance } from "../../smartwalletallowance/assembly/SmartWalletAllowance";
-import { TextParserLib as ITextParserLib } from "../../textparserlib/build/ITextParserLib";
-import { textparserlib } from "../../textparserlib/build/proto/textparserlib";
+import {
+  System2,
+  common,
+  nft,
+  INicknames,
+  token,
+  smartwalletallowance,
+  SmartWalletAllowance,
+  ITextParserLib,
+  textparserlib,
+} from "@koinosbox/contracts";
 import { smartwallettext } from "./proto/smartwallettext";
+
+const nicknamesContractId = BUILD_FOR_TESTING
+  ? System2.NICKNAMES_CONTRACT_ID_HARBINGER
+  : System2.NICKNAMES_CONTRACT_ID_MAINNET;
+
+const textparserlibContractId = BUILD_FOR_TESTING
+  ? System2.TEXTPARSERLIB_CONTRACT_ID_HARBINGER
+  : System2.TEXTPARSERLIB_CONTRACT_ID_MAINNET;
 
 export class SmartWalletText extends SmartWalletAllowance {
   nonce: Storage.Obj<common.uint32> = new Storage.Obj(
@@ -55,7 +65,7 @@ export class SmartWalletText extends SmartWalletAllowance {
     this.reentrantLocked.put(new common.boole(false));
   }
 
-  verifySignature(message: string = ""): boolean {
+  verifySignature(message: string = ""): void {
     const caller = System.getCaller().caller;
     if (caller && caller.length > 0) {
       System.fail("this call must be called from the transaction operations");
@@ -66,7 +76,7 @@ export class SmartWalletText extends SmartWalletAllowance {
     if (authorities.koin_address_authority) {
       // For Koinos signatures the message is the transaction ID
       const isAuthorized = System2.isSignedBy(this.contractId);
-      if (isAuthorized) return true;
+      if (isAuthorized) return;
     }
 
     if (!message) {
@@ -78,7 +88,7 @@ export class SmartWalletText extends SmartWalletAllowance {
         message,
         authorities.eth_address!
       );
-      if (isAuthorized) return true;
+      if (isAuthorized) return;
     }
 
     System.fail("No signature found from the authorities");
@@ -109,10 +119,10 @@ export class SmartWalletText extends SmartWalletAllowance {
    */
   execute_transaction(args: common.str): void {
     this.reentrantLock();
-    this.verifySignature(args.value);
+    this.verifySignature(args.value!);
 
-    const commands = args.value.split("\n");
-    const lib = new ITextParserLib(new Uint8Array(25)); // TODO: set address
+    const commands = args.value!.split("\n");
+    const lib = new ITextParserLib(textparserlibContractId);
     let parsed: textparserlib.parse_message_result;
     parsed = lib.parse_message(
       new textparserlib.parse_message_args(
@@ -121,11 +131,11 @@ export class SmartWalletText extends SmartWalletAllowance {
       )
     );
     if (parsed.error) {
-      System.fail(`invalid nonce: ${parsed.error}`);
+      System.fail(`invalid nonce: ${parsed.error!}`);
     }
     const nonce = this.nonce.get()!;
     const newNonce = Protobuf.decode<common.uint32>(
-      parsed.result,
+      parsed.result!,
       common.uint32.decode
     ).value;
     System.log(`nonce: ${newNonce}`);
@@ -138,7 +148,7 @@ export class SmartWalletText extends SmartWalletAllowance {
     for (let i = 1; i < commands.length; i += 1) {
       const command = commands[i].trim();
       if (!command) continue;
-      const nicknames = new INicknames(new Uint8Array(25)); // TODO: set address
+      const nicknames = new INicknames(nicknamesContractId);
       const posDiv = command.indexOf(" ");
       const commandHeader = command.slice(0, posDiv);
       if (commandHeader.startsWith("@")) {
@@ -149,19 +159,19 @@ export class SmartWalletText extends SmartWalletAllowance {
         );
         //let commandArgs: messageField | null = null;
         let entryPoint: u32 = 0;
-        let argsBuffer: Uint8Array;
+        let argsBuffer = new Uint8Array(0);
         let parsedOk = false;
-        for (let j = 0; j < tabi.patterns.length; j += 1) {
+        for (let j = 0; j < tabi.items.length; j += 1) {
           parsed = lib.parse_message(
             new textparserlib.parse_message_args(
               commandContent,
-              tabi.patterns[j]
+              tabi.items[j].pattern
             )
           );
 
           if (!parsed.error) {
-            argsBuffer = parsed.result;
-            entryPoint = tabi.entry_points[j];
+            argsBuffer = parsed.result ? parsed.result! : new Uint8Array(0);
+            entryPoint = tabi.items[j].entry_point;
             parsedOk = true;
             break;
           }
@@ -171,7 +181,7 @@ export class SmartWalletText extends SmartWalletAllowance {
           System.fail(`not possible to parse command ${command}`);
         }
 
-        const callRes = System.call(tabi.address, entryPoint, argsBuffer);
+        const callRes = System.call(tabi.address!, entryPoint, argsBuffer);
         if (callRes.code != 0) {
           const errorMessage = `failed to call ${commandHeader} ${
             callRes.res.error && callRes.res.error!.message
@@ -190,7 +200,7 @@ export class SmartWalletText extends SmartWalletAllowance {
         );
         if (!allowTransfer.error) {
           const allow = Protobuf.decode<smartwallettext.allow_token_operation>(
-            allowTransfer.result,
+            allowTransfer.result!,
             smartwallettext.allow_token_operation.decode
           );
           const transferData = Protobuf.encode(

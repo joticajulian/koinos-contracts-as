@@ -6,9 +6,30 @@ import {
   Arrays,
   StringBytes,
   chain,
+  Base58,
 } from "@koinos/sdk-as";
 
 export namespace System2 {
+  export const NICKNAMES_CONTRACT_ID_HARBINGER = Base58.decode(
+    "1KXsC2bSnKAMAZ51gq3xxKBo74a7cDJjkR"
+  );
+
+  export const NICKNAMES_CONTRACT_ID_MAINNET = Base58.decode(
+    "1KD9Es7LBBjA1FY3ViCgQJ7e6WH1ipKbhz"
+  );
+
+  export const KAP_CONTRACT_ID_MAINNET = Base58.decode(
+    "13tmzDmfqCsbYT26C4CmKxq86d33senqH3"
+  );
+
+  export const TEXTPARSERLIB_CONTRACT_ID_HARBINGER = Base58.decode(
+    "15ytFPyfjdcxvfRryX26JQc3zyg5UhPugK"
+  );
+
+  export const TEXTPARSERLIB_CONTRACT_ID_MAINNET = Base58.decode(
+    "1GBLUSPFpVEfAuUUQFZjumrhZapaR8srNi"
+  );
+
   export function getSigners(): Array<Uint8Array> {
     const sigBytes =
       System.getTransactionField("signatures")!.message_value!.value!;

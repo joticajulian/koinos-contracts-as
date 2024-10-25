@@ -247,6 +247,7 @@ export class Token {
    * Grant permissions to other account to manage the tokens owned
    * by the user. The user must approve only the accounts he trust.
    * @external
+   * @event token.approve_event token.approve_args
    */
   approve(args: token.approve_args): void {
     const isAuthorized = System.checkAuthority(
@@ -260,6 +261,7 @@ export class Token {
   /**
    * Transfer tokens
    * @external
+   * @event token.transfer_event token.transfer_args
    */
   transfer(args: token.transfer_args): void {
     const isAuthorized = this.check_authority(args.from!, args.value);
@@ -270,6 +272,7 @@ export class Token {
   /**
    * Mint new tokens
    * @external
+   * @event token.mint_event token.mint_args
    */
   mint(args: token.mint_args): void {
     const isAuthorized = System2.isSignedBy(this.contractId);

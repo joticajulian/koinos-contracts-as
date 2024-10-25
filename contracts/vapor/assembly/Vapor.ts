@@ -94,10 +94,7 @@ export class Vapor extends Token {
    */
   claim(args: token.burn_args): void {
     this.reentrantLock();
-    const isAuthorized = System.checkAuthority(
-      authority.authorization_type.contract_call,
-      args.from!
-    );
+    const isAuthorized = System.checkAccountAuthority(args.from!);
     System.require(isAuthorized, "claim operation not authorized");
 
     // Inverse process to the one computed in contribute:

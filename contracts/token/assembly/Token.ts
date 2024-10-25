@@ -158,12 +158,7 @@ export class Token {
     }
 
     // check if the operation is authorized directly by the user
-    if (
-      System.checkAuthority(authority.authorization_type.contract_call, account)
-    )
-      return true;
-
-    return false;
+    return System.checkAccountAuthority(account);
   }
 
   _approve(args: token.approve_args): void {
@@ -250,10 +245,7 @@ export class Token {
    * @event token.approve_event token.approve_args
    */
   approve(args: token.approve_args): void {
-    const isAuthorized = System.checkAuthority(
-      authority.authorization_type.contract_call,
-      args.owner!
-    );
+    const isAuthorized = System.checkAccountAuthority(args.owner!);
     System.require(isAuthorized, "approve operation not authorized");
     this._approve(args);
   }

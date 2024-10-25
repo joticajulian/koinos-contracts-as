@@ -373,10 +373,7 @@ export class Nicknames extends Nft {
     } else {
       const isAuthorized = acceptAllowance
         ? this.check_authority(owner, tokenId)
-        : System.checkAuthority(
-            authority.authorization_type.contract_call,
-            owner
-          );
+        : System.checkAccountAuthority(owner);
       System.require(isAuthorized, "not authorized by the owner");
     }
   }

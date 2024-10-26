@@ -43,9 +43,12 @@ export async function precompile(projectName: string, contractName: string) {
 export async function asbuild(
   projectName: string,
   contractName: string,
-  buildForTesting: boolean
+  network: string
 ) {
-  console.log(`BUILD FOR ${buildForTesting ? "TESTING" : "MAINNET"}`);
+  console.log(`BUILD FOR ${network === "harbinger" ? "TESTING" : "MAINNET"}`);
+  if (!["mainnet", "harbinger"].includes(network))
+    throw new Error(`invalid network '${network}'`);
+  const target = network === "harbinger" ? "testnet" : "release";
   const projectPath = path.join(__dirname, "../contracts", projectName);
   const tempAsConfigFile = path.join(
     projectPath,
@@ -70,7 +73,17 @@ export async function asbuild(
             shrinkLevel: 0,
             converge: false,
             noAssert: false,
-            use: [`BUILD_FOR_TESTING=${buildForTesting ? "1" : "0"}`],
+            use: ["BUILD_FOR_TESTING=0"],
+          },
+          testnet: {
+            outFile: `./build/testnet/${contractName}.wasm`,
+            textFile: `./build/testnet/${contractName}.wat`,
+            sourceMap: true,
+            optimizeLevel: 3,
+            shrinkLevel: 0,
+            converge: false,
+            noAssert: false,
+            use: ["BUILD_FOR_TESTING=1"],
           },
         },
         options: {
@@ -88,7 +101,7 @@ export async function asbuild(
   const indexFile = path.join(projectPath, "build/index.ts");
   try {
     await asyncSpawn(
-      `yarn asc ${indexFile} --config ${tempAsConfigFile} --use abort= --target release`
+      `yarn asc ${indexFile} --config ${tempAsConfigFile} --use abort= --target ${target}`
     );
     fs.unlinkSync(tempAsConfigFile);
   } catch (error) {

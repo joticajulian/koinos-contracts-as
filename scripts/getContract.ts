@@ -51,6 +51,7 @@ export function getContract(
   }
 ) {
   const networkName = options?.networkName || "harbinger";
+  const target = networkName === "harbinger" ? "testnet" : "release";
   const skipPrivateKey = options && options.skipPrivateKey;
   const skipBytecode = options && options.skipBytecode;
   const skipAbi = options && options.skipAbi;
@@ -80,7 +81,7 @@ export function getContract(
         __dirname,
         "../contracts",
         projectName,
-        `build/release/${contractName}.wasm`
+        `build/${target}/${contractName}.wasm`
       );
     bytecode = fs.readFileSync(pathWasm);
   }

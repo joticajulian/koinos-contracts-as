@@ -38,7 +38,14 @@ contracts.forEach((contract) => {
   fse.copySync(src, dest, {
     filter: (s: string) => {
       const base = path.parse(s).base.toLowerCase();
-      return !base.startsWith("test") && !base.startsWith("itest");
+      // remove the files starting with "test", like testcontract
+      // in "testcontractmetadata" project. TODO: check if this rule
+      // can be removed.
+      // The testnet folder is an exception. This one must be exported
+      return (
+        (!base.startsWith("test") && !base.startsWith("itest")) ||
+        base === "testnet"
+      );
     },
   });
 
@@ -54,6 +61,14 @@ contracts.forEach((contract) => {
     releases.forEach((release) => {
       if (!release.endsWith(".wasm"))
         fs.unlinkSync(path.join(dest, "release", release));
+    });
+  }
+
+  if (fs.existsSync(path.join(dest, "testnet"))) {
+    const releases = fs.readdirSync(path.join(dest, "testnet"));
+    releases.forEach((release) => {
+      if (!release.endsWith(".wasm"))
+        fs.unlinkSync(path.join(dest, "testnet", release));
     });
   }
 
@@ -157,4 +172,15 @@ fs.writeFileSync(path.join(__dirname, "../assembly/index.ts"), index);
 fs.writeFileSync(
   path.join(__dirname, "../snapshot.json"),
   JSON.stringify(snapshot, null, 2)
+);
+
+// update assembly folder and koinosbox-proto folder in node_modules
+fse.copySync(
+  path.join(__dirname, "../assembly"),
+  path.join(__dirname, "../node_modules/@koinosbox/contracts/assembly")
+);
+
+fse.copySync(
+  path.join(__dirname, "../koinosbox-proto"),
+  path.join(__dirname, "../node_modules/@koinosbox/contracts/koinosbox-proto")
 );

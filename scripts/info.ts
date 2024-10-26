@@ -12,14 +12,30 @@ function humanFileSize(size: number) {
 }
 
 export function getInfo(projectName: string, contractName: string) {
-  const filePath = path.join(
+  const filePathRelease = path.join(
     __dirname,
     "../contracts",
     projectName,
     `build/release/${contractName}.wasm`
   );
-  const data = fs.readFileSync(filePath);
-  const hash = crypto.createHash("sha256").update(data).digest("hex");
+  const dataRelease = fs.readFileSync(filePathRelease);
+  const hashRelease = crypto
+    .createHash("sha256")
+    .update(dataRelease)
+    .digest("hex");
+
+  const filePathTestnet = path.join(
+    __dirname,
+    "../contracts",
+    projectName,
+    `build/testnet/${contractName}.wasm`
+  );
+  const dataTestnet = fs.readFileSync(filePathTestnet);
+  const hashTestnet = crypto
+    .createHash("sha256")
+    .update(dataTestnet)
+    .digest("hex");
+
   const pathConfigFile = path.join(
     __dirname,
     "../contracts",
@@ -35,9 +51,16 @@ export function getInfo(projectName: string, contractName: string) {
         ? contractName
         : `${projectName}/${contractName}`,
     version: configFile.version,
-    size: data.length,
-    sizeHuman: humanFileSize(data.length),
-    sha256: hash,
+    mainnet: {
+      size: dataRelease.length,
+      sizeHuman: humanFileSize(dataRelease.length),
+      sha256: hashRelease,
+    },
+    harbinger: {
+      size: dataTestnet.length,
+      sizeHuman: humanFileSize(dataTestnet.length),
+      sha256: hashTestnet,
+    },
   };
 }
 

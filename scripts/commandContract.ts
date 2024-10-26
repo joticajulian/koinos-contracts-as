@@ -16,23 +16,25 @@ const [pathContract, command, ...args] = process.argv.slice(2);
 async function main() {
   let [projectName, contractName] = pathContract.split("/");
   if (!contractName) contractName = projectName;
-  const [network] = args;
-  const buildForTesting = network === "harbinger";
+  let [network] = args;
+  if (!network) network = "mainnet";
   switch (command) {
     case "precompile": {
       await precompile(projectName, contractName);
       break;
     }
     case "asbuild": {
-      await asbuild(projectName, contractName, buildForTesting);
+      await asbuild(projectName, contractName, network);
       break;
     }
     case "build": {
       await precompile(projectName, contractName);
-      await asbuild(projectName, contractName, buildForTesting);
+      await asbuild(projectName, contractName, network);
       break;
     }
     case "build-all": {
+      // build all the contracts in a specific project,
+      // like the ones in testgetcontractmetadata
       const deployableContracts = getDeployableContracts(projectName);
       const files = fs
         .readdirSync(
@@ -46,7 +48,7 @@ async function main() {
         .map((f) => f.toLowerCase().slice(0, -3));
       for (let i = 0; i < files.length; i += 1) {
         await precompile(projectName, files[i]);
-        await asbuild(projectName, files[i], buildForTesting);
+        await asbuild(projectName, files[i], network);
       }
       break;
     }

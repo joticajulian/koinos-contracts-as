@@ -22,8 +22,6 @@ async function main() {
       break;
     }
     case "build-all": {
-      const [network] = args;
-      const buildForTesting = network === "harbinger";
       const contractsPath = path.join(__dirname, "../contracts");
       const contracts = fs
         .readdirSync(contractsPath, { withFileTypes: true })
@@ -35,7 +33,8 @@ async function main() {
         for (let j = 0; j < deployableContracts.length; j += 1) {
           const contractName = deployableContracts[j];
           await precompile(projectName, contractName);
-          await asbuild(projectName, contractName, buildForTesting);
+          await asbuild(projectName, contractName, "mainnet");
+          await asbuild(projectName, contractName, "harbinger");
         }
       }
       break;

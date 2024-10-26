@@ -144,6 +144,8 @@ export class SmartWalletText extends SmartWalletAllowance {
         `invalid nonce. Expected ${nonce.value + 1}. Received ${newNonce}`
       );
     }
+    nonce.value += 1;
+    this.nonce.put(nonce);
 
     for (let i = 1; i < commands.length; i += 1) {
       const command = commands[i].trim();
@@ -153,7 +155,7 @@ export class SmartWalletText extends SmartWalletAllowance {
       const commandHeader = command.slice(0, posDiv);
       if (commandHeader.startsWith("@")) {
         const contractName = commandHeader.slice(1).replace(":", "");
-        const commandContent = command.slice(posDiv);
+        const commandContent = command.slice(posDiv + 1);
         const tabi = nicknames.get_tabi(
           new nft.token(StringBytes.stringToBytes(contractName))
         );

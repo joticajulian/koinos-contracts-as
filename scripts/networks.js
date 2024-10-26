@@ -49,6 +49,7 @@ module.exports = {
         privateKey: process.env.HARBINGER_SMART_WALLET_ALLOWANCE_PRIVATE_KEY,
       },
       textparserlib: keysHarbinger(process.env.HARBINGER_TEXTPARSERLIB),
+      smartwallettext: keysHarbinger(process.env.HARBINGER_SMARTWALLETTEXT),
     },
   },
   mainnet: {

@@ -3,9 +3,13 @@
 // Julian Gonzalez (joticajulian@gmail.com)
 
 import { Base58, Base64, System, Protobuf } from "@koinos/sdk-as";
-import { INicknames } from "@koinosbox/contracts";
+import { common, INicknames, System2 } from "@koinosbox/contracts";
 import { WireType, Writer } from "as-proto";
 import { textparserlib } from "./proto/textparserlib";
+
+const nicknamesContractId = BUILD_FOR_TESTING
+  ? System2.NICKNAMES_CONTRACT_ID_HARBINGER
+  : System2.NICKNAMES_CONTRACT_ID_MAINNET;
 
 export class resultWords {
   error: string | null;
@@ -383,8 +387,10 @@ export class TextParserLib {
     return new resultField("KAP resolver not implemented");
   }
 
-  resolveNicknameAddress(name: string): resultField {
-    return new resultField("Nickname resolver not implemented");
+  resolveNicknameAddress(name: string): Uint8Array {
+    const nicknames = new INicknames(nicknamesContractId);
+    const address = nicknames.get_address(new common.str(name));
+    return address.value!;
   }
 
   parseField(textInput: string, patternWord: string): resultField {
@@ -422,9 +428,8 @@ export class TextParserLib {
     if (result.field.type == "address") {
       result.field.type = "bytes";
       if (textInput.startsWith("@")) {
-        const res = this.resolveNicknameAddress(textInput.slice(1));
-        if (res.error) return res;
-        result.field.bytes = res.field.bytes;
+        const address = this.resolveNicknameAddress(textInput.slice(1));
+        result.field.bytes = address;
       } else if (textInput.startsWith("kap://")) {
         const res = this.resolveKapAddress(textInput.slice(6));
         if (res.error) return res;

@@ -106,7 +106,7 @@ export function getContract(
     ...(!skipBytecode && { bytecode }),
     options: {
       payer: network.accounts.freeMana.id,
-      rcLimit: "5000000000",
+      rcLimit: "10000000000",
     },
   });
 }

@@ -21,3 +21,10 @@ message allow_nft_operation {
    bytes token_id = 2 [(koinos.btype) = HEX];
    bytes spender = 3 [(koinos.btype) = ADDRESS];
 }
+
+message allow_other {
+   bytes contract_id = 1 [(koinos.btype) = ADDRESS];
+   uint32 entry_point = 2;
+   bytes caller = 3 [(koinos.btype) = ADDRESS];
+   bytes data = 4;
+}

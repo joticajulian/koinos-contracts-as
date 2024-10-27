@@ -127,7 +127,7 @@ export class SmartWalletText extends SmartWalletAllowance {
     parsed = lib.parse_message(
       new textparserlib.parse_message_args(
         commands[0].trim(),
-        "Koinos transaction # %1_u32"
+        `Koinos ${BUILD_FOR_TESTING ? "testnet " : ""}transaction # %1_u32`
       )
     );
     if (parsed.error) {
@@ -226,6 +226,89 @@ export class SmartWalletText extends SmartWalletAllowance {
           continue;
         }
 
+        const allowTransferNft = lib.parse_message(
+          new textparserlib.parse_message_args(
+            command,
+            "allow %3_address to transfer %2_bytes_hex of %1_address NFT collection"
+          )
+        );
+        if (!allowTransferNft.error) {
+          const allow = Protobuf.decode<smartwallettext.allow_nft_operation>(
+            allowTransferNft.result!,
+            smartwallettext.allow_nft_operation.decode
+          );
+          const transferData = Protobuf.encode(
+            new nft.transfer_args(
+              this.contractId,
+              null, // allow to transfer to anyone
+              allow.token_id
+            ),
+            nft.transfer_args.encode
+          );
+
+          this._set_allowance(
+            new smartwalletallowance.allowance(
+              smartwalletallowance.allowance_type.transfer_nft,
+              allow.collection,
+              0x27f576ca, // transfer entry point,
+              allow.spender,
+              transferData
+            )
+          );
+          continue;
+        }
+
+        const allowBurnToken = lib.parse_message(
+          new textparserlib.parse_message_args(
+            command,
+            "allow %3_address to burn %2_u64_8 %1_address"
+          )
+        );
+        if (!allowBurnToken.error) {
+          const allow = Protobuf.decode<smartwallettext.allow_token_operation>(
+            allowBurnToken.result!,
+            smartwallettext.allow_token_operation.decode
+          );
+          const burnData = Protobuf.encode(
+            new token.burn_args(this.contractId, allow.limit),
+            token.burn_args.encode
+          );
+
+          this._set_allowance(
+            new smartwalletallowance.allowance(
+              smartwalletallowance.allowance_type.burn_token,
+              allow.token,
+              0x859facc5, // burn entry point
+              allow.spender,
+              burnData
+            )
+          );
+          continue;
+        }
+
+        const otherAllowance = lib.parse_message(
+          new textparserlib.parse_message_args(
+            command,
+            "allow %3_address to call the entry point %2_u32 of contract %1_address with data %4_bytes_base64"
+          )
+        );
+        if (!otherAllowance.error) {
+          const allow = Protobuf.decode<smartwallettext.allow_other>(
+            otherAllowance.result!,
+            smartwallettext.allow_other.decode
+          );
+          this._set_allowance(
+            new smartwalletallowance.allowance(
+              smartwalletallowance.allowance_type.other,
+              allow.contract_id,
+              allow.entry_point,
+              allow.caller,
+              allow.data
+            )
+          );
+          continue;
+        }
+
         System.fail(`allowance command not supported`);
       }
     }
@@ -238,6 +321,7 @@ export class SmartWalletText extends SmartWalletAllowance {
    * @external
    */
   authorize(args: authority.authorize_arguments): authority.authorize_result {
+    System.log("authorize smartwallettext called");
     if (args.type != authority.authorization_type.contract_call) {
       // todo: how to upgrade the contract with ETH signature?
       this.verifySignature();

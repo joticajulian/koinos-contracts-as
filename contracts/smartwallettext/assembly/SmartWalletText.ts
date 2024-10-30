@@ -96,11 +96,37 @@ export class SmartWalletText extends SmartWalletAllowance {
 
   /**
    * @external
+   * @event smartwallettext.authorities smartwallettext.authorities
    */
   set_authorities(args: smartwallettext.authorities): void {
-    // todo: how to sign with ETH?
+    System.require(
+      args.koin_address_authority || args.eth_address_authority,
+      "set at least 1 authority"
+    );
+    if (args.eth_address_authority) {
+      System.require(
+        args.eth_address && args.eth_address!.length == 20,
+        "invalid eth address"
+      );
+    }
+    const nonce = this.nonce.get()!;
+    nonce.value += 1;
+    const message = [
+      `Koinos ${BUILD_FOR_TESTING ? "testnet " : ""}transaction # ${
+        nonce.value
+      }`,
+      "update authorities of the smart wallet to:",
+      `koin_address_authority: ${args.koin_address_authority}`,
+      `eth_address_authority: ${args.eth_address_authority}`,
+      `eth_address: ${
+        args.eth_address ? System2.hexString(args.eth_address) : "0x"
+      }`,
+    ].join("\n");
+    if (message)
+      System.log(`message expected for the ETH signature: ${message}`);
     this.verifySignature();
     this.authorities.put(args);
+    this.nonce.put(nonce);
     System.event("smartwallettext.authorities", this.callArgs!.args, []);
   }
 
@@ -323,8 +349,25 @@ export class SmartWalletText extends SmartWalletAllowance {
   authorize(args: authority.authorize_arguments): authority.authorize_result {
     System.log("authorize smartwallettext called");
     if (args.type != authority.authorization_type.contract_call) {
-      // todo: how to upgrade the contract with ETH signature?
-      this.verifySignature();
+      const authorities = this.authorities.get()!;
+      let message = "";
+      if (authorities.eth_address_authority) {
+        const txId = System.getTransactionField("id")!.bytes_value;
+        if (args.type == authority.authorization_type.contract_upload) {
+          message = `update smart wallet contract of koinos ${
+            BUILD_FOR_TESTING ? "testnet " : ""
+          }with code in transaction id ${System2.hexString(txId)}`;
+        } else if (
+          args.type == authority.authorization_type.transaction_application
+        ) {
+          message = `pay mana (or allow nonce update) of koinos ${
+            BUILD_FOR_TESTING ? "testnet " : ""
+          } transaction id ${System2.hexString(txId)}`;
+        }
+      }
+      if (message)
+        System.log(`message expected for the ETH signature: ${message}`);
+      this.verifySignature(message);
       return new authority.authorize_result(true);
     }
     return this._authorizeWithAllowances(args);

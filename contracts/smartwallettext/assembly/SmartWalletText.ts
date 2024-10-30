@@ -105,7 +105,7 @@ export class SmartWalletText extends SmartWalletAllowance {
     );
     if (args.eth_address_authority) {
       System.require(
-        args.eth_address && args.eth_address!.length == 20,
+        !!args.eth_address && args.eth_address!.length == 20,
         "invalid eth address"
       );
     }
@@ -119,7 +119,7 @@ export class SmartWalletText extends SmartWalletAllowance {
       `koin_address_authority: ${args.koin_address_authority}`,
       `eth_address_authority: ${args.eth_address_authority}`,
       `eth_address: ${
-        args.eth_address ? System2.hexString(args.eth_address) : "0x"
+        args.eth_address ? System2.hexString(args.eth_address!) : "0x"
       }`,
     ].join("\n");
     if (message)
@@ -150,27 +150,14 @@ export class SmartWalletText extends SmartWalletAllowance {
     const commands = args.value!.split("\n");
     const lib = new ITextParserLib(textparserlibContractId);
     let parsed: textparserlib.parse_message_result;
-    parsed = lib.parse_message(
-      new textparserlib.parse_message_args(
-        commands[0].trim(),
-        `Koinos ${BUILD_FOR_TESTING ? "testnet " : ""}transaction # %1_u32`
-      )
-    );
-    if (parsed.error) {
-      System.fail(`invalid nonce: ${parsed.error!}`);
-    }
     const nonce = this.nonce.get()!;
-    const newNonce = Protobuf.decode<common.uint32>(
-      parsed.result!,
-      common.uint32.decode
-    ).value;
-    System.log(`nonce: ${newNonce}`);
-    if (newNonce != nonce.value + 1) {
-      System.fail(
-        `invalid nonce. Expected ${nonce.value + 1}. Received ${newNonce}`
-      );
-    }
     nonce.value += 1;
+    const expectedHeader = `Koinos ${
+      BUILD_FOR_TESTING ? "testnet " : ""
+    }transaction # ${nonce.value}`;
+    if (commands[0].trim() != expectedHeader) {
+      System.fail(`invalid header. Expected: ${expectedHeader}`);
+    }
     this.nonce.put(nonce);
 
     for (let i = 1; i < commands.length; i += 1) {

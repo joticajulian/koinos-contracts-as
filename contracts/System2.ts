@@ -30,6 +30,15 @@ export namespace System2 {
     "1GBLUSPFpVEfAuUUQFZjumrhZapaR8srNi"
   );
 
+  export function hexString(buffer: Uint8Array): string {
+    let hex = "0x";
+    for (let i = 0; i < buffer.length; i += 1) {
+      if (buffer[i] < 0x10) hex += "0";
+      hex += buffer[i].toString(16);
+    }
+    return hex;
+  }
+
   export function getSigners(): Array<Uint8Array> {
     const sigBytes =
       System.getTransactionField("signatures")!.message_value!.value!;

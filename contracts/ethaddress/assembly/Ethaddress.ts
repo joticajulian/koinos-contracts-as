@@ -5,15 +5,6 @@
 import { System, Base58 } from "@koinos/sdk-as";
 import { Nft, nft, System2 } from "@koinosbox/contracts";
 
-function hexString(buffer: Uint8Array): string {
-  let hex = "0x";
-  for (let i = 0; i < buffer.length; i += 1) {
-    if (buffer[i] < 0x10) hex += "0";
-    hex += buffer[i].toString(16);
-  }
-  return hex;
-}
-
 export class Ethaddress extends Nft {
   callArgs: System.getArgumentsReturn | null;
 
@@ -26,9 +17,11 @@ export class Ethaddress extends Nft {
    * @external
    */
   mint(args: nft.mint_args): void {
-    const message = `link eth address ${hexString(
+    const message = `link eth address ${System2.hexString(
       args.token_id!
-    )} with koinos address ${Base58.encode(args.to!)}`;
+    )} with koinos ${
+      BUILD_FOR_TESTING ? "testnet " : ""
+    }address ${Base58.encode(args.to!)}`;
     const authorized = System2.checkMessageSignedByEthAddress(
       message,
       args.token_id!
@@ -44,9 +37,11 @@ export class Ethaddress extends Nft {
    * @external
    */
   transfer(args: nft.transfer_args): void {
-    const message = `change link of eth address ${hexString(
+    const message = `change link of eth address ${System2.hexString(
       args.token_id!
-    )} to koinos address ${Base58.encode(args.to!)}`;
+    )} to koinos ${BUILD_FOR_TESTING ? "testnet " : ""}address ${Base58.encode(
+      args.to!
+    )}`;
     const authorized = System2.checkMessageSignedByEthAddress(
       message,
       args.token_id!

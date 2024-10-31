@@ -30,6 +30,14 @@ export namespace System2 {
     "1GBLUSPFpVEfAuUUQFZjumrhZapaR8srNi"
   );
 
+  export const KONDOR_ELEMENTUS_CONTRACT_ID_HARBINGER = Base58.decode(
+    "16dLj9rGLjfFreZ7wU689oEtXsxWX6ci3x"
+  );
+
+  export const KONDOR_ELEMENTUS_CONTRACT_ID_MAINNET = Base58.decode(
+    "1EwJUW4BFbA4EGmSyB9bgdhB3gk2f3shRN"
+  );
+
   export function hexString(buffer: Uint8Array): string {
     let hex = "0x";
     for (let i = 0; i < buffer.length; i += 1) {

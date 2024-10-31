@@ -21,6 +21,7 @@ import {
   textparserlib,
 } from "@koinosbox/contracts";
 import { smartwallettext } from "./proto/smartwallettext";
+import { KondorElementusNft } from "./IKondorElementusNft";
 
 const nicknamesContractId = BUILD_FOR_TESTING
   ? System2.NICKNAMES_CONTRACT_ID_HARBINGER
@@ -145,6 +146,13 @@ export class SmartWalletText extends SmartWalletAllowance {
    */
   execute_transaction(args: common.str): void {
     this.reentrantLock();
+    const canUseFeature = new KondorElementusNft().can_use_smart_wallet_feature(
+      new common.address(this.contractId)
+    );
+    System.require(
+      canUseFeature.value,
+      "you need to hold a Kondor Elementus NFT to use the manuscript wallet"
+    );
     this.verifySignature(args.value!);
 
     const commands = args.value!.split("\n");
@@ -154,7 +162,7 @@ export class SmartWalletText extends SmartWalletAllowance {
     nonce.value += 1;
     const expectedHeader = `Koinos ${
       BUILD_FOR_TESTING ? "testnet " : ""
-    }transaction # ${nonce.value}`;
+    }transaction #${nonce.value}`;
     if (commands[0].trim() != expectedHeader) {
       System.fail(`invalid header. Expected: ${expectedHeader}`);
     }

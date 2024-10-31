@@ -2,7 +2,9 @@ import fs from "fs";
 import path from "path";
 import { asbuild, getDeployableContracts, precompile } from "./compiler";
 
-const buildAllSkip = ["smartwallettext"];
+const buildAllSkip = [
+  /*"manuscriptwallet"*/
+];
 
 const [command, ...args] = process.argv.slice(2);
 

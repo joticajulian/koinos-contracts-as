@@ -20,7 +20,7 @@ import {
   ITextParserLib,
   textparserlib,
 } from "@koinosbox/contracts";
-import { smartwallettext } from "./proto/smartwallettext";
+import { manuscriptwallet } from "./proto/manuscriptwallet";
 import { KondorElementusNft } from "./IKondorElementusNft";
 
 const nicknamesContractId = BUILD_FOR_TESTING
@@ -31,7 +31,7 @@ const textparserlibContractId = BUILD_FOR_TESTING
   ? System2.TEXTPARSERLIB_CONTRACT_ID_HARBINGER
   : System2.TEXTPARSERLIB_CONTRACT_ID_MAINNET;
 
-export class SmartWalletText extends SmartWalletAllowance {
+export class ManuscriptWallet extends SmartWalletAllowance {
   nonce: Storage.Obj<common.uint32> = new Storage.Obj(
     this.contractId,
     1,
@@ -40,12 +40,12 @@ export class SmartWalletText extends SmartWalletAllowance {
     () => new common.uint32(0)
   );
 
-  authorities: Storage.Obj<smartwallettext.authorities> = new Storage.Obj(
+  authorities: Storage.Obj<manuscriptwallet.authorities> = new Storage.Obj(
     this.contractId,
     2,
-    smartwallettext.authorities.decode,
-    smartwallettext.authorities.encode,
-    () => new smartwallettext.authorities(true, false)
+    manuscriptwallet.authorities.decode,
+    manuscriptwallet.authorities.encode,
+    () => new manuscriptwallet.authorities(true, false)
   );
 
   reentrantLocked: Storage.Obj<common.boole> = new Storage.Obj(
@@ -97,9 +97,9 @@ export class SmartWalletText extends SmartWalletAllowance {
 
   /**
    * @external
-   * @event smartwallettext.authorities smartwallettext.authorities
+   * @event manuscriptwallet.authorities manuscriptwallet.authorities
    */
-  set_authorities(args: smartwallettext.authorities): void {
+  set_authorities(args: manuscriptwallet.authorities): void {
     System.require(
       args.koin_address_authority || args.eth_address_authority,
       "set at least 1 authority"
@@ -128,7 +128,7 @@ export class SmartWalletText extends SmartWalletAllowance {
     this.verifySignature();
     this.authorities.put(args);
     this.nonce.put(nonce);
-    System.event("smartwallettext.authorities", this.callArgs!.args, []);
+    System.event("manuscriptwallet.authorities", this.callArgs!.args, []);
   }
 
   /**
@@ -222,9 +222,9 @@ export class SmartWalletText extends SmartWalletAllowance {
           )
         );
         if (!allowTransfer.error) {
-          const allow = Protobuf.decode<smartwallettext.allow_token_operation>(
+          const allow = Protobuf.decode<manuscriptwallet.allow_token_operation>(
             allowTransfer.result!,
-            smartwallettext.allow_token_operation.decode
+            manuscriptwallet.allow_token_operation.decode
           );
           const transferData = Protobuf.encode(
             new token.transfer_args(
@@ -254,9 +254,9 @@ export class SmartWalletText extends SmartWalletAllowance {
           )
         );
         if (!allowTransferNft.error) {
-          const allow = Protobuf.decode<smartwallettext.allow_nft_operation>(
+          const allow = Protobuf.decode<manuscriptwallet.allow_nft_operation>(
             allowTransferNft.result!,
-            smartwallettext.allow_nft_operation.decode
+            manuscriptwallet.allow_nft_operation.decode
           );
           const transferData = Protobuf.encode(
             new nft.transfer_args(
@@ -286,9 +286,9 @@ export class SmartWalletText extends SmartWalletAllowance {
           )
         );
         if (!allowBurnToken.error) {
-          const allow = Protobuf.decode<smartwallettext.allow_token_operation>(
+          const allow = Protobuf.decode<manuscriptwallet.allow_token_operation>(
             allowBurnToken.result!,
-            smartwallettext.allow_token_operation.decode
+            manuscriptwallet.allow_token_operation.decode
           );
           const burnData = Protobuf.encode(
             new token.burn_args(this.contractId, allow.limit),
@@ -314,9 +314,9 @@ export class SmartWalletText extends SmartWalletAllowance {
           )
         );
         if (!otherAllowance.error) {
-          const allow = Protobuf.decode<smartwallettext.allow_other>(
+          const allow = Protobuf.decode<manuscriptwallet.allow_other>(
             otherAllowance.result!,
-            smartwallettext.allow_other.decode
+            manuscriptwallet.allow_other.decode
           );
           this._set_allowance(
             new smartwalletallowance.allowance(
@@ -342,7 +342,7 @@ export class SmartWalletText extends SmartWalletAllowance {
    * @external
    */
   authorize(args: authority.authorize_arguments): authority.authorize_result {
-    System.log("authorize smartwallettext called");
+    System.log("authorize manuscriptwallet called");
     if (args.type != authority.authorization_type.contract_call) {
       const authorities = this.authorities.get()!;
       let message = "";

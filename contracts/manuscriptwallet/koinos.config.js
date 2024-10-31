@@ -2,11 +2,11 @@ const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 module.exports = {
-  class: "SmartWalletText",
+  class: "ManuscriptWallet",
   version: "1.0.0",
   supportAbi1: true,
-  proto: ["./proto/smartwallettext.proto"],
-  files: ["./SmartWalletText.ts"],
+  proto: ["./proto/manuscriptwallet.proto"],
+  files: ["./ManuscriptWallet.ts"],
   sourceDir: "./assembly",
   buildDir: "./build",
   filesImport: [
@@ -22,7 +22,7 @@ module.exports = {
         process.env.IMPORT_KOINOSBOX_PROTO_FROM_NODE_MODULES === "true"
           ? "../../node_modules/@koinosbox/contracts/koinosbox-proto"
           : "../../koinosbox-proto",
-      exclude: ["smartwallettext"],
+      exclude: ["manuscriptwallet"],
     },
     {
       name: "@koinos/sdk-as",

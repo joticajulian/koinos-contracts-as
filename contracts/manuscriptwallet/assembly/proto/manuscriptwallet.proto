@@ -10,6 +10,11 @@ message authorities {
    bytes eth_address = 3 [(koinos.btype) = HEX];
 }
 
+message execute_transaction_args {
+   string transaction = 1;
+   bool debug = 2;
+}
+
 message allow_token_operation {
    bytes token = 1 [(koinos.btype) = ADDRESS];
    uint64 limit = 2;

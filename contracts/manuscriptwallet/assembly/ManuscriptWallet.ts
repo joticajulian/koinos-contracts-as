@@ -144,7 +144,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
    * Execute a text plain transaction
    * @external
    */
-  execute_transaction(args: common.str): void {
+  execute_transaction(args: manuscriptwallet.execute_transaction_args): void {
     this.reentrantLock();
     const canUseFeature = new KondorElementusNft().can_use_smart_wallet_feature(
       new common.address(this.contractId)
@@ -153,9 +153,9 @@ export class ManuscriptWallet extends SmartWalletAllowance {
       canUseFeature.value,
       "you need to hold a Kondor Elementus NFT to use the manuscript wallet"
     );
-    this.verifySignature(args.value!);
+    this.verifySignature(args.transaction!);
 
-    const commands = args.value!.split("\n");
+    const commands = args.transaction!.split("\n");
     const lib = new ITextParserLib(textparserlibContractId);
     let parsed: textparserlib.parse_message_result;
     const nonce = this.nonce.get()!;
@@ -168,10 +168,11 @@ export class ManuscriptWallet extends SmartWalletAllowance {
     }
     this.nonce.put(nonce);
 
+    const nicknames = new INicknames(nicknamesContractId);
     for (let i = 1; i < commands.length; i += 1) {
       const command = commands[i].trim();
       if (!command) continue;
-      const nicknames = new INicknames(nicknamesContractId);
+      if (args.debug) System.log(`processing: ${command}`);
       const posDiv = command.indexOf(" ");
       const commandHeader = command.slice(0, posDiv);
       if (commandHeader.startsWith("@")) {
@@ -180,11 +181,19 @@ export class ManuscriptWallet extends SmartWalletAllowance {
         const tabi = nicknames.get_tabi(
           new nft.token(StringBytes.stringToBytes(contractName))
         );
-        //let commandArgs: messageField | null = null;
+
         let entryPoint: u32 = 0;
         let argsBuffer = new Uint8Array(0);
         let parsedOk = false;
         for (let j = 0; j < tabi.items.length; j += 1) {
+          if (args.debug)
+            System.log(
+              `trying to parse with pattern: ${
+                tabi.items[j].pattern
+                  ? tabi.items[j].pattern!
+                  : "invalid pattern"
+              }`
+            );
           parsed = lib.parse_message(
             new textparserlib.parse_message_args(
               commandContent,
@@ -193,11 +202,14 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           );
 
           if (!parsed.error) {
+            if (args.debug) System.log("parse ok");
             argsBuffer = parsed.result ? parsed.result! : new Uint8Array(0);
             entryPoint = tabi.items[j].entry_point;
             parsedOk = true;
             break;
           }
+
+          if (args.debug) System.log(`parse error: ${parsed.error!}`);
         }
 
         if (!parsedOk) {
@@ -215,6 +227,10 @@ export class ManuscriptWallet extends SmartWalletAllowance {
         }
       } else if (commandHeader === "allow") {
         // allowances
+        if (args.debug)
+          System.log(
+            "trying to parse allowance with pattern: allow %3_address to transfer %2_u64_8 %1_address"
+          );
         const allowTransfer = lib.parse_message(
           new textparserlib.parse_message_args(
             command,
@@ -222,6 +238,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           )
         );
         if (!allowTransfer.error) {
+          if (args.debug) System.log("parse ok");
           const allow = Protobuf.decode<manuscriptwallet.allow_token_operation>(
             allowTransfer.result!,
             manuscriptwallet.allow_token_operation.decode
@@ -247,6 +264,10 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           continue;
         }
 
+        if (args.debug)
+          System.log(
+            "trying to parse allowance with pattern: allow %3_address to transfer %2_bytes_hex of %1_address NFT collection"
+          );
         const allowTransferNft = lib.parse_message(
           new textparserlib.parse_message_args(
             command,
@@ -254,6 +275,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           )
         );
         if (!allowTransferNft.error) {
+          if (args.debug) System.log("parse ok");
           const allow = Protobuf.decode<manuscriptwallet.allow_nft_operation>(
             allowTransferNft.result!,
             manuscriptwallet.allow_nft_operation.decode
@@ -279,6 +301,10 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           continue;
         }
 
+        if (args.debug)
+          System.log(
+            "trying to parse allowance with pattern: allow %3_address to burn %2_u64_8 %1_address"
+          );
         const allowBurnToken = lib.parse_message(
           new textparserlib.parse_message_args(
             command,
@@ -286,6 +312,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           )
         );
         if (!allowBurnToken.error) {
+          if (args.debug) System.log("parse ok");
           const allow = Protobuf.decode<manuscriptwallet.allow_token_operation>(
             allowBurnToken.result!,
             manuscriptwallet.allow_token_operation.decode
@@ -307,6 +334,10 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           continue;
         }
 
+        if (args.debug)
+          System.log(
+            "trying to parse allowance with pattern: allow %3_address to call the entry point %2_u32 of contract %1_address with data %4_bytes_base64"
+          );
         const otherAllowance = lib.parse_message(
           new textparserlib.parse_message_args(
             command,
@@ -314,6 +345,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           )
         );
         if (!otherAllowance.error) {
+          if (args.debug) System.log("parse ok");
           const allow = Protobuf.decode<manuscriptwallet.allow_other>(
             otherAllowance.result!,
             manuscriptwallet.allow_other.decode

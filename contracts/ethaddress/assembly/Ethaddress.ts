@@ -27,7 +27,9 @@ export class Ethaddress extends Nft {
       args.token_id!
     );
     if (!authorized) {
-      System.fail("not signed by the ethereum address");
+      System.fail(
+        `not signed by the ethereum address. Expected message: ${message}`
+      );
     }
     this._mint(args);
   }
@@ -37,6 +39,7 @@ export class Ethaddress extends Nft {
    * @external
    */
   transfer(args: nft.transfer_args): void {
+    // TODO: add nonce to prevent replay attacks: "change #1: link eth address to ..."
     const message = `change link of eth address ${System2.hexString(
       args.token_id!
     )} to koinos ${BUILD_FOR_TESTING ? "testnet " : ""}address ${Base58.encode(
@@ -47,7 +50,9 @@ export class Ethaddress extends Nft {
       args.token_id!
     );
     if (!authorized) {
-      System.fail("not signed by the ethereum address");
+      System.fail(
+        `not signed by the ethereum address. Expected message: ${message}`
+      );
     }
     this._transfer(args);
   }

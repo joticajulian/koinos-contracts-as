@@ -27,7 +27,7 @@ export namespace System2 {
   );
 
   export const TEXTPARSERLIB_CONTRACT_ID_MAINNET = Base58.decode(
-    "1GBLUSPFpVEfAuUUQFZjumrhZapaR8srNi"
+    "17i96VfecuEA69iYvEZwb2Y8VyBwZC1PsT"
   );
 
   export const KONDOR_ELEMENTUS_CONTRACT_ID_HARBINGER = Base58.decode(
@@ -101,7 +101,7 @@ export namespace System2 {
       value.list_type.decode
     );
     const ethMessage = `\x19Ethereum Signed Message:\n${message.length}${message}`;
-    let multihashBytes = System.hash(
+    const hashEthMessage = System.hash(
       Crypto.multicodec.keccak_256,
       StringBytes.stringToBytes(ethMessage)
     );
@@ -110,11 +110,11 @@ export namespace System2 {
       if (signatures.values[i].bytes_value.length != 65) continue;
       const publicKey = System.recoverPublicKey(
         signatures.values[i].bytes_value,
-        multihashBytes!,
+        hashEthMessage!,
         chain.dsa.ecdsa_secp256k1,
         false
       );
-      multihashBytes = System.hash(
+      let multihashBytes = System.hash(
         Crypto.multicodec.keccak_256,
         publicKey!.subarray(1)
       );

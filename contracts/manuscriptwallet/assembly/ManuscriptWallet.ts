@@ -66,7 +66,10 @@ export class ManuscriptWallet extends SmartWalletAllowance {
     this.reentrantLocked.put(new common.boole(false));
   }
 
-  verifySignature(message: string = ""): void {
+  verifySignature(
+    message: string = "",
+    logExpectedMessageInError: boolean = false
+  ): void {
     const caller = System.getCaller().caller;
     if (caller && caller.length > 0) {
       System.fail("this call must be called from the transaction operations");
@@ -92,7 +95,11 @@ export class ManuscriptWallet extends SmartWalletAllowance {
       if (isAuthorized) return;
     }
 
-    System.fail("No signature found from the authorities");
+    let errorMessage = "No signature found from the authorities";
+    if (logExpectedMessageInError) {
+      errorMessage += `. Message expected for ETH signature: ${message}`;
+    }
+    System.fail(errorMessage);
   }
 
   /**
@@ -123,9 +130,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
         args.eth_address ? System2.hexString(args.eth_address!) : "0x"
       }`,
     ].join("\n");
-    if (message)
-      System.log(`message expected for the ETH signature: ${message}`);
-    this.verifySignature();
+    this.verifySignature(message, true);
     this.authorities.put(args);
     this.nonce.put(nonce);
     System.event("manuscriptwallet.authorities", this.callArgs!.args, []);
@@ -136,6 +141,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
    * @external
    */
   set_allowance(args: smartwalletallowance.allowance): void {
+    // todo: set message for ETH
     this.verifySignature();
     this._set_allowance(args);
   }
@@ -394,7 +400,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
       }
       if (message)
         System.log(`message expected for the ETH signature: ${message}`);
-      this.verifySignature(message);
+      this.verifySignature(message, true);
       return new authority.authorize_result(true);
     }
     return this._authorizeWithAllowances(args);

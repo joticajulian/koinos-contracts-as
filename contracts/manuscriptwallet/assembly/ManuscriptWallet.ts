@@ -104,6 +104,22 @@ export class ManuscriptWallet extends SmartWalletAllowance {
 
   /**
    * @external
+   * @readonly
+   */
+  get_nonce(): common.uint32 {
+    return this.nonce.get()!;
+  }
+
+  /**
+   * @external
+   * @readonly
+   */
+  get_authorities(): manuscriptwallet.authorities {
+    return this.authorities.get()!;
+  }
+
+  /**
+   * @external
    * @event manuscriptwallet.authorities manuscriptwallet.authorities
    */
   set_authorities(args: manuscriptwallet.authorities): void {

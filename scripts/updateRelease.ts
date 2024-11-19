@@ -12,6 +12,7 @@ const CONTRACTS_TO_EXPORT = [
   "smartwalletallowance",
   "textparserlib",
   "token",
+  "manuscriptwallet",
 ];
 
 if (!fs.existsSync("./assembly")) {

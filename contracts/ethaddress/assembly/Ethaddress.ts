@@ -24,8 +24,8 @@ export class Ethaddress extends Nft {
    * @external
    * @readonly
    */
-  get_nonce(args: common.address): common.uint32 {
-    return this.nonce.get(args.value!)!;
+  get_nonce(args: nft.token): common.uint32 {
+    return this.nonce.get(args.token_id!)!;
   }
 
   /**
@@ -59,7 +59,7 @@ export class Ethaddress extends Nft {
     nonce.value += 1;
     const message = `change #${
       nonce.value
-    }: Link of eth address ${System2.hexString(args.token_id!)} to koinos ${
+    }: Link eth address ${System2.hexString(args.token_id!)} with koinos ${
       BUILD_FOR_TESTING ? "testnet " : ""
     }address ${Base58.encode(args.to!)}`;
     const authorized = System2.checkMessageSignedByEthAddress(

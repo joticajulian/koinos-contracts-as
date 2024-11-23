@@ -2,8 +2,8 @@
 // EthAddress Contract {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { System, Base58 } from "@koinos/sdk-as";
-import { Nft, nft, System2 } from "@koinosbox/contracts";
+import { System, Base58, Storage } from "@koinos/sdk-as";
+import { common, Nft, nft, System2 } from "@koinosbox/contracts";
 
 export class Ethaddress extends Nft {
   callArgs: System.getArgumentsReturn | null;
@@ -11,6 +11,22 @@ export class Ethaddress extends Nft {
   _name: string = "Eth addresses";
   _symbol: string = "ETHADDRESS";
   _uri: string = "";
+
+  nonce: Storage.Map<Uint8Array, common.uint32> = new Storage.Map(
+    this.contractId,
+    10,
+    common.uint32.decode,
+    common.uint32.encode,
+    () => new common.uint32(0)
+  );
+
+  /**
+   * @external
+   * @readonly
+   */
+  get_nonce(args: common.address): common.uint32 {
+    return this.nonce.get(args.value!)!;
+  }
 
   /**
    * Register an ethereum address on koinos blockchain
@@ -39,12 +55,13 @@ export class Ethaddress extends Nft {
    * @external
    */
   transfer(args: nft.transfer_args): void {
-    // TODO: add nonce to prevent replay attacks: "change #1: link eth address to ..."
-    const message = `change link of eth address ${System2.hexString(
-      args.token_id!
-    )} to koinos ${BUILD_FOR_TESTING ? "testnet " : ""}address ${Base58.encode(
-      args.to!
-    )}`;
+    const nonce = this.nonce.get(args.token_id!)!;
+    nonce.value += 1;
+    const message = `change #${
+      nonce.value
+    }: Link of eth address ${System2.hexString(args.token_id!)} to koinos ${
+      BUILD_FOR_TESTING ? "testnet " : ""
+    }address ${Base58.encode(args.to!)}`;
     const authorized = System2.checkMessageSignedByEthAddress(
       message,
       args.token_id!
@@ -54,6 +71,7 @@ export class Ethaddress extends Nft {
         `not signed by the ethereum address. Expected message: ${message}`
       );
     }
+    this.nonce.put(args.token_id!, nonce);
     this._transfer(args);
   }
 

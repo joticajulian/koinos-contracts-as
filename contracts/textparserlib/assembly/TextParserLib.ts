@@ -2,7 +2,7 @@
 // Text Parser Library {{ version }}
 // Julian Gonzalez (joticajulian@gmail.com)
 
-import { Base58, Base64, System, Protobuf } from "@koinos/sdk-as";
+import { Base58, Base64, System, Protobuf, StringBytes } from "@koinos/sdk-as";
 import { common, INicknames, System2 } from "@koinosbox/contracts";
 import { WireType, Writer } from "as-proto";
 import { textparserlib } from "./proto/textparserlib";
@@ -421,6 +421,10 @@ export class TextParserLib {
       }
       if (format == "hex") {
         return new resultField("HEX format not implemented for bytes");
+      }
+      if (format == "utf8") {
+        result.field.bytes = StringBytes.stringToBytes(textInput);
+        return result;
       }
       return new resultField(`invalid bytes format ${format}`);
     }

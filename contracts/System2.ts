@@ -23,11 +23,11 @@ export namespace System2 {
   );
 
   export const TEXTPARSERLIB_CONTRACT_ID_HARBINGER = Base58.decode(
-    "15ytFPyfjdcxvfRryX26JQc3zyg5UhPugK"
+    "1Kq7uAwF6HEx22Qow2d2WSBJbijMcFbyZ6"
   );
 
   export const TEXTPARSERLIB_CONTRACT_ID_MAINNET = Base58.decode(
-    "17i96VfecuEA69iYvEZwb2Y8VyBwZC1PsT"
+    "12AeFBZVdngNDLVxXz92ztPHCMupmNzzar"
   );
 
   export const KONDOR_ELEMENTUS_CONTRACT_ID_HARBINGER = Base58.decode(

@@ -8,6 +8,7 @@ import {
   authority,
   Protobuf,
   StringBytes,
+  Arrays,
 } from "@koinos/sdk-as";
 import {
   System2,
@@ -200,9 +201,21 @@ export class ManuscriptWallet extends SmartWalletAllowance {
       if (commandHeader.startsWith("@")) {
         const contractName = commandHeader.slice(1).replace(":", "");
         const commandContent = command.slice(posDiv + 1);
-        const tabi = nicknames.get_tabi(
-          new nft.token(StringBytes.stringToBytes(contractName))
+        const nicknameId = StringBytes.stringToBytes(contractName);
+        const tabi = nicknames.get_tabi(new nft.token(nicknameId));
+
+        // if a contract address has multiple nicknames, require
+        // to use the main one to prevent security issues
+        const mainToken = nicknames.get_main_token(
+          new common.address(tabi.address)
         );
+        if (!Arrays.equal(nicknameId, mainToken.token_id)) {
+          System.fail(
+            `use @${StringBytes.bytesToString(
+              mainToken.token_id
+            )} instead of @${nicknameId}`
+          );
+        }
 
         let entryPoint: u32 = 0;
         let argsBuffer = new Uint8Array(0);

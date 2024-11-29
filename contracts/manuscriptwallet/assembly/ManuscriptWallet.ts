@@ -9,6 +9,7 @@ import {
   Protobuf,
   StringBytes,
   Arrays,
+  Base58,
 } from "@koinos/sdk-as";
 import {
   System2,
@@ -196,25 +197,45 @@ export class ManuscriptWallet extends SmartWalletAllowance {
       const command = commands[i].trim();
       if (!command) continue;
       if (args.debug) System.log(`processing: ${command}`);
-      const posDiv = command.indexOf(" ");
-      const commandHeader = command.slice(0, posDiv);
-      if (commandHeader.startsWith("@")) {
-        const contractName = commandHeader.slice(1).replace(":", "");
+      if (command.startsWith("@") || command.startsWith("1")) {
+        const posDiv = command.indexOf(":");
+        let commandHeader = command.slice(0, posDiv);
+        let contractName: string;
+        let address = new Uint8Array(0);
+        let usingAlias: boolean;
+        if (command.startsWith("@")) {
+          // using nickname
+          usingAlias = false;
+          contractName = command.slice(1, posDiv);
+        } else {
+          // using address with alias
+          usingAlias = true;
+          const parts = commandHeader.split(" as @");
+          if (parts.length != 2) {
+            System.fail(`invalid command header: ${commandHeader}`);
+          }
+          address = Base58.decode(parts[0]);
+          contractName = parts[1];
+        }
+
         const commandContent = command.slice(posDiv + 1);
         const nicknameId = StringBytes.stringToBytes(contractName);
         const tabi = nicknames.get_tabi(new nft.token(nicknameId));
+        if (!usingAlias) {
+          address = tabi.address!;
 
-        // if a contract address has multiple nicknames, require
-        // to use the main one to prevent security issues
-        const mainToken = nicknames.get_main_token(
-          new common.address(tabi.address)
-        );
-        if (!Arrays.equal(nicknameId, mainToken.token_id)) {
-          System.fail(
-            `use @${StringBytes.bytesToString(
-              mainToken.token_id
-            )} instead of @${nicknameId}`
+          // if a contract address has multiple nicknames, require
+          // to use the main one to prevent security issues
+          const mainToken = nicknames.get_main_token(
+            new common.address(address)
           );
+          if (!Arrays.equal(nicknameId, mainToken.token_id)) {
+            System.fail(
+              `use @${StringBytes.bytesToString(
+                mainToken.token_id
+              )} instead of @${nicknameId}`
+            );
+          }
         }
 
         let entryPoint: u32 = 0;
@@ -251,7 +272,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           System.fail(`not possible to parse command ${command}`);
         }
 
-        const callRes = System.call(tabi.address!, entryPoint, argsBuffer);
+        const callRes = System.call(address, entryPoint, argsBuffer);
         if (callRes.code != 0) {
           const errorMessage = `failed to call ${commandHeader} ${
             callRes.res.error && callRes.res.error!.message
@@ -260,7 +281,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           }`;
           System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
         }
-      } else if (commandHeader === "allow") {
+      } else if (command.startsWith("allow")) {
         // allowances
         if (args.debug)
           System.log(
@@ -398,6 +419,8 @@ export class ManuscriptWallet extends SmartWalletAllowance {
         }
 
         System.fail(`allowance command not supported`);
+      } else {
+        System.fail(`invalid command ${command}`);
       }
     }
 

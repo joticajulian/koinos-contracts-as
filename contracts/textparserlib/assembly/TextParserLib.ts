@@ -420,7 +420,17 @@ export class TextParserLib {
         return result;
       }
       if (format == "hex") {
-        return new resultField("HEX format not implemented for bytes");
+        if (!textInput.startsWith("0x") || textInput.length % 2 != 0) {
+          return new resultField(`invalid hex string '${textInput}'`);
+        }
+        result.field.bytes = new Uint8Array((textInput.length - 2) / 2);
+        for (let i = 2; i < textInput.length; i += 2) {
+          result.field.bytes![i / 2 - 1] = U32.parseInt(
+            textInput.slice(i, i + 2),
+            16
+          );
+        }
+        return result;
       }
       if (format == "utf8") {
         result.field.bytes = StringBytes.stringToBytes(textInput);

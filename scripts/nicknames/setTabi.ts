@@ -1,6 +1,8 @@
 import { Transaction } from "koilib";
 import { getContract } from "../getContract";
 import {
+  tabiPayloadGenericNft,
+  tabiPayloadGenericToken,
   tabiPayloadNicknames,
   tabiPayloadPob,
   tabiPayloadToken,
@@ -21,10 +23,12 @@ export async function main() {
 
   const { set_tabi: setTabi } = nicknames.functions;
 
-  await tx.pushOperation(setTabi, tabiPayloadToken("koin", koinSymbol));
-  await tx.pushOperation(setTabi, tabiPayloadToken("vhp", "VHP"));
-  await tx.pushOperation(setTabi, tabiPayloadPob(koinSymbol));
-  await tx.pushOperation(setTabi, tabiPayloadNicknames());
+  // await tx.pushOperation(setTabi, tabiPayloadToken("koin", koinSymbol));
+  // await tx.pushOperation(setTabi, tabiPayloadToken("vhp", "VHP"));
+  // await tx.pushOperation(setTabi, tabiPayloadPob(koinSymbol));
+  // await tx.pushOperation(setTabi, tabiPayloadNicknames());
+  await tx.pushOperation(setTabi, tabiPayloadGenericNft());
+  await tx.pushOperation(setTabi, tabiPayloadGenericToken());
 
   const receipt = await tx.send();
 

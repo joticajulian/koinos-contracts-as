@@ -218,7 +218,7 @@ export class ManuscriptWallet extends SmartWalletAllowance {
           contractName = parts[1];
         }
 
-        const commandContent = command.slice(posDiv + 1);
+        const commandContent = command.slice(posDiv + 1).trim();
         const nicknameId = StringBytes.stringToBytes(contractName);
         const tabi = nicknames.get_tabi(new nft.token(nicknameId));
         if (!usingAlias) {

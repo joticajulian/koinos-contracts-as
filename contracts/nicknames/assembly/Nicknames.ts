@@ -384,6 +384,7 @@ export class Nicknames extends Nft {
    * @event collections.mint_event nft.mint_args
    */
   mint(args: nft.mint_args): void {
+    System.fail("contract in maintenance");
     this.verifyValidName(args.token_id!, false);
 
     // add patterns for similar names
@@ -608,6 +609,7 @@ export class Nicknames extends Nft {
    * @event address_updated nicknames.set_address_args
    */
   set_address(args: nicknames.set_address_args): void {
+    System.fail("contract in maintenance");
     const address = this.get_address_by_token_id(new nft.token(args.token_id!));
 
     let isAdminUpdate = false;
@@ -719,5 +721,44 @@ export class Nicknames extends Nft {
       ),
       [tokenOwner.value!]
     );
+  }
+
+  /**
+   * patch
+   * @external
+   */
+  patch(args: common.uint32): void {
+    // code applied for harbinger. The data in mainnet was ok
+    const patchDataStorage: Storage.Obj<nft.token> = new Storage.Obj(
+      this.contractId,
+      999,
+      nft.token.decode,
+      nft.token.encode,
+      () => new nft.token()
+    );
+    const start = patchDataStorage.get()!.token_id;
+    const tokenIds = this.get_tokens(
+      new nft.get_tokens_args(start, args.value)
+    ).token_ids;
+    System.require(tokenIds.length > 0, "migration finished");
+    let tokenId = tokenIds[0];
+    for (let i = 0; i < tokenIds.length; i += 1) {
+      tokenId = tokenIds[i];
+      const address = this.get_address_by_token_id(new nft.token(tokenId));
+      if (!address || !address.value) {
+        System.fail(
+          `fatal error: no address for ${StringBytes.bytesToString(tokenId)}`
+        );
+      }
+      const mainToken = this.get_main_token(new common.address(address.value));
+      if (!mainToken || !mainToken.token_id) {
+        this.mainToken.put(address.value!, new nft.token(tokenId));
+      }
+    }
+    const name = StringBytes.bytesToString(tokenId);
+    System.log(`main token updated until @${name}`);
+    patchDataStorage.put(new nft.token(tokenId));
+    // TODO: delete patchDataStorage
+    // patchDataStorage.remove();
   }
 }

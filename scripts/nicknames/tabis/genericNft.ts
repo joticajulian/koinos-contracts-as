@@ -14,7 +14,8 @@ export function tabiPayloadGenericNft() {
           entry_point: getEntryPoint("approve"),
         },
         {
-          pattern: "%1_selfaddress_approve %2_address to transfer any nft = %3_bool",
+          pattern:
+            "%1_selfaddress_approve %2_address to transfer any nft = %3_bool",
           entry_point: getEntryPoint("set_approval_for_all"),
         },
         {

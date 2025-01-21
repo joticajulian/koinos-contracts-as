@@ -6,6 +6,7 @@ import {
   tabiPayloadNicknames,
   tabiPayloadPob,
   tabiPayloadToken,
+  tabiPayloadFogata,
 } from "./tabis";
 
 const [networkName] = process.argv.slice(2);
@@ -27,8 +28,9 @@ export async function main() {
   // await tx.pushOperation(setTabi, tabiPayloadToken("vhp", "VHP"));
   // await tx.pushOperation(setTabi, tabiPayloadPob(koinSymbol));
   // await tx.pushOperation(setTabi, tabiPayloadNicknames());
-  await tx.pushOperation(setTabi, tabiPayloadGenericNft());
-  await tx.pushOperation(setTabi, tabiPayloadGenericToken());
+  // await tx.pushOperation(setTabi, tabiPayloadGenericNft());
+  // await tx.pushOperation(setTabi, tabiPayloadGenericToken());
+  // await tx.pushOperation(setTabi, tabiPayloadFogata());
 
   const receipt = await tx.send();
 

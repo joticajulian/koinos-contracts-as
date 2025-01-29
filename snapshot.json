@@ -1,44 +1,114 @@
 [
   {
     "contract": "freemanasharer",
-    "version": "2.0.2",
-    "size": 21473,
-    "sizeHuman": "20.97 kB",
-    "sha256": "f71f25ad76ba3a322209f9ed02035732d20e47e39ed9f1103347beaf25d8d026"
+    "version": "2.0.3",
+    "mainnet": {
+      "size": 21602,
+      "sizeHuman": "21.10 kB",
+      "sha256": "868e14d66aa743afa04dccf89e025d820d31b9e3ab03acd828e7e01e0c37c7bb"
+    },
+    "harbinger": {
+      "size": 21602,
+      "sizeHuman": "21.10 kB",
+      "sha256": "868e14d66aa743afa04dccf89e025d820d31b9e3ab03acd828e7e01e0c37c7bb"
+    }
   },
   {
     "contract": "manasharer",
-    "version": "2.0.3",
-    "size": 48724,
-    "sizeHuman": "47.58 kB",
-    "sha256": "7caa51a5873a329721dc2b98e3cda2d38b97ee89f6675e9d9fd0491ca74d55b2"
+    "version": "2.0.4",
+    "mainnet": {
+      "size": 49802,
+      "sizeHuman": "48.63 kB",
+      "sha256": "f4bf85df59f579d1db33244a238c730f70fe632ef7c9b8600f9ed1b33bd7a8f7"
+    },
+    "harbinger": {
+      "size": 49802,
+      "sizeHuman": "48.63 kB",
+      "sha256": "7189cdf8ebd4ffdae5580c89dcae9bbd0b3d4280405267fe95d4e705b432ee43"
+    }
+  },
+  {
+    "contract": "manuscriptwallet",
+    "version": "1.0.0",
+    "mainnet": {
+      "size": 95343,
+      "sizeHuman": "93.11 kB",
+      "sha256": "a73a5742b546ebc52963e25204247ead93a5116b2eeefd9f31f8f28de116fbca"
+    },
+    "harbinger": {
+      "size": 95381,
+      "sizeHuman": "93.15 kB",
+      "sha256": "f7d727b919b432e1d84d119216f67d5cf653eaf9ed13798005cce2ea4a14704e"
+    }
   },
   {
     "contract": "nft",
-    "version": "2.1.0",
-    "size": 68158,
-    "sizeHuman": "66.56 kB",
-    "sha256": "b402fc316dcd779a88d8b00bd143288c141462a2e76a46505fa1708c94fefdf3"
+    "version": "2.1.1",
+    "mainnet": {
+      "size": 68989,
+      "sizeHuman": "67.37 kB",
+      "sha256": "5a0db5275efefb1b994c7a44880599593a455b3cbebe18b116d2b283d44560c6"
+    },
+    "harbinger": {
+      "size": 68989,
+      "sizeHuman": "67.37 kB",
+      "sha256": "1344751ab8957076b0381689e3f4c06efcccdb15e994834db5ba17de37ca30b8"
+    }
   },
   {
     "contract": "nicknames",
-    "version": "3.2.0",
-    "size": 100978,
-    "sizeHuman": "98.61 kB",
-    "sha256": "98a3ce5e488421d578513d464ef8c8a67c710fa0f55d6d08be7b290eda647559"
+    "version": "3.3.0",
+    "mainnet": {
+      "size": 106150,
+      "sizeHuman": "103.66 kB",
+      "sha256": "2333dee00bf3975200cfe0b32ed80391f3159acd342671607206df0f51036b39"
+    },
+    "harbinger": {
+      "size": 106150,
+      "sizeHuman": "103.66 kB",
+      "sha256": "a6d9637ad3ccd36b7303d9ecc0a91cae1c10779a5b147dd38df9d6612b319501"
+    }
+  },
+  {
+    "contract": "smartwalletallowance",
+    "version": "1.0.0",
+    "mainnet": {
+      "size": 65066,
+      "sizeHuman": "63.54 kB",
+      "sha256": "ff6e6e153ff2ef1126ba379936f538dc077623feed8a46ff1544f28ec592eb16"
+    },
+    "harbinger": {
+      "size": 65066,
+      "sizeHuman": "63.54 kB",
+      "sha256": "f92b2729a886cf9436b517127e8cb00f5d291e6fd0f1d11d5895c325fac7302a"
+    }
   },
   {
     "contract": "textparserlib",
-    "version": "1.0.2",
-    "size": 19189,
-    "sizeHuman": "18.74 kB",
-    "sha256": "b06751a9a2695e6e37034f01402e608f3f87ac393405b6110d42e669096a69da"
+    "version": "1.1.0",
+    "mainnet": {
+      "size": 54821,
+      "sizeHuman": "53.54 kB",
+      "sha256": "8e57b1b2249e59243ff321877414c3b9502a343aa6d5a8269e490cca8bbc13bc"
+    },
+    "harbinger": {
+      "size": 54821,
+      "sizeHuman": "53.54 kB",
+      "sha256": "af1d29cde9a23403f6904a747e0b48aeb858aadd973dec1498ebbe212dc01cc9"
+    }
   },
   {
     "contract": "token",
-    "version": "1.1.0",
-    "size": 58649,
-    "sizeHuman": "57.27 kB",
-    "sha256": "a18815f07598c0c0359125e22f20fe08abe8bb70cfb547f4137f4b0844a7bfa9"
+    "version": "1.1.1",
+    "mainnet": {
+      "size": 59652,
+      "sizeHuman": "58.25 kB",
+      "sha256": "9d4881d21fc7331d1d549f567cac3f6f4a0a7aa69ec3e149a34896bf1bba00ff"
+    },
+    "harbinger": {
+      "size": 59652,
+      "sizeHuman": "58.25 kB",
+      "sha256": "8b934e53aab88096e2c98383339b30d51b39d14d83528160dab8edc7d2b01c7a"
+    }
   }
 ]

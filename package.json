@@ -1,6 +1,6 @@
 {
   "name": "@koinosbox/contracts",
-  "version": "2.1.5",
+  "version": "3.0.0",
   "license": "MIT",
   "main": "assembly/index.ts",
   "files": [

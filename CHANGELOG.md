@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. 🤘
 
+## [v3.0.0](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v3.0.0) (2025-01-30)
+
+### 🚀 Features
+
+System2:
+- checkMessageSignedByEthAddress and hexString functions
+- useful contract addresses
+
+Nicknames v3.3.0:
+- fix impacted extended_metadata_updated
+- split extended metadata and separate addresses in a different space, defining rules for permanent addresses and updates by governance
+- handle linked addresses during mint and burn
+- replace community names with zero address
+- avoid get signatures during gov proposal
+- update tabi definition
+
+EthAddress:
+- NFT contract to map eth addresses to koinos addresses
+
+SmartWalletAllowance v1.0.0:
+- Smart wallet where the authorize function works with allowances
+
+TextParserLib v1.0.0:
+- Library to parse natural language into objects
+
+Manuscript v1.0.0:
+- Smart wallet that works with natural language and allowances
+
 ## [v2.1.5](https://github.com/joticajulian/koinos-contracts-as/releases/tag/v2.1.5) (2024-05-30)
 
 ### 🚀 Features

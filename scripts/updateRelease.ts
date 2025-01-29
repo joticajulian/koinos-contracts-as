@@ -33,9 +33,10 @@ const insertedContractFiles: string[] = [];
 contracts.forEach((contract) => {
   if (!contract.isDirectory()) return;
   if (!CONTRACTS_TO_EXPORT.includes(contract.name)) return;
+
   const src = path.join(__dirname, "../contracts", contract.name, "./build");
   const dest = path.join(__dirname, "../assembly", contract.name);
-  if (fs.existsSync(dest)) fs.rmSync(dest, { recursive: true /*force: true*/ });
+  if (fs.existsSync(dest)) fs.rmSync(dest, { recursive: true });
   fse.copySync(src, dest, {
     filter: (s: string) => {
       const base = path.parse(s).base.toLowerCase();

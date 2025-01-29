@@ -5134,10 +5134,10 @@ koilib@^5.6.1:
     multibase "^4.0.6"
     protobufjs "^7.2.4"
 
-koilib@^8.0.0:
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/koilib/-/koilib-8.0.0.tgz#1bd4d20bc44a314d4c9cbddad525b662cd78f6c0"
-  integrity sha512-hw2rLDbOlWEt7dhXbo/3MRPvZr4yQbPfe5STxBLLrIp99l5f+JMBRd/9jZD5sKU+1G2wQ5ZSKuKgTzSJ5g1VOQ==
+koilib@^9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/koilib/-/koilib-9.1.0.tgz#5cf71df4f4293c9654c2e267110067ae52fa74e8"
+  integrity sha512-70H511Y63UXA0gleSNRfPnwn0Aba3hWJ3j6DzMM5GKfDMvsR4bfv6VzQE6MWDQPWVfJm37ueFh04YxBBTnrGYg==
   dependencies:
     "@noble/hashes" "^1.3.1"
     "@noble/secp256k1" "^1.7.1"

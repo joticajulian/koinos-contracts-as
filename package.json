@@ -31,7 +31,7 @@
     "ethers": "^5.6.2",
     "fs-extra": "^11.1.1",
     "jest": "^29.4.1",
-    "koilib": "^8.0.0",
+    "koilib": "^9.1.0",
     "koinos-precompiler-as": "^1.7.2",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.4.0",

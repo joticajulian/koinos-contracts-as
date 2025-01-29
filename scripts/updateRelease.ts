@@ -7,12 +7,12 @@ import { getDeployableContracts } from "./compiler";
 const CONTRACTS_TO_EXPORT = [
   "freemanasharer",
   "manasharer",
+  "manuscriptwallet",
   "nft",
   "nicknames",
   "smartwalletallowance",
   "textparserlib",
   "token",
-  "manuscriptwallet",
 ];
 
 if (!fs.existsSync("./assembly")) {

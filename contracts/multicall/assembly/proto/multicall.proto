@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package multicall;
+
+import "koinos/options.proto";
+
+message call_arguments {
+   bytes contract_id = 1 [(koinos.btype) = CONTRACT_ID];
+   uint32 entry_point = 2;
+   bytes args = 3;
+}
+
+message result {
+   oneof value {
+      bytes object = 1;
+      error_data error = 2;
+   }
+}
+
+message error_data {
+   string message = 1;
+}
+
+message get_args {
+    repeated call_arguments calls = 1;
+}
+
+message call_return {
+    int32 code = 1;
+    result res = 2;
+}
+
+message get_return {
+    repeated call_return results = 1;
+}

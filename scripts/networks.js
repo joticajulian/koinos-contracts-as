@@ -51,6 +51,7 @@ module.exports = {
       textparserlib: keysHarbinger(process.env.HARBINGER_TEXTPARSERLIB),
       ethaddress: keysHarbinger(process.env.HARBINGER_ETHADDRESS),
       manuscriptwallet: keysHarbinger(process.env.HARBINGER_MANUSCRIPTWALLET),
+      multicall: keysHarbinger(process.env.HARBINGER_MULTICALL),
     },
   },
   mainnet: {
@@ -80,6 +81,7 @@ module.exports = {
       textparserlib: keysMainnet(process.env.MAINNET_TEXTPARSERLIB),
       ethaddress: keysMainnet(process.env.MAINNET_ETHADDRESS),
       manuscriptwallet: keysMainnet(process.env.MAINNET_MANUSCRIPTWALLET),
+      multicall: keysMainnet(process.env.MAINNET_MULTICALL),
     },
   },
 };

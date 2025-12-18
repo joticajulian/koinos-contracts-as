@@ -20,7 +20,11 @@ export class Multicall {
     const results = new Array<multicall.call_return>(calls.length);
     for (let i = 0; i < calls.length; i += 1) {
       const call = calls[i];
-      const result = System.call(call.contract_id!, call.entry_point, call.args!);
+      const result = System.call(
+        call.contract_id!,
+        call.entry_point,
+        call.args ? call.args! : new Uint8Array(0)
+      );
       results[i] = new multicall.call_return(
         result.code,
         new multicall.result(
